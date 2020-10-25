@@ -1,0 +1,7 @@
+[nlohmann_json]
+version = "3.9.1"
+description = "JSON for Morden C++"
+module = "nlohmann_json::nlohmann_json"
+# write download value git or url
+url="https://github.com/nlohmann/json/archive/v3.9.1.tar.gz"
+flags="-DJSON_BuildTests=OFF"

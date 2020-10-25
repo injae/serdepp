@@ -1,0 +1,8 @@
+[tomlpp]
+version="git" #(require)
+type="lib" #lib(default) | bin | cmake
+description="cpptoml fork and add orm version" #(require)
+module="tomlpp::tomlpp" #(require) if none_module=true -> no require
+git="https://github.com/injae/tomlpp.git" #(require)
+#branch="" #(optional & require git)
+#link="public" #default

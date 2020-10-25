@@ -1,0 +1,19 @@
+[package]
+   name = "serdepp"
+   version = "0.0.1"
+   description = "c++ universal serialize deserialize library like rust serde"
+
+[lib]
+   name = "serdepp"
+   type = "header-only"
+
+#[[test]]
+#    name = "test"
+#    source = ["test/test.cpp"] 
+
+[dependencies]
+    fmt = "7.0.3"
+
+[dev-dependencies]
+    nlohmann_json="3.9.1"
+    tomlpp="git"
