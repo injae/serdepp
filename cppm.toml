@@ -7,9 +7,13 @@
    name = "serdepp"
    type = "header-only"
 
-#[[test]]
-#    name = "test"
-#    source = ["test/test.cpp"] 
+[[example]]
+    name = "nlohmann_json_example"
+    source = ["examples/nlohmann_json_example.cpp"]
+
+[[example]]
+    name = "tomlpp_example"
+    source = ["examples/tomlpp_example.cpp"]
 
 [dependencies]
     fmt = "7.0.3"

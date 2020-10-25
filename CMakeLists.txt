@@ -19,6 +19,21 @@ endif()
 
 cppm_target_define(serdepp INTERFACE)
 
+cppm_examples_area()
+if(SERDEPP_BUILD_EXAMPLES)
+
+cppm_target_define(nlohmann_json_example BINARY
+SOURCES
+    examples/nlohmann_json_example.cpp
+)
+
+cppm_target_define(tomlpp_example BINARY
+SOURCES
+    examples/tomlpp_example.cpp
+)
+
+endif()
+
 
 set(global_deps PUBLIC fmt)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -26,6 +41,14 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 cppm_target_dependencies(serdepp
    ${global_deps})
+
+cppm_target_dependencies(nlohmann_json_example
+   ${global_deps}
+   serdepp)
+
+cppm_target_dependencies(tomlpp_example
+   ${global_deps}
+   serdepp)
 
 
 cppm_target_install(serdepp)
