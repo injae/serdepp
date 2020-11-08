@@ -1,8 +1,8 @@
 
 #include "serdepp/serializer.hpp"
 #include <type_traits>
-#include "serdepp/format/nlohmann_json.hpp"
-#include "serdepp/format/tomlpp.hpp"
+#include "serdepp/adaptor/nlohmann_json.hpp"
+#include "serdepp/adaptor/tomlpp.hpp"
 #include <map>
 
 struct bbb {

@@ -1,44 +1,16 @@
-#include "serdepp/serializer.hpp"
-#include <type_traits>
-#include "serdepp/format/nlohmann_json.hpp"
-#include <map>
-
-struct bbb {
-    friend serde::serializer<bbb>;
-    template<typename S> auto serde(S& s) {
-        s.tag(str, "str")
-         .tag(x, "x", 0)
-         .tag(m, "m")
-         .tag(v, "v");
-    }
-public:
-    std::string str;
-    std::optional<int> x;
-    std::vector<std::string> v;
-    std::map<std::string, std::string> m;
-};
-
-struct ttt {
-    friend serde::serializer<ttt>;
-    template<typename S> auto serde(S& s) {
-        s.tag(bbb, "bbb");
-    }
-public:
-    std::string str;
-    bbb bbb;
-    std::vector<std::string> v;
-};
+#include "define.h"
+#include "serdepp/adaptor/nlohmann_json.hpp"
 
 int main(int argc, char* argv[]) {
-    auto s = std::string{"hello"};
-    nlohmann::json cosn = R"({"bbb":{"str":"ssss","v": ["h","e","l", "l", "o"],"m":{"a":"b","c":"d"} }})"_json; 
-
-    auto xx = serde::serialize<ttt>(cosn);
-    fmt::print("{}\n",xx.bbb.v);
+    nlohmann::json cosn = R"({"ttt":{"bbb":{"str":"ssss","v": ["h","e","l", "l", "o"],"m":{"a":"b","c":"d"}}}})"_json; 
+    fmt::print("{}\n",cosn.dump());
+    auto xx = serde::serialize<ttt>(cosn,"ttt");
+    fmt::print("{}\n",xx);
 
     auto yy = serde::deserialize<nlohmann::json>(xx, "ttt");
     fmt::print("{}\n",yy.dump());
-
+    auto zzz = serde::serialize<ttt>(yy, "ttt");
+    fmt::print("{}\n",zzz);
 
     return 0;
 }

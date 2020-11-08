@@ -7,11 +7,11 @@
    name = "serdepp"
    type = "header-only"
 
-[[example]]
+[[bin]]
     name = "nlohmann_json_example"
     source = ["examples/nlohmann_json_example.cpp"]
 
-[[example]]
+[[bin]]
     name = "tomlpp_example"
     source = ["examples/tomlpp_example.cpp"]
 
@@ -21,3 +21,4 @@
 [dev-dependencies]
     nlohmann_json="3.9.1"
     tomlpp="git"
+    yaml-cpp="0.6.3"
