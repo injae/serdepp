@@ -15,6 +15,14 @@
     name = "tomlpp_example"
     source = ["examples/tomlpp_example.cpp"]
 
+[[bin]]
+    name = "toml11_example"
+    source = ["examples/toml11_example.cpp"]
+
+#[[bin]]
+#    name = "yaml-cpp_example"
+#    source = ["examples/yaml-cpp_example.cpp"]
+
 [dependencies]
     fmt = "7.0.3"
 
@@ -22,3 +30,4 @@
     nlohmann_json="3.9.1"
     tomlpp="git"
     yaml-cpp="0.6.3"
+    toml11="3.6.0"

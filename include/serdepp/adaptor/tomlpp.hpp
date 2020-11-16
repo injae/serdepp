@@ -18,82 +18,55 @@ namespace serde {
         static int size(toml_ptr& s) { return std::distance(s->begin(), s->end()); }
     };
 
-    template<> struct serde_adaptor<toml_ptr,toml_ptr> : base_adaptor<toml_ptr> {
-        static auto from(toml_ptr& s, const std::string& key) { return s->get_table(key); }
+    template<> struct serde_adaptor<toml_ptr,toml_ptr> {
+        static void from(toml_ptr& s, const std::string& key, toml_ptr& data) { data = s->get_table(key); }
         static void   to(toml_ptr& s, const std::string &key, toml_ptr& data) { s->insert(key, data); } 
     };
 
-    template<typename T> struct serde_adaptor<toml_ptr,T> : base_adaptor<toml_ptr> {
-        static auto from(toml_ptr& s, const std::string& key) { return s->template get_as<T>(key).value(); }
+    template<typename T> struct serde_adaptor<toml_ptr,T>  {
+        static void from(toml_ptr& s, const std::string& key, T& data) { data = s->template get_as<T>(key).value(); }
         static void   to(toml_ptr& s, const std::string& key, T& data) { s->insert(key, data); }
     };
 
     // nested table 
-    template <typename K, typename T>
-    struct serde_adaptor<toml_ptr, std::unordered_map<K, T>> : base_adaptor<toml_ptr> {
-        using Map = std::unordered_map<K, T>;
-        static auto from(toml_ptr& s, const std::string& key) {
-            Map map;
+    template<typename Map>
+    struct serde_adaptor<toml_ptr, Map, type::map> {
+        using E = meta::is_map_e<Map>;
+        static void from(toml_ptr& s, const std::string& key, Map& map) {
             for(auto& [key_, data_] : *(s->get_table(key))) {
-                if(data_->is_table()) {
+                if constexpr(is_struct<E>()) {
                     auto t_data = data_->as_table();
-                    map[key_] = serialize<T>(t_data, key_);
+                    map[key_] = serialize<E>(t_data);
                 }else {
-                    map[key_] = toml::get_impl<T>(data_).value();
+                    map[key_] = toml::get_impl<E>(data_).value();
                 }
             }
-            return map;
         }
         static void   to(toml_ptr& s, const std::string &key, Map& data) {
+            auto map = serde_adaptor_helper<toml_ptr>::init();
             for(auto& [key_, data_] : data) {
-                auto t = deserialize<toml_ptr>(data_,key_);
-                s->insert(key, t);
+                map->insert(key_, deserialize<toml_ptr>(data_));
             }
-        } 
-    };
-
-    template <typename K, typename T> struct serde_adaptor<toml_ptr, std::map<K, T>> : base_adaptor<toml_ptr>{
-        using Map = std::map<K, T>;
-        static auto from(toml_ptr& s, const std::string& key) {
-            Map map;
-            for(auto& [key_, data_] : *(s->get_table(key))) {
-                if(data_->is_table()) {
-                    auto t_data = data_->as_table();
-                    map[key_] = serialize<T>(t_data, key_);
-                }else {
-                    map[key_] = toml::get_impl<T>(data_).value();
-                }
-            }
-            return map;
-        }
-        static void   to(toml_ptr& s, const std::string &key, Map& data) {
-            for(auto& [key_, data_] : data) {
-                auto t = deserialize<toml_ptr>(data_,key_);
-                s->insert(key, t);
-            }
+            s->insert(key, map);
         } 
     };
 
     // array
-    template <typename T> struct serde_adaptor<toml_ptr, std::vector<T>> : base_adaptor<toml_ptr> {
-        using Array = std::vector<T>;
-        static auto from(toml_ptr& s, const std::string& key) {
-            Array arr;
+    template <class T> struct serde_adaptor<toml_ptr, T, type::seq> {
+        using E = meta::is_sequence_e<T>;
+        static void from(toml_ptr& s, const std::string& key, T& arr) {
             if constexpr (is_struct<T>()) {
                 auto tables = s->get_table_array(key);
                 for(auto& it : *tables) {
-                    auto data = serialize<T>(it);
+                    auto data = serialize<E>(it);
                     arr.emplace_back(data);
                 }
-            } else { return s->get_array_of<T>(key).value(); }
+            } else { arr = s->get_array_of<E>(key).value(); }
         }
-        static void   to(toml_ptr& s, const std::string& key, Array& data) {
-            if constexpr (is_struct<T>()) {
+        static void   to(toml_ptr& s, const std::string& key, T& data) {
+            if constexpr (is_struct<E>()) {
                 auto arr = toml::make_table_array();
-                for(auto& it : data) {
-                    auto t = deserialize<toml_ptr>(it);
-                    arr->push_back(t);
-                }
+                for(auto& it : data) { arr->push_back(deserialize<toml_ptr>(it)); }
                 s->insert(key, arr);
             }else {
                 auto arr = toml::make_array();

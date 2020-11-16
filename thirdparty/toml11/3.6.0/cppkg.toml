@@ -1,0 +1,8 @@
+[toml11]
+version="3.6.0" #(require)
+type="lib" #lib(default) | bin | cmake
+description="" #(require)
+module="toml11::toml11" #(require) if none_module=true -> no require
+url="https://github.com/ToruNiina/toml11/archive/v3.6.0.zip" #(require)
+#branch="" #(optional & require git)
+#link="public" #default

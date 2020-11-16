@@ -1,5 +1,5 @@
-#include "serdepp/adaptor/tomlpp.hpp"
 #include "define.h"
+#include "serdepp/adaptor/toml11.hpp"
 
 int main(int argc, char* argv[]) {
     std::string data = R"(
@@ -13,14 +13,13 @@ int main(int argc, char* argv[]) {
         m = {a="b", c="d"}
 )"; 
     std::istringstream stream(data);
-    auto t = toml::parser(stream).parse();
-
+    auto t = toml::parse(stream);
     auto xx = serde::serialize<ttt>(t, "ttt");
     fmt::print("{}\n",xx);
 
-    auto yy = serde::deserialize<toml_ptr>(xx, "ttt");
-    std::cout << (*yy) << std::endl;
-
+    auto yy = serde::deserialize<toml::value>(xx, "ttt");
+    std::cout << yy << std::endl;
 
     return 0;
 }
+
