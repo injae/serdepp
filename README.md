@@ -11,6 +11,46 @@
 - toml11 (optional)
 
 # Examples
+
+## Simple Example
+
+```cpp
+#include <serdepp/serializer.hpp>
+#include <serdepp/adaptor/fmt.hpp>
+#include <serdepp/utility.hpp>
+#include "serdepp/adaptor/nlohmann_json.hpp"
+class bbb {
+    derive_serde(bbb, ctx.tag(str, "str")
+                         .tag(x, "x", 10) // with default value ( need  to std::optional type)
+                         .tag(m, "m")     // if not this key panic
+                         .tag(om, "om")
+                         .tag(v, "v")
+                         .no_remain(); // remain data check
+                  )
+public:
+    std::string str; 
+    std::optional<int> x ; //optional argument
+    std::vector<std::string> v;
+    std::unordered_map<std::string, std::string> m;
+    std::optional<std::unordered_map<std::string, std::string>> om;
+private:
+    std::string z;
+};
+
+int main(int argc, char* argv[]) {
+    nlohmann::json jctx = R"({"str":"ssss","v": ["h","e","l", "l", "o"],"m":{"a":"b","c":"d"}})"_json; 
+
+    bbb json_to_bbb = serde::serialize<bbb>(jctx);
+    fmt::print("{}\n",json_to_bbb); //with fmt
+
+    nlohmann::json bbb_to_json = serde::deserialize<nlohmann::json>(json_to_bbb);
+    fmt::print("{}\n",bbb_to_json.dump()); //with json
+    return 0;
+}
+
+```
+
+## Define serializer
 ```cpp
 // define.h define struct and serialer, deserialer
 #include <serdepp/serializer.hpp>
