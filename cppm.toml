@@ -19,6 +19,10 @@
     name = "toml11_example"
     source = ["examples/toml11_example.cpp"]
 
+[[bin]]
+    name = "convert_example"
+    source = ["examples/convert_example.cpp"]
+
 #[[bin]]
 #    name = "yaml-cpp_example"
 #    source = ["examples/yaml-cpp_example.cpp"]

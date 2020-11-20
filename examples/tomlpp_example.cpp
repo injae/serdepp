@@ -15,10 +15,10 @@ int main(int argc, char* argv[]) {
     std::istringstream stream(data);
     auto t = toml::parser(stream).parse();
 
-    auto xx = serde::serialize<ttt>(t, "ttt");
+    auto xx = serde::serialize_element<ttt>(t, "ttt");
     fmt::print("{}\n",xx);
 
-    auto yy = serde::deserialize<toml_ptr>(xx, "ttt");
+    auto yy = serde::deserialize_with_name<toml_ptr>(xx, "ttt");
     std::cout << (*yy) << std::endl;
 
 

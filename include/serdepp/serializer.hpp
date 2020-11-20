@@ -19,9 +19,7 @@ namespace serde
     struct serde_exception : std::exception {
         serde_exception(const std::string& msg) : message(msg) {};
         std::string message;
-        const char* what() const throw() {
-            return message.c_str();
-        }
+        const char* what() const throw() { return message.c_str(); }
     };
 
     namespace meta {
@@ -59,7 +57,7 @@ namespace serde
         struct is_list<std::list<T>> {
             using type = std::list<T>;
             using element = T;
-            constexpr  static bool value = true;
+            constexpr static bool value = true;
         };
 
         template< typename T> inline constexpr bool is_list_v = is_list<T>::value;
@@ -88,8 +86,30 @@ namespace serde
         template<typename T> using is_map_t = typename is_map<T>::type;
         template<typename T> using is_map_k = typename is_map<T>::key;
         template<typename T> using is_map_e = typename is_map<T>::element;
-    };
 
+        template<class T>
+        struct is_literal {
+            using type = T;
+            using traits = T;
+            constexpr static bool value = false;
+        };
+
+        template<class T, class Traits, class Alloc>
+        struct is_literal<std::basic_string<T, Traits, Alloc>> {
+            using type = T;
+            using traits = Traits;
+            using alloc = Alloc;
+            constexpr static bool value = true;
+        };
+        
+        template<class T, class Traits>
+        struct is_literal<std::basic_string_view<T, Traits>> {
+            using type = T;
+            using traits = Traits;
+            constexpr static bool value = true;
+        };
+
+    };
 
     template<typename S>
     struct serde_adaptor_helper {
@@ -111,29 +131,24 @@ namespace serde
         static bool is(S &s, const std::string& key) { return serde_adaptor_helper<S>::contains(s, key); }
     };
 
+    namespace type {
+        struct map{};
+        struct seq{};
+        struct struct_t{};
+    };
+
     //struct serailizer
     template<typename T, typename = void> struct serializer {
         template<bool is_serialize, typename serde_ctx> 
         static auto serde(serde_ctx& ctx, const std::string& key, T& data) {
             using format = typename serde_ctx::format;
-            using adaptor = serde_adaptor<format, format>;
+            using adaptor = serde_adaptor<format, T, type::struct_t>;
             size_t prev_count = ctx.count_;
             ctx.count_= 0;
             if(key == "") { data.serde(ctx); }
             else {
-                if constexpr (is_serialize) {
-                    auto store = ctx.con_;
-                    adaptor::from(ctx.con_, key, ctx.con_);
-                    data.serde(ctx);
-                    ctx.con_ = store;
-                }
-                else {
-                    auto origin_ctx = ctx.con_;
-                    ctx.con_= serde_adaptor_helper<format>::init();
-                    data.serde(ctx);
-                    auto nested_ctx = ctx.con_;
-                    adaptor::to(ctx.con_= origin_ctx, key, nested_ctx);
-                }
+                if constexpr (is_serialize) { adaptor::from(ctx.con_, key, data); }
+                else                        { adaptor::to(ctx.con_, key, data); }
             }
             ctx.count_ = prev_count;
         }
@@ -146,19 +161,24 @@ namespace serde
     template<typename T> inline constexpr bool is_map()    { return serializer<T>::type == "map"sv; }
     template<typename T> inline constexpr bool is_array()  { return serializer<T>::type == "array"sv; }
 
-    namespace type {
-        struct map{};
-        struct seq{};
-    };
-
     template<class Format, bool is_serialize=true>
     class Context {
     public:
         using format = Format;
         Format& con_;
         size_t count_;
+        std::string_view name_;
     public:
-        Context(Format& con) :con_(con) {}
+        Context(Format& con, const std::string& name="") :con_(con), name_(name) {}
+
+        // this function only work in serialize step
+        //                                   key     struct
+        // you can use this function, map<std::string, T>, T.${target} = key;
+        Context& name(std::string& target) {
+            if constexpr (is_serialize) { target = name_; }
+            return *this;
+        }
+
         template <typename T, typename U>
         Context& tag(std::optional<T>& target, const std::string& name, U&& default_v) {
             using sde = serde_adaptor_helper<Format>;
@@ -215,28 +235,44 @@ namespace serde
             }
         }
     };
-
     template <typename T, typename Adaptor>
-    T serialize(Adaptor& con, const std::string& key = "") {
+    T serialize_element(Adaptor& con, const std::string& key) {
         T target;
-        Context<Adaptor, true> p(con);
+        Context<Adaptor, true> p(con, key);
         serializer<T>::template serde<true>(p, key, target);
         return target;
     }
 
     template <typename T, typename Adaptor>
-    T serialize_to(Adaptor& con, T& target, const std::string& key = "") {
-        Context<Adaptor, true> p(con);
-        serializer<T>::template serde<true>(p, key, target);
+    T serialize(Adaptor& con, const std::string& name = "") {
+        T target;
+        Context<Adaptor, true> p(con, name);
+        serializer<T>::template serde<true>(p, "", target);
+        return target;
+    }
+
+    template <typename T, typename Adaptor>
+    T serialize_to(Adaptor& con, T& target, const std::string& name = "") {
+        Context<Adaptor, true> p(con, name);
+        serializer<T>::template serde<true>(p, "", target);
         return target;
     }
 
     template<typename Adaptor, typename T>
-    Adaptor deserialize(T& target, const std::string& key="") {
+    Adaptor deserialize(T& target, const std::string& name="") {
         auto origin = meta::remove_const<T>(target);
         Adaptor con = serde_adaptor_helper<Adaptor>::init();
-        Context<Adaptor, false> p(con);
-        serializer<decltype(origin)>::template serde<false>(p, key, origin);
+        Context<Adaptor, false> p(con, name);
+        serializer<decltype(origin)>::template serde<false>(p, "", origin);
+        return con;
+    }
+
+    template<typename Adaptor, typename T>
+    Adaptor deserialize_with_name(T& target, const std::string& name) {
+        auto origin = meta::remove_const<T>(target);
+        Adaptor con = serde_adaptor_helper<Adaptor>::init();
+        Context<Adaptor, false> p(con, name);
+        serializer<decltype(origin)>::template serde<false>(p, name, origin);
         return con;
     }
 
@@ -271,7 +307,7 @@ namespace serde
         static auto serde(serde_ctx& ctx, const std::string& key, Type& data) {\
             using adaptor = serde_adaptor<typename serde_ctx::format, Type, type::seq>; \
             if constexpr (is_serialize) { adaptor::from(ctx.con_, key, data);} \
-            else                        { adaptor::to(ctx.con_, key, data); } \
+            else                        { adaptor::to(ctx.con_, key, data);  } \
         }; \
         constexpr static std::string_view type = "sequence"; \
     }; \
@@ -282,11 +318,8 @@ namespace serde
         template<bool is_serialize, typename serde_ctx> \
         static auto serde(serde_ctx& ctx, const std::string& key, Type& data) {\
         using adaptor = serde_adaptor<typename serde_ctx::format, Type, type::map>; \
-            if constexpr (is_serialize) { \
-                adaptor::from(ctx.con_, key, data);  \
-            } else { \
-                adaptor::to(ctx.con_, key, data);\
-            } \
+            if constexpr (is_serialize) { adaptor::from(ctx.con_, key, data); } \
+            else                        { adaptor::to(ctx.con_, key, data);   } \
         }; \
         constexpr static std::string_view type = "map"; \
     }; \

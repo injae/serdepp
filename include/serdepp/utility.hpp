@@ -11,7 +11,7 @@
             __VA_ARGS__ \
         } \
         friend std::ostream& operator<<(std::ostream& os, const TYPE& type) { \
-        return os << serde::deserialize<serde::literal>(type, #TYPE).to_string(); \
+        return os << serde::deserialize_with_name<serde::literal>(type, #TYPE).to_string(); \
         }                                           
 #else
     #define derive_serde(TYPE, ...) friend serde::serializer<TYPE>; \
@@ -19,5 +19,4 @@
             __VA_ARGS__ \
         } 
 #endif
-
 #endif

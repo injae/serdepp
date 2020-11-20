@@ -9,14 +9,9 @@ struct in {
 
 
 struct bbb {
-    friend serde::serializer<bbb>;
-    derive_serde(bbb,
-              ctx.tag(str, "str")
-                 .tag(x, "x", 10)
-                 .tag(m, "m")
-                 .tag(om, "om")
-                 .tag(v, "v")
-                 .no_remain();)
+    derive_serde(bbb, ctx.tag(str, "str").tag(x, "x", 10).tag(m, "m").tag(om, "om").tag(v, "v").no_remain();)
+    // same example
+    //friend serde::serializer<bbb>;
     //template<typename S> auto serde(S& s) {
     //    s.tag(str, "str")
     //     .tag(x, "x", 10)
@@ -58,6 +53,6 @@ public:
     std::optional<std::string> str;
     bbb bbb;
     std::vector<std::string> v;
-    std::unordered_map<std::string,in> inmap;
+    std::optional<std::unordered_map<std::string,in>> inmap;
 private:
 };

@@ -18,9 +18,13 @@ namespace serde {
         static int size(toml_ptr& s) { return std::distance(s->begin(), s->end()); }
     };
 
-    template<> struct serde_adaptor<toml_ptr,toml_ptr> {
-        static void from(toml_ptr& s, const std::string& key, toml_ptr& data) { data = s->get_table(key); }
-        static void   to(toml_ptr& s, const std::string &key, toml_ptr& data) { s->insert(key, data); } 
+    template<typename T> struct serde_adaptor<toml_ptr, T, type::struct_t> {
+        static void from(toml_ptr& s, const std::string& key, T& data){
+            auto table = s->get_table(key);  serialize_to<T>(table, data, key);
+        }
+        static void to(toml_ptr& s, const std::string &key, T& data) {
+            s->insert(key, deserialize<toml_ptr>(data, key));
+        } 
     };
 
     template<typename T> struct serde_adaptor<toml_ptr,T>  {
@@ -36,7 +40,7 @@ namespace serde {
             for(auto& [key_, data_] : *(s->get_table(key))) {
                 if constexpr(is_struct<E>()) {
                     auto t_data = data_->as_table();
-                    map[key_] = serialize<E>(t_data);
+                    map[key_] = serialize<E>(t_data, key_);
                 }else {
                     map[key_] = toml::get_impl<E>(data_).value();
                 }
@@ -45,7 +49,7 @@ namespace serde {
         static void   to(toml_ptr& s, const std::string &key, Map& data) {
             auto map = serde_adaptor_helper<toml_ptr>::init();
             for(auto& [key_, data_] : data) {
-                map->insert(key_, deserialize<toml_ptr>(data_));
+                map->insert(key_, deserialize<toml_ptr>(data_, key_));
             }
             s->insert(key, map);
         } 

@@ -8,9 +8,9 @@
 
 namespace serde {
     using nlohmann::json;
-    template<> struct serde_adaptor<json,json> {
-        static auto from(json& s, const std::string& key, json& data) { data = s[key]; }
-        static void   to(json &s, const std::string &key, json& data) { s[key] = data; } 
+    template<typename T> struct serde_adaptor<json, T, type::struct_t> {
+        static auto from(json& s, const std::string& key, T& data) { serialize_to<T>(s[key], data, key);}
+        static void   to(json &s, const std::string& key, T& data) { s[key] = deserialize<json>(data, key); } 
     };
 
     template<typename T> struct serde_adaptor<json, T>  {
@@ -40,14 +40,14 @@ namespace serde {
         using T = meta::is_map_e<Map>;
         static void from(json& s, const std::string &key, Map& map) {
             for(auto&[key_, value_] : s[key].items()) {
-                if constexpr(is_struct<T>()) { map[key] = serialize<T>(value_); }
+                if constexpr(is_struct<T>()) { map[key] = serialize<T>(value_, key_); }
                 else                         { map[key] = value_.get<T>(); }
             }
         }
         static void to(json &s, const std::string& key, Map& data) {
             json map;
             for(auto& [key_, value] : data) {
-                if constexpr(is_struct<T>()) { map[key_] = deserialize<json>(value); }
+                if constexpr(is_struct<T>()) { map[key_] = deserialize<json>(value, key_); }
                 else                         { map[key_] = value; }
             }
             s[key] = map;

@@ -36,6 +36,11 @@ SOURCES
     examples/toml11_example.cpp
 )
 
+cppm_target_define(convert_example BINARY
+SOURCES
+    examples/convert_example.cpp
+)
+
 
 set(global_deps PUBLIC fmt)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -56,9 +61,14 @@ cppm_target_dependencies(toml11_example
    ${global_deps}
    serdepp)
 
+cppm_target_dependencies(convert_example
+   ${global_deps}
+   serdepp)
+
 
 cppm_target_install(serdepp)
 cppm_target_install(nlohmann_json_example)
 cppm_target_install(tomlpp_example)
 cppm_target_install(toml11_example)
+cppm_target_install(convert_example)
 

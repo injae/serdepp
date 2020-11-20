@@ -14,10 +14,11 @@ int main(int argc, char* argv[]) {
 )"; 
     std::istringstream stream(data);
     auto t = toml::parse(stream);
-    auto xx = serde::serialize<ttt>(t, "ttt");
+    fmt::print("{}\n",t);
+    auto xx = serde::serialize_element<ttt>(t, "ttt");
     fmt::print("{}\n",xx);
 
-    auto yy = serde::deserialize<toml::value>(xx, "ttt");
+    auto yy = serde::deserialize_with_name<toml::value>(xx, "ttt");
     std::cout << yy << std::endl;
 
     return 0;
