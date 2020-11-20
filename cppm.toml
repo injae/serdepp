@@ -7,19 +7,19 @@
    name = "serdepp"
    type = "header-only"
 
-[[bin]]
+[[example]]
     name = "nlohmann_json_example"
     source = ["examples/nlohmann_json_example.cpp"]
 
-[[bin]]
+[[example]]
     name = "tomlpp_example"
     source = ["examples/tomlpp_example.cpp"]
 
-[[bin]]
+[[example]]
     name = "toml11_example"
     source = ["examples/toml11_example.cpp"]
 
-[[bin]]
+[[example]]
     name = "convert_example"
     source = ["examples/convert_example.cpp"]
 
@@ -28,9 +28,9 @@
 #    source = ["examples/yaml-cpp_example.cpp"]
 
 [dependencies]
-    fmt = "7.0.3"
 
 [dev-dependencies]
+    fmt = "7.0.3"
     nlohmann_json="3.9.1"
     tomlpp="git"
     yaml-cpp="0.6.3"

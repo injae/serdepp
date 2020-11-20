@@ -9,9 +9,9 @@ cppm_setting()
 cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
-find_cppkg(fmt 7.0.3  MODULE fmt::fmt TYPE lib)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+find_cppkg(fmt 7.0.3  MODULE fmt::fmt TYPE lib)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib)
 find_cppkg(toml11 3.6.0  MODULE toml11::toml11 TYPE lib)
 find_cppkg(tomlpp git  MODULE tomlpp::tomlpp TYPE lib)
@@ -20,6 +20,9 @@ endif()
 
 
 cppm_target_define(serdepp INTERFACE)
+
+cppm_examples_area()
+if(SERDEPP_BUILD_EXAMPLES)
 
 cppm_target_define(nlohmann_json_example BINARY
 SOURCES
@@ -41,10 +44,12 @@ SOURCES
     examples/convert_example.cpp
 )
 
+endif()
 
-set(global_deps PUBLIC fmt)
+
+set(global_deps )
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-   list(APPEND global_deps PUBLIC nlohmann_json toml11 tomlpp yaml-cpp)
+   list(APPEND global_deps PUBLIC fmt nlohmann_json toml11 tomlpp yaml-cpp)
 endif()
 cppm_target_dependencies(serdepp
    ${global_deps})
@@ -67,8 +72,4 @@ cppm_target_dependencies(convert_example
 
 
 cppm_target_install(serdepp)
-cppm_target_install(nlohmann_json_example)
-cppm_target_install(tomlpp_example)
-cppm_target_install(toml11_example)
-cppm_target_install(convert_example)
 

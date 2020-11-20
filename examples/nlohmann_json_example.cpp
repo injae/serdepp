@@ -1,6 +1,5 @@
 #include "define.h"
 #include "serdepp/adaptor/nlohmann_json.hpp"
-#include <variant>
 
 int main(int argc, char* argv[]) {
     nlohmann::json with_name = R"({"ttt":{"bbb":{"str":"ssss","v": ["h","e","l", "l", "o"],"m":{"a":"b","c":"d"}}}})"_json; 

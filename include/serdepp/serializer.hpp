@@ -11,8 +11,6 @@
 #include <deque>
 #include <unordered_map>
 #include <map>
-#include <fmt/format.h>
-#include <fmt/ranges.h>
 
 namespace serde
 {
@@ -219,7 +217,7 @@ namespace serde
             using sde = serde_adaptor_helper<Format>;
             if constexpr(is_serialize) {
                 if(not sde::contains(con_, name)) {
-                    throw serde_exception(fmt::format("Serde(serialize error): can't find key: {}\n", name));
+                    throw serde_exception("Serde(serialize error): can't find key: "+ name + '\n');
                 }
                 count_++;
             }
@@ -324,6 +322,7 @@ namespace serde
         constexpr static std::string_view type = "map"; \
     }; \
     regist_serde_map_type(TYPE)
+
     generator_serializer(int16_t)
     generator_serializer(int32_t)
     generator_serializer(int64_t)
