@@ -1,4 +1,5 @@
-# serdepp (c++17 serialize deserialize interface library) (Beta)
+# serdepp  (Beta)
+> c++17 serialize deserialize interface library
 > this library inspired Rust serde
 > Multiple types of serializer deserializer(like json, toml, fmt(deserialize only)) can be created in one function.
 > Adapters currently available (nlohmann::json, toml11,)
