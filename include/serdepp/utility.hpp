@@ -1,6 +1,7 @@
 #pragma once
 
 #include "serdepp/serializer.hpp"
+#include "serdepp/adaptor/fmt.hpp"
 
 #ifndef __SERDE_UTILITY_HPP__
 #define __SERDE_UTILITY_HPP__
@@ -19,4 +20,7 @@
             __VA_ARGS__ \
         } 
 #endif
+
+#define TAG(var, ...) .tag(var, #var, __VA_ARGS__)
+
 #endif

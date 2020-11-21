@@ -12,10 +12,6 @@
     source = ["examples/nlohmann_json_example.cpp"]
 
 [[example]]
-    name = "tomlpp_example"
-    source = ["examples/tomlpp_example.cpp"]
-
-[[example]]
     name = "toml11_example"
     source = ["examples/toml11_example.cpp"]
 
@@ -27,11 +23,16 @@
 #    name = "yaml-cpp_example"
 #    source = ["examples/yaml-cpp_example.cpp"]
 
+#[[example]]
+#    name = "tomlpp_example"
+#    source = ["examples/tomlpp_example.cpp"]
+
+
 [dependencies]
 
 [dev-dependencies]
     fmt = "7.0.3"
     nlohmann_json="3.9.1"
+    toml11="3.6.0"
     tomlpp="git"
     yaml-cpp="0.6.3"
-    toml11="3.6.0"

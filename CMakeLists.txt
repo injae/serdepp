@@ -29,11 +29,6 @@ SOURCES
     examples/nlohmann_json_example.cpp
 )
 
-cppm_target_define(tomlpp_example BINARY
-SOURCES
-    examples/tomlpp_example.cpp
-)
-
 cppm_target_define(toml11_example BINARY
 SOURCES
     examples/toml11_example.cpp
@@ -55,10 +50,6 @@ cppm_target_dependencies(serdepp
    ${global_deps})
 
 cppm_target_dependencies(nlohmann_json_example
-   ${global_deps}
-   serdepp)
-
-cppm_target_dependencies(tomlpp_example
    ${global_deps}
    serdepp)
 
