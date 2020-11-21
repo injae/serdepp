@@ -21,6 +21,6 @@
         } 
 #endif
 
-#define TAG(var, ...) .tag(var, #var, __VA_ARGS__)
+#define TAG(var, ...) tag(var, #var, __VA_ARGS__)
 
 #endif
