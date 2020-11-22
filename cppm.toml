@@ -20,7 +20,7 @@
     name = "convert_example"
     source = ["examples/convert_example.cpp"]
 
-[[bin]]
+[[example]]
     name = "test_all"
     source = ["examples/variant_test.cpp"]
 

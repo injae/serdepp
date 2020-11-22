@@ -24,11 +24,6 @@ SOURCES
     src/to_static.cpp
 )
 
-cppm_target_define(test_all BINARY
-SOURCES
-    examples/variant_test.cpp
-)
-
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)
 
@@ -47,6 +42,11 @@ SOURCES
     examples/convert_example.cpp
 )
 
+cppm_target_define(test_all BINARY
+SOURCES
+    examples/variant_test.cpp
+)
+
 endif()
 
 
@@ -56,10 +56,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 cppm_target_dependencies(serdepp
    ${global_deps})
-
-cppm_target_dependencies(test_all
-   ${global_deps}
-   serdepp)
 
 cppm_target_dependencies(nlohmann_json_example
    ${global_deps}
@@ -73,7 +69,10 @@ cppm_target_dependencies(convert_example
    ${global_deps}
    serdepp)
 
+cppm_target_dependencies(test_all
+   ${global_deps}
+   serdepp)
+
 
 cppm_target_install(serdepp)
-cppm_target_install(test_all)
 
