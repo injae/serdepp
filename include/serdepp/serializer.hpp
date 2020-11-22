@@ -306,7 +306,8 @@ namespace serde
     inline S parse_file(const std::string& path) { return serde_adaptor_helper<S>::parse_file(path); }
     template<typename S, typename T>
     inline T parse_file_and_serde(const std::string& path) {
-        return serialize(serde_adaptor_helper<S>::parse_file(path));
+        auto con = serde_adaptor_helper<S>::parse_file(path);
+        return serialize(con);
     }
 
 #define regist_serde_sequence_type(TYPE) template<class T> struct meta::is_sequence<TYPE<T>> { \
