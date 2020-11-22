@@ -5,7 +5,8 @@
 
 [lib]
    name = "serdepp"
-   type = "header-only"
+   type = "static"
+   source = ["src/to_static.cpp"]
 
 [[example]]
     name = "nlohmann_json_example"
