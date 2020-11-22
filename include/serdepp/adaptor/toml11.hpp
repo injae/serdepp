@@ -13,6 +13,7 @@ namespace serde {
         static bool contains(toml_v& s, const std::string& key) { return s.contains(key); }
         static int size(toml_v& s) { return s.size(); }
         static bool is_struct(toml_v& s) { return s.is_table(); }
+        static toml_v parse_file(const std::string& path) { return toml::parse(path); }
     };
 
     template<typename T> struct serde_adaptor<toml_v, T, type::struct_t> {

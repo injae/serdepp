@@ -5,11 +5,18 @@
 
 #include <nlohmann/json.hpp>
 #include "serdepp/serializer.hpp"
+#include <fstream>
 
 namespace serde {
     using nlohmann::json;
     template<> struct serde_adaptor_helper<json> {
         static bool is_struct(json& s) { return s.is_object(); }
+        static json parse_file(const std::string& path) {
+            json table;
+            std::ifstream i(path);
+            i >> table;
+            return table;
+        }
     };
 
     template<typename T> struct serde_adaptor<json, T, type::struct_t> {
