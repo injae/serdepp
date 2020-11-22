@@ -363,6 +363,7 @@ namespace serde
     }; \
     regist_serde_map_type(TYPE)
 
+    generator_serializer(bool)
     generator_serializer(int16_t)
     generator_serializer(int32_t)
     generator_serializer(int64_t)
