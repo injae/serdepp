@@ -8,6 +8,10 @@
 
 namespace serde {
     using nlohmann::json;
+    template<> struct serde_adaptor_helper<json> {
+        static bool is_struct(json& s) { return s.is_object(); }
+    };
+
     template<typename T> struct serde_adaptor<json, T, type::struct_t> {
         static auto from(json& s, const std::string& key, T& data) { serialize_to<T>(s[key], data, key);}
         static void   to(json &s, const std::string& key, T& data) { s[key] = deserialize<json>(data, key); } 
@@ -16,6 +20,8 @@ namespace serde {
     template<typename T> struct serde_adaptor<json, T>  {
         static auto from(json& s, const std::string& key, T& data) { data = s[key].template get<T>(); }
         static void   to(json& s, const std::string& key, T& data) { s[key] = data; }
+        static auto from(json& s,  T& data) { data = s.get<T>(); }
+        static void   to(json& s,  T& data) { s = data; }
     };
 
     template<typename T> struct serde_adaptor<json, T, type::seq> {

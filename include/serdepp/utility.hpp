@@ -2,6 +2,7 @@
 
 #include "serdepp/serializer.hpp"
 #include "serdepp/adaptor/fmt.hpp"
+#include <stdio.h>
 
 #ifndef __SERDE_UTILITY_HPP__
 #define __SERDE_UTILITY_HPP__
@@ -21,6 +22,7 @@
         } 
 #endif
 
-#define TAG(var, ...) tag(var, #var, __VA_ARGS__)
+#define TAG(VAR) tag(VAR, #VAR)
+#define TAG_OR(VAR, DEFAULT_VALUE) tag(VAR, #VAR, DEFAULT_VALUE)
 
 #endif

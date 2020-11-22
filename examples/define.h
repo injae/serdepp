@@ -1,5 +1,4 @@
 #include "serdepp/serializer.hpp"
-#include "serdepp/adaptor/fmt.hpp"
 #include "serdepp/utility.hpp"
 
 struct in {

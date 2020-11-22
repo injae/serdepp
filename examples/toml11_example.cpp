@@ -1,7 +1,41 @@
 #include "define.h"
 #include "serdepp/adaptor/toml11.hpp"
 
+struct test {
+    derive_serde(test, ctx
+                 .name(name)
+                 .or_value(z, "z")
+                 .TAG_OR(y, "hello");
+                 )
+    std::string z;
+    std::string name;
+    std::optional<std::string> y;
+};
+
+struct p_test {
+    derive_serde(p_test, ctx
+                 .TAG(m);
+                 )
+    std::map<std::string, test> m;
+};
+
 int main(int argc, char* argv[]) {
+
+  {
+    std::string t_data = R"(
+      [m]
+        x = "1"
+        y = { z = "h", y = "hi"}
+    )";
+    std::istringstream t_stream(t_data);
+    auto t_t = toml::parse(t_stream);
+    auto t_xx = serde::serialize<p_test>(t_t, "p_test");
+    fmt::print("{}\n",t_xx);
+    auto t_yy = serde::deserialize<toml::value>(t_xx);
+    fmt::print("{}\n",t_yy);
+  }
+  
+
     std::string data = R"(
 [ttt]
     [ttt.inmap]

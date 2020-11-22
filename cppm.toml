@@ -19,6 +19,10 @@
     name = "convert_example"
     source = ["examples/convert_example.cpp"]
 
+[[bin]]
+    name = "test_all"
+    source = ["examples/variant_test.cpp"]
+
 #[[bin]]
 #    name = "yaml-cpp_example"
 #    source = ["examples/yaml-cpp_example.cpp"]
