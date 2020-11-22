@@ -120,6 +120,10 @@ namespace serde
 
     template<typename S>
     inline S parse_file(const std::string& path) { return serde_adaptor_helper<S>::parse_file(path); }
+    template<typename S, typename T>
+    inline T parse_file_and_serde(const std::string& path) {
+        return serialize(serde_adaptor_helper<S>::parse_file(path));
+    }
 
     template<typename S, typename T, typename = void>
     struct serde_adaptor {
