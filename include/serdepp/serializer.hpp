@@ -118,12 +118,6 @@ namespace serde
         static bool is_struct(S& s) { return true; };
     };
 
-    template<typename S>
-    inline S parse_file(const std::string& path) { return serde_adaptor_helper<S>::parse_file(path); }
-    template<typename S, typename T>
-    inline T parse_file_and_serde(const std::string& path) {
-        return serialize(serde_adaptor_helper<S>::parse_file(path));
-    }
 
     template<typename S, typename T, typename = void>
     struct serde_adaptor {
@@ -306,6 +300,13 @@ namespace serde
         Context<Adaptor, false> p(con, name);
         serializer<decltype(origin)>::template serde<false>(p, name, origin);
         return con;
+    }
+
+    template<typename S>
+    inline S parse_file(const std::string& path) { return serde_adaptor_helper<S>::parse_file(path); }
+    template<typename S, typename T>
+    inline T parse_file_and_serde(const std::string& path) {
+        return serialize(serde_adaptor_helper<S>::parse_file(path));
     }
 
 #define regist_serde_sequence_type(TYPE) template<class T> struct meta::is_sequence<TYPE<T>> { \
