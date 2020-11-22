@@ -121,7 +121,6 @@ namespace serde
     template<typename S>
     inline S parse_file(const std::string& path) { return serde_adaptor_helper<S>::parse_file(path); }
 
-
     template<typename S, typename T, typename = void>
     struct serde_adaptor {
         static void from(S& s, const std::string& key, T& data);
