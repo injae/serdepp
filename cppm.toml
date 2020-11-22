@@ -33,10 +33,10 @@
 
 
 [dependencies]
+    fmt = "7.0.3"
+    toml11="3.6.0"
+    nlohmann_json="3.9.1"
 
 [dev-dependencies]
-    fmt = "7.0.3"
-    nlohmann_json="3.9.1"
-    toml11="3.6.0"
     tomlpp="git"
     yaml-cpp="0.6.3"
