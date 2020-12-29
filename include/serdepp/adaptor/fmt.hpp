@@ -43,7 +43,7 @@ namespace serde {
 
     template<typename T> struct serde_adaptor<literal, T, type::struct_t> {
         static void from(literal& s, const std::string& key, T& data) { /*unimplemented*/ }
-        static void   to(literal &s, const std::string &key, T& data) { s.add_child(key, deserialize<literal>(data)); }
+        static void   to(literal& s, const std::string& key, T& data) { s.add_child(key, deserialize<literal>(data)); }
     };
 
     template<typename T, typename U> struct serde_adaptor<literal, T, U> {

@@ -14,9 +14,11 @@ struct test {
 
 struct p_test {
     derive_serde(p_test, ctx
-                 .TAG(m);
+                 .TAG(m)
+                 .TAG(n);
                  )
     std::map<std::string, test> m;
+    std::map<std::string, std::string> n;
 };
 
 int main(int argc, char* argv[]) {
@@ -26,6 +28,9 @@ int main(int argc, char* argv[]) {
       [m]
         x = "1"
         y = { z = "h", y = "hi"}
+      [n]
+        x = "1"
+        y = "1"
     )";
     std::istringstream t_stream(t_data);
     auto t_t = toml::parse(t_stream);

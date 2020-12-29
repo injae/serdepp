@@ -5,8 +5,7 @@
 
 [lib]
    name = "serdepp"
-   type = "static"
-   source = ["src/to_static.cpp"]
+   type = "header-only"
 
 [[example]]
     name = "nlohmann_json_example"
@@ -23,6 +22,10 @@
 [[example]]
     name = "test_all"
     source = ["examples/variant_test.cpp"]
+
+[[example]]
+    name = "overwrite"
+    source = ["examples/overwrite.cpp"]
 
 #[[bin]]
 #    name = "yaml-cpp_example"

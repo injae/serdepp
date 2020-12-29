@@ -9,7 +9,7 @@
 
 namespace serde {
     using nlohmann::json;
-    template<> struct serde_adaptor_helper<json> {
+    template<> struct serde_adaptor_helper<json> : default_serde_adaptor_helper<json> {
         static bool is_struct(json& s) { return s.is_object(); }
         static json parse_file(const std::string& path) {
             json table;
@@ -25,45 +25,35 @@ namespace serde {
     };
 
     template<typename T> struct serde_adaptor<json, T>  {
-        static auto from(json& s, const std::string& key, T& data) { data = s[key].template get<T>(); }
-        static void   to(json& s, const std::string& key, T& data) { s[key] = data; }
-        static auto from(json& s,  T& data) { data = s.get<T>(); }
-        static void   to(json& s,  T& data) { s = data; }
+        static auto from(json& s, const std::string& key, T& data) {
+            data = key.empty() ? s.get<T>() : s[key].template get<T>();
+        }
+        static void   to(json& s, const std::string& key, T& data) { (key.empty() ? s : s[key]) = data; }
     };
 
     template<typename T> struct serde_adaptor<json, T, type::seq> {
         using E = meta::is_sequence_e<T>;
         static auto from(json& s, const std::string& key, T& arr) {
-            for(auto& value: s[key]) {
-                if constexpr(is_struct<E>()) { arr.push_back(serialize<E>(value)); }
-                else                         { arr.push_back(value.get<E>()); }
-            }
+            auto table = key.empty() ? s : s[key];
+            for(auto& value: table) { arr.push_back(serialize<E>(value, key)); }
         }
         static void   to(json& s, const std::string& key, T& data) {
             json arr;
-            for(auto& value: data) {
-                if constexpr(is_struct<E>()) { arr.push_back(deserialize<json>(value));}
-                else                         { arr.push_back(value);}
-            }
-            s[key] = arr;
+            for(auto& value: data) { arr.push_back(deserialize<json>(value, key)); }
+            (key.empty() ? s : s[key]) = arr;
         }
     };
 
     template <typename Map> struct serde_adaptor<json, Map, type::map> {
         using T = meta::is_map_e<Map>;
         static void from(json& s, const std::string &key, Map& map) {
-            for(auto&[key_, value_] : s[key].items()) {
-                if constexpr(is_struct<T>()) { map[key] = serialize<T>(value_, key_); }
-                else                         { map[key] = value_.get<T>(); }
-            }
+            auto table = key.empty() ? s : s[key];
+            for(auto&[key_, value_] : table.items()) { map[key] = serialize<T>(value_, key_); }
         }
         static void to(json &s, const std::string& key, Map& data) {
             json map;
-            for(auto& [key_, value] : data) {
-                if constexpr(is_struct<T>()) { map[key_] = deserialize<json>(value, key_); }
-                else                         { map[key_] = value; }
-            }
-            s[key] = map;
+            for(auto& [key_, value] : data) { map[key_] = deserialize<json>(value, key_); }
+            (key.empty() ? s : s[key]) = map;
         }
     };
 }

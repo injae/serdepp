@@ -19,9 +19,11 @@ find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib)
 endif()
 
 
-cppm_target_define(serdepp STATIC
+cppm_target_define(serdepp INTERFACE)
+
+cppm_target_define(overwrite BINARY
 SOURCES
-    src/to_static.cpp
+    examples/overwrite.cpp
 )
 
 cppm_examples_area()
@@ -57,6 +59,10 @@ endif()
 cppm_target_dependencies(serdepp
    ${global_deps})
 
+cppm_target_dependencies(overwrite
+   ${global_deps}
+   serdepp)
+
 cppm_target_dependencies(nlohmann_json_example
    ${global_deps}
    serdepp)
@@ -75,4 +81,5 @@ cppm_target_dependencies(test_all
 
 
 cppm_target_install(serdepp)
+cppm_target_install(overwrite)
 
