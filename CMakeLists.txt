@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(CPPM_VERSION 0.0.13)
+set(CPPM_VERSION 0.0.12)
 include(cmake/cppm_loader.cmake)
 cppm_project()
 
@@ -9,7 +9,7 @@ cppm_setting()
 cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
-find_cppkg(fmt 7.0.3  MODULE fmt::fmt TYPE lib)
+find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.6.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 

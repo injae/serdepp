@@ -232,13 +232,11 @@ namespace serde
             bool is_default = false;
             if(not target) {target = default_v; is_default = true; }
             if constexpr(is_serialize) {
-                if(sde::is_struct(con_)) {
-                    if(sde::contains(con_, name)) {
-                        count_++;
-                        ser::template serde<is_serialize>(*this, name, target.value());
-                    }
+                if(sde::is_struct(con_) && sde::contains(con_, name)) {
+                    count_++;
+                    ser::template serde<is_serialize>(*this, name, target.value());
                 } 
-                if(is_struct<T>() && is_default) {
+                else if(is_struct<T>() && is_default) {
                     count_++;
                     auto temp_format = sde::init();
                     auto temp_ctx = Context(temp_format);
@@ -258,7 +256,7 @@ namespace serde
             if constexpr(is_serialize) {
                 if(sde::is_struct(con_) && sde::contains(con_, name)) {
                     count_++;
-                    T value; ser::template serde<is_serialize>(*this, name, value); target = value;
+                    target = T{}; ser::template serde<is_serialize>(*this, name, target.value()); 
                 } else {
                     target = std::nullopt;
                 }

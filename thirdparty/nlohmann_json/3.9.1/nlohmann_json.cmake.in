@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(nlohmann_json-3.9.1-install)
 
-set(CPPM_VERSION 0.0.12)
+set(CPPM_VERSION 0.0.13)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
 download_package(nlohmann_json 3.9.1  URL https://github.com/nlohmann/json/archive/v3.9.1.tar.gz  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DJSON_BuildTests=OFF)
 
