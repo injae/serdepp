@@ -18,7 +18,10 @@ find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
 endif()
 
 
-cppm_target_define(serdepp INTERFACE)
+cppm_target_define(serdepp STATIC
+SOURCES
+    src/to_static.cpp
+)
 
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)

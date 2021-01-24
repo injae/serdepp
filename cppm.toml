@@ -3,9 +3,14 @@
    version = "0.0.1"
    description = "c++ universal serialize deserialize library like rust serde"
 
+#[lib]
+#   name = "serdepp"
+#   type = "header-only"
 [lib]
    name = "serdepp"
-   type = "header-only"
+   type = "static"
+   source= ["src/to_static.cpp"]
+
 
 [[example]]
     name = "nlohmann_json_example"
