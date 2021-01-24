@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(CPPM_VERSION 0.0.12)
+set(CPPM_VERSION 0.0.13)
 include(cmake/cppm_loader.cmake)
 cppm_project()
 
