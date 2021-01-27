@@ -396,6 +396,35 @@ namespace serde
     }; \
     regist_serde_map_type(TYPE)
 
+    // undefined type convert other type
+    template<class FROM, typename TO>
+    struct serializer_convertor {
+        using TYPE = FROM;
+        template<bool is_serialize, typename serde_ctx> 
+        static auto serde(serde_ctx& ctx, const std::string& key, FROM& data) {
+            using adaptor = serde_adaptor<typename serde_ctx::format, TO>;
+            TO convert_type;
+            if constexpr (is_serialize) {
+                adaptor::from(ctx.con_, key, convert_type);
+                serializer<FROM>::from(data, convert_type);
+            } 
+            else {
+                serializer<FROM>::to(convert_type, data);
+                adaptor::to(ctx.con_, key, convert_type);
+            } 
+        }; 
+        constexpr static std::string_view type = "normal"; 
+    };
+
+    // example
+    //template<> struct serializer<Bn> : serializer_convertor<Bn, std::string> { 
+    //    using FROM = Bn;
+    //    using TO   = std::string;
+    //    static void from(FROM& from_, TO& to_) { from_.from_hex(to_.c_str()); }
+    //    static void to(TO& to_, FROM& from_)   { to_ = from_.to_hex(); }
+    //}; 
+
+
     generator_serializer(bool)
     generator_serializer(int16_t)
     generator_serializer(int32_t)
