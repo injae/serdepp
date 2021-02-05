@@ -20,11 +20,11 @@
 #include <serdepp/utility.hpp>
 #include "serdepp/adaptor/nlohmann_json.hpp"
 class bbb {
-    derive_serde(bbb, ctx.tag(str, "str")
-                         .tag(x, "x", 10) // with default value ( need  to std::optional type)
-                         .tag(m, "m")     // if not this key panic
-                         .tag(om, "om")
-                         .tag(v, "v")
+    derive_serde(bbb, ctx.TAG(str)
+                         .TAG(x) // with default value ( need  to std::optional type)
+                         .TAG(m)     // if not this key panic
+                         .TAG(om)
+                         .TAG(v)
                          .no_remain(); // remain data check
                   )
 public:
@@ -57,16 +57,16 @@ int main(int argc, char* argv[]) {
 
 
 class in {
-    derive_serde(in, ctx.tag(text, "text");)
+    derive_serde(in, ctx.TAG(text);)
     std::string text;
 };
 
 class bbb {
-    derive_serde(bbb, ctx.tag(str, "str")
-                         .tag(x, "x", 10) // with default value ( need  to std::optional type)
-                         .tag(m, "m")     // if not this key panic
-                         .tag(om, "om")
-                         .tag(v, "v")
+    derive_serde(bbb, ctx.TAG(str)
+                         .TAG(x, 10) // with default value ( need  to std::optional type)
+                         .TAG(m)     // if not this key panic
+                         .TAG(om)
+                         .TAG(v)
                          .no_remain(); // remain data check
                   )
 public:
@@ -82,9 +82,9 @@ private:
 class ttt {
     // macro version <- need to #include<serdepp/utility.hpp>
     derive_serde(ttt, 
-        ctx.tag(bbb, "bbb")
-           .tag(inmap, "inmap")
-           .tag(str, "str");
+        ctx.TAG(bbb)
+           .TAG(inmap)
+           .TAG(str);
     )
     // no macro version
     //friend serde::serializer<ttt>; 
@@ -169,11 +169,11 @@ struct author {
 
 struct convert {
     derive_serde(convert,
-              ctx.tag(cpp, "cpp")
-                 .tag(lib, "lib")
-                 .tag(repo, "repo")
-                 .tag(toml, "toml")
-                 .tag(author, "author")
+              ctx.TAG(cpp)
+                 .TAG(lib)
+                 .TAG(repo)
+                 .TAG(toml)
+                 .TAG(author)
                  .no_remain();)
 
     std::vector<int> cpp;
@@ -279,8 +279,9 @@ int main(int argc, char* argv[]) {
 ```
 ## Benchmark
 serdepp's serializer vs nlohmann_json's serialer
-```
-struct TestStruct {
+### Serializer Define Example
+```cpp
+struct TestStruct { // can support struct <-> json toml string ...
     derive_serde(TestStruct, ctx.TAG(str).TAG(i).TAG(vec);)
     std::optional<std::string> str;
     int i;
@@ -288,7 +289,7 @@ struct TestStruct {
 };
 
 namespace ns {
-    struct TestStruct2 {
+    struct TestStruct2 { // only struct <-> json
         std::string str;
         int i;
         std::vector<std::string> vec;
@@ -309,7 +310,7 @@ Load Average: 2.20, 2.20, 2.23
 -------------------------------------------------------------------------------
 Benchmark                                     Time             CPU   Iterations
 -------------------------------------------------------------------------------
-serialize_struct_serde_nlohmann_json        255 ns          254 ns      2784906
+serialize_struct_serde_nlohmann_json        255 ns          254 ns      2784906 (need to optimize)
 serialize_struct_nlohmann_json              169 ns          168 ns      4616775
 deserialize_serde_nlohmann_json            1848 ns         1842 ns       424721
 deserialize_nlohmann_json                  1916 ns         1910 ns       407055
