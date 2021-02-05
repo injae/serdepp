@@ -6,9 +6,9 @@
 > You can easily add various formats.  
 
 ## Dependencies
-- fmt (optional) (Alpha)
-- nlohmann_json (optional)
-- toml11 (optional)
+- fmt
+- nlohmann_json (optional) (CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
+- toml11 (optional) (CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
 
 # Examples
 
@@ -106,6 +106,24 @@ private:
 };
 ```
 
+## Type Converter
+```
+// example class
+class Test {
+    void from_string(const std::string& str);
+    void to_string(const std::string& str);
+};
+
+// serde serialize (std::string -> Test) deserialize (Test -> std::string)
+template<> struct serializer<Test> : serializer_convertor<Test, std::string> { 
+    using FROM = Test;
+    using INTO = std::string;
+    static void from(FROM& from_, INTO& into_) { from_.from_string(into_); }
+    static void into(INTO& into_, FROM& from_) { into_ = from_.to_string(); }
+}; 
+ 
+```
+
 ## toml11 Example
 ```cpp
 #include "define.h"
@@ -126,8 +144,7 @@ int main(int argc, char* argv[]) {
     auto t = toml::parse(stream);
     fmt::print("{}\n",t);
     auto xx = serde::serialize_element<ttt>(t, "ttt");
-
-    auto yy = serde::deserialize_with_name<toml::value>(xx, "ttt");
+auto yy = serde::deserialize_with_name<toml::value>(xx, "ttt");
     std::cout << yy << std::endl;
 
     return 0;
@@ -257,6 +274,53 @@ int main(int argc, char* argv[]) {
     toml::value yy = serde::deserialize_with_name<toml::value>(xx, "ttt");
     std::cout << yy << std::endl;
 
-    return 0;
+
 }
 ```
+## Benchmark
+serdepp's serializer vs nlohmann_json's serialer
+```
+struct TestStruct {
+    derive_serde(TestStruct, ctx.TAG(str).TAG(i).TAG(vec);)
+    std::optional<std::string> str;
+    int i;
+    std::vector<std::string> vec;
+};
+
+namespace ns {
+    struct TestStruct2 {
+        std::string str;
+        int i;
+        std::vector<std::string> vec;
+        NLOHMANN_DEFINE_TYPE_INTRUSIVE(TestStruct2, str, i, vec)
+    };
+}
+```
+```console
+2021-02-06T04:16:41+09:00
+Running ./benchmark
+Run on (12 X 2600 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 256 KiB (x6)
+  L3 Unified 12288 KiB (x1)
+Load Average: 2.20, 2.20, 2.23
+-------------------------------------------------------------------------------
+Benchmark                                     Time             CPU   Iterations
+-------------------------------------------------------------------------------
+serialize_struct_serde_nlohmann_json        255 ns          254 ns      2784906
+serialize_struct_nlohmann_json              169 ns          168 ns      4616775
+deserialize_serde_nlohmann_json            1848 ns         1842 ns       424721
+deserialize_nlohmann_json                  1916 ns         1910 ns       407055
+serialize_int_serde_nlohmann_json          3.40 ns         3.38 ns    251813054
+serialize_int_nlohmann_json                3.05 ns         3.04 ns    252797931
+deserialize_int_serde_nlohmann_json        7.41 ns         7.39 ns    105844107
+deserialize_int_nlohmann_json               322 ns          321 ns      2406284
+serialize_vec_serde_nlohmann_json           103 ns          102 ns      7604150
+serialize_vec_nlohmann_json                 114 ns          113 ns      6926373
+deserialize_vec_serde_nlohmann_json         997 ns          995 ns       797912
+deserialize_vec_nlohmann_json              1122 ns         1119 ns       713405
+```
+
+

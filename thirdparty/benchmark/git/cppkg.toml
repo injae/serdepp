@@ -1,0 +1,9 @@
+[benchmark]
+version="git" #(require)
+type="lib" #lib(default) | bin | cmake
+description="google c++ benchmark library" #(require)
+module="benchmark::benchmark" #(require) if none_module=true -> no require
+git="https://github.com/google/benchmark.git" #(require)
+flags="-DBENCHMARK_ENABLE_GTEST_TESTS=OFF"
+#branch="" #(optional & require git)
+#link="public" #default

@@ -1,0 +1,5 @@
+[range-v3]
+version = "0.11.0"
+description = "Range library for C++14/17/20, basis for C++20's std::ranges"
+module = "range-v3::range-v3"
+url="https://github.com/ericniebler/range-v3/archive/0.11.0.tar.gz"

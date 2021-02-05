@@ -4,7 +4,7 @@ set(CPPM_VERSION 0.0.13)
 include(cmake/cppm_loader.cmake)
 cppm_project()
 
-project(serdepp VERSION 0.0.1 LANGUAGES C CXX)
+project(serdepp VERSION 0.0.2 LANGUAGES C CXX)
 cppm_setting()
 cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
@@ -14,6 +14,7 @@ find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPT
 find_cppkg(toml11 3.6.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
 endif()
 
@@ -51,12 +52,17 @@ SOURCES
     examples/overwrite.cpp
 )
 
+cppm_target_define(benchmark BINARY
+SOURCES
+    benchmark/benchmark.cpp
+)
+
 endif()
 
 
 set(serdepp_global_deps PUBLIC fmt nlohmann_json toml11)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-   list(APPEND serdepp_global_deps PUBLIC yaml-cpp)
+   list(APPEND serdepp_global_deps PUBLIC benchmark yaml-cpp)
 endif()
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
@@ -78,6 +84,10 @@ cppm_target_dependencies(test_all
    serdepp)
 
 cppm_target_dependencies(overwrite
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
 

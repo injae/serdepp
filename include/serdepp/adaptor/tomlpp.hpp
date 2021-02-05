@@ -22,14 +22,14 @@ namespace serde {
         static void from(toml_ptr& s, const std::string& key, T& data){
             auto table = s->get_table(key);  serialize_to<T>(table, data, key);
         }
-        static void to(toml_ptr& s, const std::string &key, T& data) {
+        static void into(toml_ptr& s, const std::string &key, T& data) {
             s->insert(key, deserialize<toml_ptr>(data, key));
         } 
     };
 
     template<typename T> struct serde_adaptor<toml_ptr,T>  {
         static void from(toml_ptr& s, const std::string& key, T& data) { data = s->template get_as<T>(key).value(); }
-        static void   to(toml_ptr& s, const std::string& key, T& data) { s->insert(key, data); }
+        static void into(toml_ptr& s, const std::string& key, T& data) { s->insert(key, data); }
     };
 
     // nested table 
@@ -46,7 +46,7 @@ namespace serde {
                 }
             }
         }
-        static void   to(toml_ptr& s, const std::string &key, Map& data) {
+        static void into(toml_ptr& s, const std::string &key, Map& data) {
             auto map = serde_adaptor_helper<toml_ptr>::init();
             for(auto& [key_, data_] : data) {
                 map->insert(key_, deserialize<toml_ptr>(data_, key_));
@@ -67,7 +67,7 @@ namespace serde {
                 }
             } else { arr = s->get_array_of<E>(key).value(); }
         }
-        static void   to(toml_ptr& s, const std::string& key, T& data) {
+        static void into(toml_ptr& s, const std::string& key, T& data) {
             if constexpr (is_struct<E>()) {
                 auto arr = toml::make_table_array();
                 for(auto& it : data) { arr->push_back(deserialize<toml_ptr>(it)); }
