@@ -10,8 +10,8 @@ cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
 find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
-find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
-find_cppkg(toml11 3.6.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
+find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib)
+find_cppkg(toml11 3.6.0  MODULE toml11::toml11 TYPE lib)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
@@ -24,40 +24,10 @@ SOURCES
     src/to_static.cpp
 )
 
-cppm_examples_area()
-if(SERDEPP_BUILD_EXAMPLES)
-
-cppm_target_define(nlohmann_json_example BINARY
+cppm_target_define(serde_test BINARY
 SOURCES
-    examples/nlohmann_json_example.cpp
+    test/test.cpp
 )
-
-cppm_target_define(toml11_example BINARY
-SOURCES
-    examples/toml11_example.cpp
-)
-
-cppm_target_define(convert_example BINARY
-SOURCES
-    examples/convert_example.cpp
-)
-
-cppm_target_define(test_all BINARY
-SOURCES
-    examples/variant_test.cpp
-)
-
-cppm_target_define(overwrite BINARY
-SOURCES
-    examples/overwrite.cpp
-)
-
-cppm_target_define(benchmark BINARY
-SOURCES
-    benchmark/benchmark.cpp
-)
-
-endif()
 
 
 set(serdepp_global_deps PUBLIC fmt nlohmann_json toml11)
@@ -67,30 +37,11 @@ endif()
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 
-cppm_target_dependencies(nlohmann_json_example
-   ${serdepp_global_deps}
-   serdepp)
-
-cppm_target_dependencies(toml11_example
-   ${serdepp_global_deps}
-   serdepp)
-
-cppm_target_dependencies(convert_example
-   ${serdepp_global_deps}
-   serdepp)
-
-cppm_target_dependencies(test_all
-   ${serdepp_global_deps}
-   serdepp)
-
-cppm_target_dependencies(overwrite
-   ${serdepp_global_deps}
-   serdepp)
-
-cppm_target_dependencies(benchmark
+cppm_target_dependencies(serde_test
    ${serdepp_global_deps}
    serdepp)
 
 
 cppm_target_install(serdepp)
+cppm_target_install(serde_test)
 

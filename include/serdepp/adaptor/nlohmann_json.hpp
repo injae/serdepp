@@ -19,47 +19,63 @@ namespace serde {
         }
     };
 
-    template<typename T> struct serde_adaptor<json, T, type::struct_t> {
-        static void from(json& s, const std::string& key, T& data) { serialize_to<T>(s[key], data, key);}
-        static void into(json& s, const std::string& key, T& data) { s[key] = deserialize<json>(data, key); } 
-    };
 
-
-    template<typename T> struct serde_adaptor<json, T>  {
-        static void from(json& s, const std::string& key, T& data) {
-            data = key.empty() ? s.get<T>() : s[key].template get<T>();
+    template<typename T>
+    struct serde_adaptor<json, T>  {
+        static void from(json& s, std::string_view key, T& data) {
+            data = key.empty() ? s.get<T>() : s[std::string{key}].template get<T>();
         }
-        static void into(json& s, const std::string& key, T& data) { (key.empty() ? s : s[key]) = data; }
-    };
 
-    template<typename T> struct serde_adaptor<json, T, type::seq> {
-        using E = meta::is_sequence_e<T>;
-        static void from(json& s, const std::string& key, T& arr) {
-            auto& table = key.empty() ? s : s[key];
-            arr.reserve(table.size());
-            for(auto& value: table) { arr.push_back(serialize<E>(value, key)); }
-        }
-        static void into(json& s, const std::string& key, T& data) {
-            json arr;
-            for(auto& value: data) { arr.push_back(deserialize<json>(value, key)); }
-            (key.empty() ? s : s[key]) = std::move(arr);
+        static void into(json& s, std::string_view key, T& data) {
+            (key.empty() ? s : s[std::string{key}]) = data;
         }
     };
 
-    template <typename Map> struct serde_adaptor<json, Map, type::map> {
-        using T = meta::is_map_e<Map>;
-        static void from(json& s, const std::string &key, Map& map) {
-            auto& table = key.empty() ? s : s[key];
-            for(auto&[key_, value_] : table.items()) { map[key] = serialize<T>(value_, key_); }
+    template<typename T>
+    struct serde_adaptor<json, T, type::struct_t> {
+        static void from(json& s, std::string_view key, T& data) {
+            serialize_to(s[std::string{key}], data, key);
         }
-        static void into(json &s, const std::string& key, Map& data) {
-            json map;
+        static void into(json& s, std::string_view key, T& data) {
+            s[std::string{key}] = deserialize<json>(data, key);
+        } 
+    };
+
+    template<typename T>
+    struct serde_adaptor<json, T, type::seq_t> {
+       using E = type::seq_e<T>;
+       static void from(json& s, std::string_view key, T& arr) {
+           std::string skey{key};
+           auto& table = key.empty() ? s : s[skey];
+           arr.reserve(table.size());
+           for(auto& value: table) { arr.push_back(serialize<E>(value, key)); }
+       }
+
+       static void into(json& s, std::string_view key, T& data) {
+           std::string skey{key}; json arr;
+           for(auto& value: data) { arr.push_back(deserialize<json>(value, key)); }
+           (key.empty() ? s : s[skey]) = std::move(arr);
+       }
+    };
+
+    template <typename Map>
+    struct serde_adaptor<json, Map, type::map_t> {
+        using T = type::map_e<Map>;
+        static void from(json& s, std::string_view key, Map& map) {
+            std::string skey{key};
+            auto& table = key.empty() ? s : s[skey];
+            for(auto&[key_, value_] : table.items()) { map[key_] = serialize<T>(value_, key_); }
+        }
+
+        static void into(json& s, std::string_view key, Map& data) {
+            std::string skey{key}; json map;
             for(auto& [key_, value] : data) { map[key_] = deserialize<json>(value, key_); }
-            (key.empty() ? s : s[key]) = map;
+            (key.empty() ? s : s[skey]) = map;
         }
     };
 }
-// You should use void as a second template argument
-// if you don't need compile-time checks on T
+
+
+
 #endif
 // strt_serde -> tag_to -> strt_serde -> tag_to -> ... -> adaptor_to -> adaptor_to

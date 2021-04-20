@@ -1,64 +1,77 @@
 
 #include "serdepp/serializer.hpp"
-#include <type_traits>
+#include "serdepp/adaptor/fmt.hpp"
 #include "serdepp/adaptor/nlohmann_json.hpp"
-#include "serdepp/adaptor/tomlpp.hpp"
-#include <map>
 
-struct bbb {
-    friend serde::serializer<bbb>;
-    template<typename S> auto serde(S& s) {
-        s.tag(str, "str")
-         .tag(x, "x", 0)
-         .tag(m, "m")
-         .tag(v, "v");
-    }
-public:
-    std::string str;
-    std::optional<int> x;
-    std::vector<std::string> v;
-    std::map<std::string, std::string> m;
+//struct bbb {
+//    friend serde::serializer<bbb>;
+//    template<typename S> auto serde(S& s) {
+//        s.tag(str, "str")
+//         .tag(x, "x", 0)
+//         .tag(m, "m")
+//         .tag(v, "v");
+//    }
+//public:
+//    std::string str;
+//    std::optional<int> x;
+//    std::vector<std::string> v;
+//    std::map<std::string, std::string> m;
+//};
+//
+//struct ttt {
+//    friend serde::serializer<ttt>;
+//    template<typename S> auto serde(S& s) {
+//        s.tag(bbb, "bbb");
+//    }
+//public:
+//    std::string str;
+//    bbb bbb;
+//    std::vector<std::string> v;
+//};
+
+class ADT{};
+
+
+struct test {
+    template<class CTX> auto serde(CTX& ctx) {}
+    int a;
 };
 
-struct ttt {
-    friend serde::serializer<ttt>;
-    template<typename S> auto serde(S& s) {
-        s.tag(bbb, "bbb");
-    }
-public:
-    std::string str;
-    bbb bbb;
-    std::vector<std::string> v;
-};
+using namespace serde;
 
 int main(int argc, char* argv[]) {
-    auto s = std::string{"hello"};
-    nlohmann::json cosn = R"({"bbb" : { "str" : "ssss", "v": ["h","e","l", "l", "o"], "m" : {"a" : "b", "c": "d"} }})"_json; 
-    //    fmt::print("{}\n",cosn.dump());
-    auto xx = serde::serialize<ttt>(cosn);
-    fmt::print("{}\n",xx.bbb.v);
-    auto yy = serde::deserialize<nlohmann::json>(xx, "ttt");
-    fmt::print("{}\n",yy.dump());
+    std::cout<<"tmp test"<<std::endl;
+    //static_assert(is_iterable_v<std::vector<int>>);
+    //static_assert(is_iterable_v<std::list<int>>);
+    //static_assert(is_iterable_v<std::map<int,int>>);
+    //static_assert(is_iterable_v<std::set<int>>);
+    //static_assert(is_serdeable_v<serde_context<serde::to_string>, test>);
+    //static_assert(is_optionable_v<std::optional<int>>);
+    //static_assert(is_optionable_v<std::vector<int>>);
+    //static_assert(is_optionable_v<std::map<int,int>>);
+    //static_assert(is_mappable_v<std::map<int,int>>);
+    //static_assert(is_mappable_v<std::unordered_map<int,int>>);
+    nlohmann::json json;
 
+    test target;
+    serialize<test>(json);
+    deserialize<nlohmann::json>(target);
+    
+    int normal;
+    serialize_at<int>(R"({"num":10})"_json, "num");
+    deserialize<nlohmann::json>(normal);
 
-    //nlohmann::json x;
-    //auto j = serde::Parser<nlohmann::json, false>{x};
-    //j.el(s, "string")
-    // .el(i, "int");
-    //fmt::print("{}\n", x.dump());
+    std::optional<test> opt_target;
+    serialize<std::optional<test>>(nlohmann::json{});
+    deserialize<nlohmann::json>(opt_target);
 
-    //fmt::print("string:{}, int:{}\n",s,i);
-    //std::vector<std::string> v = {"hello", "bye"};
-    //auto c = toml::make_table();
-    ////c->insert("string", "4444");
-    //c->insert("int", 1234);
-    //serde::Parser<std::shared_ptr<toml::table>> t{c};
+    std::vector<test> seq_target;
+    serialize<std::vector<test>>(nlohmann::json{});
+    deserialize<nlohmann::json>(seq_target);
 
-    //t// .el(s, "string");
-    //     .el(i, "int");
-
-    //fmt::print("string:{}, int:{}\n",s,i);
-
+    std::map<std::string, test> map_target;
+    serialize<std::map<std::string, test>>(nlohmann::json{});
+    deserialize<nlohmann::json>(map_target);
 
     return 0;
 }
