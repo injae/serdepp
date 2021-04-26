@@ -3,14 +3,18 @@
 #ifndef __SERDE_FORMAT_NLOHMANN_JSON_HPP__
 #define __SERDE_FORMAT_NLOHMANN_JSON_HPP__
 
+#define JSON_HAS_CPP_17 // nlohmann_json string_view support macro
+
 #include <nlohmann/json.hpp>
 #include "serdepp/serializer.hpp"
 #include <fstream>
 
 namespace serde {
     using nlohmann::json;
-    template<> struct serde_adaptor_helper<json> : default_serde_adaptor_helper<json> {
-        static bool is_struct(json& s) { return s.is_object(); }
+    template<> struct serde_adaptor_helper<json> {
+        inline constexpr static bool is_null(json& adaptor, std::string_view key) {
+            return adaptor.is_null();
+        }
         static json parse_file(const std::string& path) {
             json table;
             std::ifstream i(path);

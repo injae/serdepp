@@ -73,12 +73,12 @@ namespace serde
     };
 
     template <class Adaptor> struct serde_adaptor_helper {
-        inline constexpr bool is_null(Adaptor &adaptor, std::string_view key);
+        inline constexpr static bool is_null(Adaptor &adaptor, std::string_view key);
     };
 
     template <class Adaptor>
     struct default_serde_adaptor_helper { // default serde adaptor helper
-        inline constexpr bool is_null(Adaptor &adaptor, std::string_view key) {
+        inline constexpr static bool is_null(Adaptor &adaptor, std::string_view key) {
             return adaptor.contains(key);
         }
     };
@@ -123,14 +123,6 @@ namespace serde
         };
     };
 
-    template<class ADAPTOR> class serde_context {
-    public:
-        using Adaptor = ADAPTOR;
-        serde_context(Adaptor& _adpator, std::string_view _name) :adaptor(_adpator), name(_name) {}
-        Adaptor& adaptor;
-        std::string_view name;
-    };
-
     template<typename T, typename serde_ctx, typename = void>
     struct serde_serializer {
         using Adaptor = typename serde_ctx::Adaptor;
@@ -144,6 +136,138 @@ namespace serde
         }
     };
 
+    template<class ADAPTOR> class serde_context {
+    public:
+        using Adaptor = ADAPTOR;
+        serde_context(Adaptor& _adpator, std::string_view _name) :adaptor(_adpator), name(_name) {}
+        Adaptor& adaptor;
+        std::string_view name;
+
+        template<typename T>
+        constexpr serde_context& field(T& type, std::string_view tag) {
+            fmt::print(stderr, "unknown");
+            return *this;
+        }
+
+        template<typename T, typename U>
+        constexpr serde_context& field(T& type, std::string_view tag, U&& default_value) {
+            fmt::print(stderr, "unknown");
+            return *this;
+        }
+    private:
+    };
+
+    template<typename T, typename serde_ctx>
+    struct serde_serializer<T, serde_ctx, std::enable_if_t<is_optional_v<T>>> {
+        using value_type = typename T::value_type;
+        using Adaptor = typename serde_ctx::Adaptor;
+        using Helper = default_serde_adaptor_helper<Adaptor>;
+        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
+            fmt::print("optional=>");
+            if(Helper::is_null(ctx.adaptor, key)) {
+                data = std::nullopt;
+            } else {
+                serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
+            }
+        }
+        constexpr inline static auto into(serde_ctx& ctx, T&& data, std::string_view key) {
+            fmt::print("optional=>");
+            if(data) {
+                serde_serializer<value_type, serde_ctx>::into(ctx, std::forward<value_type>(*data), key);
+            }
+        }
+        template<typename U>
+        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key, U&& default_value) {
+            if(Helper::is_null(ctx.adaptor, key)) {
+                data = default_value;
+            } else {
+                serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
+            }
+        }
+
+        template<typename U>
+        constexpr inline static auto into(serde_ctx& ctx, T&& data, std::string_view key, U&& default_value) {
+            if(!data) data = default_value;
+            serde_serializer<value_type, serde_ctx>::into(ctx, std::forward<value_type>(*data), key);
+        }
+    };
+
+
+    template <typename T, class Adaptor>
+    constexpr inline T serialize(Adaptor&& adaptor, std::string_view name = "") {
+      using origin = typename std::remove_reference_t<Adaptor>;
+      T target;
+      serde_context<origin> ctx(adaptor, name);
+      serde_serializer<T, serde_context<origin>>::from(ctx, target, "");
+      return target;
+    }
+
+    template <typename T, class Adaptor>
+    constexpr inline T serialize(Adaptor&& adaptor, T&& default_type, std::string_view name = "") {
+      using origin = typename std::remove_reference_t<Adaptor>;
+      T target;
+      serde_context<origin> ctx(adaptor, name);
+      serde_serializer<T, serde_context<origin>>::from(ctx, target, "", default_type);
+      return target;
+    }
+
+    template<typename T, class Adaptor>
+    constexpr inline void serialize_to(Adaptor&& adaptor, T& target, std::string_view name="") {
+        using origin = typename std::remove_reference_t<Adaptor>;
+        serde_context<origin> ctx(adaptor, name);
+        serde_serializer<T, serde_context<origin>>::from(ctx, target, "");
+    }
+
+    template<typename T, class Adaptor>
+    constexpr inline void serialize_to(Adaptor&& adaptor, T& target, T&& default_type, std::string_view name="") {
+        using origin = typename std::remove_reference_t<Adaptor>;
+        serde_context<origin> ctx(adaptor, name);
+        serde_serializer<T, serde_context<origin>>::from(ctx, target, "", default_type);
+    }
+
+    template<typename T, class Adaptor>
+    constexpr inline T serialize_at(Adaptor&& adaptor, std::string_view key) {
+        using origin = typename std::remove_reference_t<Adaptor>;
+        T target;
+        serde_context<origin> ctx(adaptor, key);
+        serde_serializer<T, serde_context<origin>>::from(ctx, target, key);
+        return target;
+    }
+
+    template<typename T, class Adaptor>
+    constexpr inline void serialize_at_to(Adaptor& adaptor, T& target, std::string_view name) {
+        using origin = typename std::remove_reference_t<Adaptor>;
+        serde_context<origin> ctx(adaptor, name);
+        serde_serializer<T, serde_context<origin>>::from(ctx, target, name);
+    }
+
+
+    template<class Adaptor, typename T>
+    constexpr inline Adaptor deserialize(T&& target, std::string_view name="") {
+        using origin = typename std::remove_reference_t<T>;
+        Adaptor adaptor;
+        serde_context<Adaptor> ctx(adaptor, name);
+        serde_serializer<origin, serde_context<Adaptor>>::into(ctx, std::forward<origin>(target), "");
+        return adaptor;
+    }
+
+    template<class Adaptor, typename T>
+    constexpr inline Adaptor deserialize_by(T&& target, std::string_view key) {
+        using origin = typename std::remove_reference_t<T>;
+        Adaptor adaptor;
+        serde_context<Adaptor> ctx(adaptor, key);
+        serde_serializer<origin, serde_context<Adaptor>>::into(ctx, std::forward<origin>(target), key);
+        return adaptor;
+    }
+
+    template<class Adaptor, typename T>
+    constexpr inline Adaptor deserialize_by_from(Adaptor& adaptor, T&& target, std::string_view key) {
+        using origin = typename std::remove_reference_t<T>;
+        serde_context<Adaptor> ctx(adaptor, key);
+        serde_serializer<origin, serde_context<Adaptor>>::into(ctx, std::forward<origin>(target), key);
+        return adaptor;
+    }
+
     template<class ADAPTOR, bool is_serialize> class serde_struct_context {
     public:
         using Adaptor = ADAPTOR;
@@ -152,22 +276,31 @@ namespace serde
         std::string_view name;
 
         template<typename T>
-        serde_context<Adaptor>& field(T& type, std::string_view tag) {
-            
+        constexpr serde_struct_context& field(T& type, std::string_view tag) {
+            using origin = typename std::remove_reference_t<T>;
+            if constexpr(is_serialize) {
+                serialize_at_to<origin>(this->adaptor, type, tag);
+            } else {
+                deserialize_by_from<Adaptor>(this->adaptor, type, tag);
+            }
+            fmt::print("?:{}={}\n", tag, type);
+            return *this;
         }
 
         template<typename T, typename U>
-        serde_context<Adaptor>& field(T& type, std::string_view tag, U&& default_value) {
-            
+        constexpr serde_struct_context& field(T& type, std::string_view tag, U&& default_value) {
+            using origin = typename std::remove_reference_t<T>;
+            auto octxt = serde_context<Adaptor>(this->adaptor, tag);
+            if constexpr(is_serialize) {
+                serialize_at_to<origin>(this->adaptor, type, tag);
+            } else {
+                deserialize_by_from<Adaptor>(this->adaptor, type, tag);
+            }
+            fmt::print("?:{}={}\n", tag, type);
+            return *this;
         }
 
         bool is_serialize_step() { return is_serialize; }
-    private:
-        template<typename T>
-        constexpr inline T _serialize(T& target, std::string_view key) {
-            using origin = typename std::remove_reference_t<Adaptor>;
-            serde_serializer<T, serde_context<origin>>::from(*this, target, key);
-        }
     };
 
 
@@ -176,7 +309,7 @@ namespace serde
         using Adaptor = typename serde_ctx::Adaptor;
         constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
             if(key.empty()) {
-                auto struct_ctx = serde_struct_context<Adaptor, true>(ctx.adaptor, key);
+                serde_struct_context struct_ctx = serde_struct_context<Adaptor,true>{ctx.adaptor, key};
                 data.serde(struct_ctx);
             } else {
                 serde_adaptor<Adaptor, T, type::struct_t>::from(ctx.adaptor, key, data);
@@ -185,7 +318,7 @@ namespace serde
         }
         constexpr inline static auto into(serde_ctx& ctx, T&& data, std::string_view key) {
             if(key.empty()) {
-                auto struct_ctx = serde_struct_context<Adaptor, true>(ctx.adaptor, key);
+                auto struct_ctx = serde_struct_context<Adaptor, false>(ctx.adaptor, key);
                 data.serde(struct_ctx);
             } else {
                 serde_adaptor<Adaptor, T, type::struct_t>::into(ctx.adaptor, key, data);
@@ -218,64 +351,6 @@ namespace serde
             fmt::print("sequence type\n");
         }
     };
-
-    template<typename T, typename serde_ctx>
-    struct serde_serializer<T, serde_ctx, std::enable_if_t<is_optional_v<T>>> {
-        using value_type = typename T::value_type;
-        using Adaptor = typename serde_ctx::Adaptor;
-        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
-            fmt::print("optional=>");
-            serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
-        }
-        constexpr inline static auto into(serde_ctx& ctx, T&& data, std::string_view key) {
-            fmt::print("optional=>");
-            serde_serializer<value_type, serde_ctx>::into(ctx, std::forward<value_type>(*data), key);
-        }
-    };
-
-    template <typename T, class Adaptor>
-    constexpr inline T serialize(Adaptor&& adaptor, std::string_view name = "") {
-      using origin = typename std::remove_reference_t<Adaptor>;
-      T target;
-      serde_context<origin> ctx(adaptor, name);
-      serde_serializer<T, serde_context<origin>>::from(ctx, target, "");
-      return target;
-    }
-
-    template<typename T, class Adaptor>
-    constexpr inline void serialize_to(Adaptor&& adaptor, T& target, std::string_view name="") {
-        using origin = typename std::remove_reference_t<Adaptor>;
-        serde_context<origin> ctx(adaptor, name);
-        serde_serializer<T, serde_context<origin>>::from(ctx, target, "");
-    }
-
-    template<typename T, class Adaptor>
-    constexpr inline T serialize_at(Adaptor&& adaptor, std::string_view key) {
-        using origin = typename std::remove_reference_t<Adaptor>;
-        T target;
-        serde_context<origin> ctx(adaptor, key);
-        serde_serializer<T, serde_context<origin>>::from(ctx, target, key);
-        return target;
-    }
-
-
-    template<class Adaptor, typename T>
-    constexpr inline Adaptor deserialize(T&& target, std::string_view name="") {
-        using origin = typename std::remove_reference_t<T>;
-        Adaptor adaptor;
-        serde_context<Adaptor> ctx(adaptor, name);
-        serde_serializer<origin, serde_context<Adaptor>>::into(ctx, std::forward<origin>(target), "");
-        return adaptor;
-    }
-
-    template<class Adaptor, typename T>
-    constexpr inline Adaptor deserialize_by(T&& target, std::string_view key) {
-        using origin = typename std::remove_reference_t<T>;
-        Adaptor adaptor;
-        serde_context<Adaptor> ctx(adaptor, key);
-        serde_serializer<origin, serde_context<Adaptor>>::into(ctx, std::forward<origin>(target), key);
-        return adaptor;
-    }
 
 } // namespace serde
 #endif

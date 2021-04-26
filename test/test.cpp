@@ -2,6 +2,7 @@
 #include "serdepp/serializer.hpp"
 #include "serdepp/adaptor/fmt.hpp"
 #include "serdepp/adaptor/nlohmann_json.hpp"
+#include <any>
 
 //struct bbb {
 //    friend serde::serializer<bbb>;
@@ -30,17 +31,19 @@
 //};
 
 class ADT{};
-
-
 struct test {
-    template<class CTX> auto serde(CTX& ctx) {}
+    template<class CTX> auto serde(CTX& ctxt) {
+        ctxt.field(a, "a")
+            .field(b, "b");
+    }
     int a;
+    int b;
 };
+
 
 using namespace serde;
 
 int main(int argc, char* argv[]) {
-    std::cout<<"tmp test"<<std::endl;
     //static_assert(is_iterable_v<std::vector<int>>);
     //static_assert(is_iterable_v<std::list<int>>);
     //static_assert(is_iterable_v<std::map<int,int>>);
@@ -51,27 +54,26 @@ int main(int argc, char* argv[]) {
     //static_assert(is_optionable_v<std::map<int,int>>);
     //static_assert(is_mappable_v<std::map<int,int>>);
     //static_assert(is_mappable_v<std::unordered_map<int,int>>);
-    nlohmann::json json;
+    nlohmann::json json = R"({"a": 1, "b": 222})"_json;
 
-    test target;
-    serialize<test>(json);
-    deserialize<nlohmann::json>(target);
     
-    int normal;
-    serialize_at<int>(R"({"num":10})"_json, "num");
+    int normal = serialize_at<int>(R"({"num":10})"_json, "num");
     deserialize<nlohmann::json>(normal);
+    fmt::print("{}\n",normal);
 
-    std::optional<test> opt_target;
-    serialize<std::optional<test>>(nlohmann::json{});
-    deserialize<nlohmann::json>(opt_target);
+    test target = serialize<test>(json);
+    fmt::print("------{}:{}\n",target.a, target.b);
+    fmt::print("----:{}\n", deserialize<nlohmann::json>(target).dump());
 
-    std::vector<test> seq_target;
-    serialize<std::vector<test>>(nlohmann::json{});
-    deserialize<nlohmann::json>(seq_target);
 
-    std::map<std::string, test> map_target;
-    serialize<std::map<std::string, test>>(nlohmann::json{});
-    deserialize<nlohmann::json>(map_target);
+    std::vector<test> seq_target = serialize<std::vector<test>>(nlohmann::json{});
+    fmt::print("{}\n",deserialize<nlohmann::json>(seq_target).dump());
+
+    std::map<std::string, test> map_target = serialize<std::map<std::string, test>>(nlohmann::json{});
+    fmt::print("{}",deserialize<nlohmann::json>(map_target).dump());
+
+    std::optional<test> opt_target = serialize<std::optional<test>>(nlohmann::json{});
+    fmt::print("{}",deserialize<nlohmann::json>(opt_target).dump());
 
     return 0;
 }
