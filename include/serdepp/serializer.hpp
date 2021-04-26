@@ -164,11 +164,11 @@ namespace serde
         using Helper = default_serde_adaptor_helper<Adaptor>;
         constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
             fmt::print("optional=>");
-            if(Helper::is_null(ctx.adaptor, key)) {
-                data = std::nullopt;
-            } else {
+            //if(Helper::is_null(ctx.adaptor, key)) {
+            //    data = std::nullopt;
+            //} else {
                 serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
-            }
+                // }
         }
         constexpr inline static auto into(serde_ctx& ctx, T&& data, std::string_view key) {
             fmt::print("optional=>");
@@ -178,11 +178,15 @@ namespace serde
         }
         template<typename U>
         constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key, U&& default_value) {
-            if(Helper::is_null(ctx.adaptor, key)) {
-                data = default_value;
-            } else {
-                serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
-            }
+            //if constexpr(is_serdeable_v<serde_ctx, T>) {
+            //    
+            //} else {
+                if(Helper::is_null(ctx.adaptor, key)) {
+                    data = default_value;
+                } else {
+                    serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
+                }
+                //}
         }
 
         template<typename U>
