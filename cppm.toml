@@ -12,6 +12,10 @@
     name = "serde_test"
     source = ["test/test.cpp"]
 
+[[bin]]
+    name = "serde_ptr"
+    source = ["test/ptr.cpp"]
+
 
 #[[example]]
 #    name = "nlohmann_json_example"
@@ -47,8 +51,9 @@
 
 [dependencies]
     fmt = "7.1.3"
-    toml11= {version="3.6.0"}
-    nlohmann_json= {version="3.9.1"}
+    toml11= "3.6.0"
+    nlohmann_json = "3.9.1"
+    nameof = "0.10.0"
     #benchmark="1.5.2"
 
 [dev-dependencies]

@@ -109,6 +109,20 @@ namespace serde
             T& data;
         };
 
+        template<class T> struct is_optional {
+            using type = T;
+            using element = T;
+            constexpr static bool value = false;
+        };
+
+        template<class T> struct is_optional<std::optional<T>> {
+            using type = std::optional<T>;
+            using element = T;
+            constexpr static bool value = true;
+        };
+
+        template<typename T> using is_optional_element = typename is_optional<T>::element;
+
         template<class T> struct is_not_null {
             using type = T;
             using element = T;

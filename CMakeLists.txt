@@ -10,6 +10,7 @@ cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
 find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
+find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib)
 find_cppkg(toml11 3.6.0  MODULE toml11::toml11 TYPE lib)
 
@@ -29,8 +30,13 @@ SOURCES
     test/test.cpp
 )
 
+cppm_target_define(serde_ptr BINARY
+SOURCES
+    test/ptr.cpp
+)
 
-set(serdepp_global_deps PUBLIC fmt nlohmann_json toml11)
+
+set(serdepp_global_deps PUBLIC fmt nameof nlohmann_json toml11)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
    list(APPEND serdepp_global_deps PUBLIC benchmark yaml-cpp)
 endif()
@@ -41,7 +47,12 @@ cppm_target_dependencies(serde_test
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(serde_ptr
+   ${serdepp_global_deps}
+   serdepp)
+
 
 cppm_target_install(serdepp)
 cppm_target_install(serde_test)
+cppm_target_install(serde_ptr)
 
