@@ -60,6 +60,12 @@ int main(int argc, char* argv[]) {
 
     test t;
 
+    serde_struct<test>("test", 10)
+        .field("a", &test.a)
+        .field("b", &test.b)
+        .field("c", &test.opt)
+        .end();
+
     serde_struct<decltype(m), decltype(t), 10>(m, t)
         .MEM(&test::a)
         .MEM(&test::b)

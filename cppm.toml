@@ -12,10 +12,13 @@
     name = "serde_test"
     source = ["test/test.cpp"]
 
-[[bin]]
-    name = "serde_ptr"
-    source = ["test/ptr.cpp"]
+#[[bin]]
+#    name = "serde_ptr"
+#    source = ["test/ptr.cpp"]
 
+[[bin]]
+    name = "serde_func"
+    source = ["test/func.cpp"]
 
 #[[example]]
 #    name = "nlohmann_json_example"

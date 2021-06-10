@@ -30,9 +30,9 @@ SOURCES
     test/test.cpp
 )
 
-cppm_target_define(serde_ptr BINARY
+cppm_target_define(serde_func BINARY
 SOURCES
-    test/ptr.cpp
+    test/func.cpp
 )
 
 
@@ -47,12 +47,12 @@ cppm_target_dependencies(serde_test
    ${serdepp_global_deps}
    serdepp)
 
-cppm_target_dependencies(serde_ptr
+cppm_target_dependencies(serde_func
    ${serdepp_global_deps}
    serdepp)
 
 
 cppm_target_install(serdepp)
 cppm_target_install(serde_test)
-cppm_target_install(serde_ptr)
+cppm_target_install(serde_func)
 
