@@ -31,7 +31,7 @@ struct serde_struct {
     constexpr serde_struct(Context& context, T& value, int size) : context_(context), value_(value), size_(size) {  }
 
     template<class MEM_PTR, class... Ts>
-    constexpr serde_struct& mem(MEM_PTR&& ptr, std::string_view name, attributes<Ts...>&& opt) {
+    inline constexpr serde_struct& field(MEM_PTR&& ptr, std::string_view name, attributes<Ts...>&& opt) {
         if constexpr(Context::is_serialize) {
             constexpr auto opt_check = serde::is_optional_v<decltype(std::invoke(ptr, value_))>;
             if constexpr (opt_check) { value_.*ptr = context_.get()[name];    }
@@ -50,7 +50,7 @@ struct serde_struct {
     }
 
     template<class MEM_PTR>
-    constexpr serde_struct& mem(MEM_PTR&& ptr, std::string_view name) {
+    inline constexpr serde_struct& field(MEM_PTR&& ptr, std::string_view name) {
         if constexpr(Context::is_serialize) {
             constexpr auto opt_check = serde::is_optional_v<decltype(std::invoke(ptr, value_))>;
             if constexpr (opt_check) { value_.*ptr = context_.get()[name];    }
@@ -72,17 +72,25 @@ template<class Context, class T> serde_struct(Context, T) -> serde_struct<Contex
 struct test {
     template<class Context>
     static constexpr auto serde(Context& context, test& value) {
-        return serde_struct<Context, test>(context, value, 3)
-            .mem(&test::a, "a")
-            .mem(&test::b, "b")
-            .mem(&test::opt, "opt");
+      return serde_struct<Context, test>(context, value, 3)
+          .field(&test::a, "a",
+                 attributes{
+                     //[](std::map<std::string_view, int> &format) {fmt::print("hello");},
+                     //[](auto &format) {fmt::print("oooooo");}
+                     [](auto& format) {
+                        using T = std::decay_t<decltype(format)>;
+                        if constexpr(std::is_same_v<std::map<std::string_view, int>, T>) {}
+                     }
+                 })
+          .field(&test::b, "b")
+          .field(&test::opt, "opt");
     }
     int a=0;
     int b=0;
     std::optional<int> opt;
 };
 
-int main(int argc, char* argv[]) {
+static void set_bench(benchmark::State& state) {
     std::variant<std::map<std::string_view, int>> v = std::map<std::string_view, int>(); 
     _serde_context context(v);
     auto& m = std::get<std::map<std::string_view, int>>(v);
@@ -90,24 +98,30 @@ int main(int argc, char* argv[]) {
     m["b"] = 2;
     m["opt"] = 3;
     test t;
-    //t.a = 1;
-    //t.b = 2;
-    //t.opt = 3;
-    //ss.mem(&test::a, "a", attributes{[](auto& format){
-    //    using T = std::decay_t<decltype(format)>;
-    //    if constexpr(std::is_same_v<std::map<std::string_view, int>, T>) {
-    //        fmt::print("hello\n");
-    //    }
-    //} });
-    test::serde(context, t);
+    auto ss = test::serde(context, t);
 
-    fmt::print("{}", t.a);
-    fmt::print("{}", t.b);
-    fmt::print("{}", t.opt.value());
-
-    // ss.iter_[0].first();
-    return 0;
+    for(auto _ : state) {
+        test::serde(context, t);
+    }
 }
 
+static void get_bench(benchmark::State& state) {
+    std::variant<std::map<std::string_view, int>> v = std::map<std::string_view, int>(); 
+    _serde_context<std::map<std::string_view, int>, false> context(v);
+    //m["a"] = 1;
+    //m["b"] = 2;
+    //m["opt"] = 3;
+    test t;
+    t.a = 1;
+    t.b = 2;
+    t.opt = 3;
 
 
+    for(auto _ : state) {
+        test::serde(context, t);
+    }
+}
+
+BENCHMARK(set_bench);
+BENCHMARK(get_bench);
+BENCHMARK_MAIN();

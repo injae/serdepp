@@ -8,9 +8,9 @@
    type = "static"
    source= ["src/to_static.cpp"]
 
-[[bin]]
-    name = "serde_test"
-    source = ["test/test.cpp"]
+#[[bin]]
+#    name = "serde_test"
+#    source = ["test/test.cpp"]
 
 #[[bin]]
 #    name = "serde_ptr"
@@ -44,6 +44,14 @@
 #    name = "benchmark"
 #    source = ["benchmark/benchmark.cpp"]
 
+[[bin]]
+    name = "benchmark"
+    source = ["benchmark/benchmark_v2.cpp"]
+
+[[bin]]
+    name = "benchmark2"
+    source = ["benchmark/benchmark_v2_2.cpp"]
+
 #[[bin]]
 #    name = "yaml-cpp_example"
 #    source = ["examples/yaml-cpp_example.cpp"]
@@ -57,9 +65,9 @@
     toml11= "3.6.0"
     nlohmann_json = "3.9.1"
     nameof = "0.10.0"
-    #benchmark="1.5.2"
+    benchmark="1.5.2"
 
 [dev-dependencies]
 #    tomlpp="git"
     yaml-cpp= {version="0.6.3", optional=true}
-    benchmark={version="1.5.2", optional=true}
+    #benchmark={version="1.5.2", optional=true}
