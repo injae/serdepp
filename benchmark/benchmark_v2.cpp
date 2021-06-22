@@ -37,48 +37,48 @@ struct serde_struct {
 
     constexpr serde_struct() : iter_() {  }
 
-    template<class MEM_PTR, class... Ts>
-    constexpr auto& mem(int index, MEM_PTR&& ptr, std::string_view name, attributes<Ts...>&& opt) {
-        iter_[index] = {
-            [ptr = std::move(ptr), name = std::move(name), opt = std::move(opt)]
-            (Context& context, T& value) {
-                auto& mem_ptr = std::invoke(ptr, value);
-                if constexpr (serde::is_optional_v<decltype(mem_ptr)>) {
-                    if (mem_ptr.has_value()) context.get()[name] = mem_ptr.value();
-                } else {
+    //template<class MEM_PTR, class... Ts>
+    //constexpr auto& mem(int index, MEM_PTR&& ptr, std::string_view name, attributes<Ts...>&& opt) {
+    //    iter_[index] = {
+    //        [ptr = std::move(ptr), name = std::move(name), opt = std::move(opt)]
+    //        (Context& context, T& value) {
+    //            auto& mem_ptr = std::invoke(ptr, value);
+    //            if constexpr (serde::is_optional_v<decltype(mem_ptr)>) {
+    //                if (mem_ptr.has_value()) context.get()[name] = mem_ptr.value();
+    //            } else {
 
-                }
-                context.visit(std::move(opt));
-            },
-            [ptr = std::move(ptr), name = std::move(name), opt = std::move(opt)]
-            (Context& context, T& value){
-            constexpr auto opt_check = serde::is_optional_v<decltype(std::invoke(ptr, value))>;
-                if constexpr (opt_check) { value.*ptr = context.get()[name];    }
-                else                     { value.*ptr = context.get().at(name); }
-                 context.visit(opt);
-            }};
-        return *this;
-    }
+    //            }
+    //            context.visit(std::move(opt));
+    //        },
+    //        [ptr = std::move(ptr), name = std::move(name), opt = std::move(opt)]
+    //        (Context& context, T& value){
+    //        constexpr auto opt_check = serde::is_optional_v<decltype(std::invoke(ptr, value))>;
+    //            if constexpr (opt_check) { value.*ptr = context.get()[name];    }
+    //            else                     { value.*ptr = context.get().at(name); }
+    //             context.visit(opt);
+    //        }};
+    //    return *this;
+    //}
 
-    template<class MEM_PTR>
-    constexpr auto& mem(int index, MEM_PTR&& ptr, std::string_view name) {
-        iter_[index] = {
-                [ptr = std::move(ptr), name]
-                (Context& context, T& value) {
-                auto& mem_ptr = std::invoke(ptr, value);
-                if constexpr (serde::is_optional_v<decltype(mem_ptr)>) {
-                    if (mem_ptr.has_value()) context.get()[name] = mem_ptr.value();
-                } else {
-                    context.get()[name] = mem_ptr;
-                }
-             },
-               [ptr = std::move(ptr), name]
-               (Context& context, T& value){
-               constexpr auto opt_check = serde::is_optional_v<decltype(std::invoke(ptr, value))>;
-               if constexpr (opt_check) { value.*ptr = context.get()[name];    }
-               else                     { value.*ptr = context.get().at(name); }
-            }};
-        return *this;
+    //template<class MEM_PTR>
+    //constexpr auto& mem(int index, MEM_PTR&& ptr, std::string_view name) {
+    //    iter_[index] = {
+    //            [ptr = std::move(ptr), name]
+    //            (Context& context, T& value) {
+    //            auto& mem_ptr = std::invoke(ptr, value);
+    //            if constexpr (serde::is_optional_v<decltype(mem_ptr)>) {
+    //                if (mem_ptr.has_value()) context.get()[name] = mem_ptr.value();
+    //            } else {
+    //                context.get()[name] = mem_ptr;
+    //            }
+    //         },
+    //           [ptr = std::move(ptr), name]
+    //           (Context& context, T& value){
+    //           constexpr auto opt_check = serde::is_optional_v<decltype(std::invoke(ptr, value))>;
+    //           if constexpr (opt_check) { value.*ptr = context.get()[name];    }
+    //           else                     { value.*ptr = context.get().at(name); }
+    //        }};
+    //    return *this;
 
     //}
 

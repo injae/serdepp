@@ -25,14 +25,9 @@ SOURCES
     src/to_static.cpp
 )
 
-cppm_target_define(serde_func BINARY
+cppm_target_define(serde_test2 BINARY
 SOURCES
-    test/func.cpp
-)
-
-cppm_target_define(benchmark BINARY
-SOURCES
-    benchmark/benchmark_v2.cpp
+    test/test2.cpp
 )
 
 cppm_target_define(benchmark2 BINARY
@@ -48,11 +43,7 @@ endif()
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 
-cppm_target_dependencies(serde_func
-   ${serdepp_global_deps}
-   serdepp)
-
-cppm_target_dependencies(benchmark
+cppm_target_dependencies(serde_test2
    ${serdepp_global_deps}
    serdepp)
 
@@ -62,7 +53,6 @@ cppm_target_dependencies(benchmark2
 
 
 cppm_target_install(serdepp)
-cppm_target_install(serde_func)
-cppm_target_install(benchmark)
+cppm_target_install(serde_test2)
 cppm_target_install(benchmark2)
 

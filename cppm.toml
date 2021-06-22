@@ -16,10 +16,13 @@
 #    name = "serde_ptr"
 #    source = ["test/ptr.cpp"]
 
-[[bin]]
-    name = "serde_func"
-    source = ["test/func.cpp"]
+#[[bin]]
+#    name = "serde_func"
+#    source = ["test/func.cpp"]
 
+[[bin]]
+    name = "serde_test2"
+    source = ["test/test2.cpp"]
 #[[example]]
 #    name = "nlohmann_json_example"
 #    source = ["examples/nlohmann_json_example.cpp"]
@@ -44,10 +47,10 @@
 #    name = "benchmark"
 #    source = ["benchmark/benchmark.cpp"]
 
-[[bin]]
-    name = "benchmark"
-    source = ["benchmark/benchmark_v2.cpp"]
-
+#[[bin]]
+#    name = "benchmark"
+#    source = ["benchmark/benchmark_v2.cpp"]
+#
 [[bin]]
     name = "benchmark2"
     source = ["benchmark/benchmark_v2_2.cpp"]

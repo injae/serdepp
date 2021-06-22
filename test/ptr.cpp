@@ -19,12 +19,14 @@ struct mem {
 };
 
 
-template<class Context, class T, int size>
+template<class Context, class T, int size=1>
 struct serde_struct {
     constexpr static int size_ = size;
     Context& context_;
     T& value_;
-    serde_struct(Context& context, T& value) : context_(context), value_(value) {}
+    serde_struct(Context& context, T& value) : context_(context), value_(value) {
+      
+    }
     template<typename MEM>
     serde_struct& mem(MEM&& ptr, std::string_view name) {
         using namespace serde;
@@ -43,6 +45,8 @@ struct serde_struct {
     }
 };
 
+template<class Context, class T> serde_struct(Context&, T&) -> serde_struct<Context, T>;
+
 #define MEM(var) mem(var, NAMEOF(var))
 
 
@@ -60,7 +64,7 @@ int main(int argc, char* argv[]) {
 
     test t;
 
-    serde_struct<test>("test", 10)
+    serde_struct<10>(m, t)
         .field("a", &test.a)
         .field("b", &test.b)
         .field("c", &test.opt)
