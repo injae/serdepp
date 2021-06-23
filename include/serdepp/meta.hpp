@@ -9,7 +9,6 @@
 #include <list>
 #include <type_traits>
 #include <utility>
-#include <fmt/format.h>
 #include <string_view>
 #include <magic_enum.hpp>
 
@@ -17,6 +16,12 @@
 #define __SERDEPP_META_HPP__
 
 namespace serde::meta {
+    template<class T>
+    struct remove_cvref {
+        typedef std::remove_cv_t<std::remove_reference_t<T>> type;
+    };
+    template< class T > using remove_cvref_t = typename remove_cvref<T>::type;
+
     template <typename T, typename = void> struct is_iterable : std::false_type {};
     template <typename T>
     struct is_iterable<T, std::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())>>

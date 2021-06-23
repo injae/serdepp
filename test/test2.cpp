@@ -9,6 +9,7 @@
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 #include <serdepp/adaptor/toml11.hpp>
+#include <serdepp/adaptor/fmt.hpp>
 
 enum class tenum {
     INPUT = 1,
@@ -16,14 +17,14 @@ enum class tenum {
 };
 
 struct test {
+
     template<class Context>
     static constexpr auto serde(Context& context, test& value) {
       return serde::serde_struct<Context, test, 3>(context, value)
           .field(&test::str, "str")
           .field(&test::i, "i")
           .field(&test::vec, "vec")
-          .field(&test::io, "io")
-          .no_remain();
+          .field(&test::io, "io");
     }
     std::optional<std::string> str;
     int i;
@@ -44,9 +45,8 @@ int main()
     fmt::print("json: {}\n", v_to_json.dump());
 
     test t_from_toml = serde::serialize<test>(v_to_toml);
-    fmt::print("test:{{ str:{}, i:{}, vec:{} }}\n", *t_from_toml.str, t_from_toml.i, *t_from_toml.vec);
 
-    fmt::print("{}", serde::meta::is_enumable_v<tenum>);
+    fmt::print("{}",t);
 
 
     return 0;

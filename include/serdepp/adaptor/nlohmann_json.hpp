@@ -26,7 +26,7 @@ namespace serde {
             data = key.empty() ? s.get<T>() : s[std::string{key}].template get<T>();
         }
 
-        constexpr static void into(json& s, std::string_view key, T& data) {
+        constexpr static void into(json& s, std::string_view key, const T& data) {
             (key.empty() ? s : s[std::string{key}]) = data;
         }
     };
@@ -36,7 +36,7 @@ namespace serde {
         static void from(json& s, std::string_view key, T& data) {
             serialize_to(s[std::string{key}], data);
         }
-        static void into(json& s, std::string_view key, T& data) {
+        static void into(json& s, std::string_view key, const T& data) {
             s[std::string{key}] = deserialize<json>(data);
         } 
     };
@@ -46,7 +46,7 @@ namespace serde {
         constexpr static void from(json& s, std::string_view key, T& data) {
             data = type::enum_t::from_str<T>(serialize_at<std::string>(s, key));
         }
-        constexpr static void into(json& s, std::string_view key, T& data) {
+        constexpr static void into(json& s, std::string_view key, const T& data) {
             (key.empty() ? s : s[std::string{key}]) = type::enum_t::to_str(data);
         }
     };
@@ -60,7 +60,7 @@ namespace serde {
             for(auto& value : table) { arr.push_back(std::move(serialize<E>(value))); }
        }
 
-       static void into(json& s, std::string_view key, T& data) {
+       static void into(json& s, std::string_view key, const T& data) {
             json arr;
             for(auto& value: data) { arr.push_back(std::move(deserialize<json>(value))); }
             (key.empty() ? s : s[std::string {key}]) = std::move(arr);
@@ -75,7 +75,7 @@ namespace serde {
             auto& table = key.empty() ? s : s[std::string{key}];
             for(auto& [key_, value_] : table.items()) { map[key_] = serialize<T>(value_); }
         }
-        static void into(json& s, std::string_view key, Map& data) {
+        static void into(json& s, std::string_view key, const Map& data) {
             json map;
             for(auto& [key_, value] : data) { map[key_] = deserialize<json>(value); }
             (key.empty() ? s : s[std::string{key}]) = std::move(map);

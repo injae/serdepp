@@ -70,9 +70,7 @@ namespace serde::type {
         constexpr static bool value = true;
     };
 
-    namespace detail { struct dummy_context{}; }
     template<class T> constexpr static bool is_struct_v = is_serdeable_v<detail::dummy_context, T>;
-
 }
 
 #endif
