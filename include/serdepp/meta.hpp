@@ -11,6 +11,7 @@
 #include <utility>
 #include <fmt/format.h>
 #include <string_view>
+#include <magic_enum.hpp>
 
 #ifndef __SERDEPP_META_HPP__
 #define __SERDEPP_META_HPP__
@@ -44,6 +45,12 @@ namespace serde::meta {
     struct is_sequenceable<T, std::enable_if_t<is_iterable_v<T> && !is_mappable_v<T>>> : std::true_type { };
     template<typename T>  inline constexpr auto is_sequenceable_v = is_sequenceable<T>::value;
 
+    template<typename T, typename U = void> struct is_enumable : std::false_type {};
+    template<typename T>
+    struct is_enumable<T, std::enable_if_t<magic_enum::is_scoped_enum_v<T> ||
+                                           magic_enum::is_unscoped_enum_v<T>>> : std::true_type {};
+    template<typename T>  inline constexpr auto is_enumable_v = is_enumable<T>::value;
+
 
     template<class T>
     struct is_literal {
@@ -69,16 +76,6 @@ namespace serde::meta {
     template<typename T>  inline constexpr auto is_literal_v = is_literal<T>::value;
 
 
-
-    template<class CTX, typename T, typename = void> struct is_serdeable : std::false_type {};
-    template<class CTX, typename T>
-    struct is_serdeable<CTX, T, std::void_t<decltype(std::declval<T>()
-                                .template /*auto*/ serde<CTX>(/*CTX& ctx)*/
-                                std::add_lvalue_reference_t<CTX>(std::declval<CTX>()),
-                                std::add_lvalue_reference_t<T>(std::declval<T>())
-                                                              ))> > : std::true_type {};
-    template<class CTX, typename T> inline constexpr auto is_serdeable_v = is_serdeable<CTX, T>::value;
-
     template<typename T, typename = void> struct is_optional : std::false_type {};
     template<typename T> struct is_optional<T,std::void_t<decltype(std::declval<T>().has_value()),
                                                           decltype(std::declval<T>().value()),
@@ -86,11 +83,20 @@ namespace serde::meta {
                                                           >> : std::true_type {};
     template<typename T> inline constexpr auto is_optional_v = is_optional<T>::value;
 
-    template<typename T, typename = void> struct is_optionable : std::false_type {};
-    template<typename T> struct is_optionable<T, std::enable_if_t<is_emptyable_v<T>>> : std::true_type {};
-    template<typename T> struct is_optionable<T, std::enable_if_t<is_optional_v<T>>> : std::true_type {};
-    template<typename T> inline constexpr auto is_optionable_v = is_optionable<T>::value;
-  
+    template<typename T, typename = void> struct is_default : std::false_type {};
+    template<typename T> struct is_default<T, std::enable_if_t<is_emptyable_v<T>>> : std::true_type {};
+    template<typename T> struct is_default<T, std::enable_if_t<is_optional_v<T>>> : std::true_type {};
+    template<typename T> inline constexpr auto is_default_v = is_default<T>::value;
+
+
+    template<class Format, typename T, typename = void> struct is_serdeable : std::false_type {};
+    template<class Format, typename T>
+    struct is_serdeable<Format, T, std::void_t<decltype(std::declval<T>().template
+                                    /*auto*/ serde<Format>(/*Format& ctx)*/
+                                        std::add_lvalue_reference_t<Format>(std::declval<Format>()), /*format& */
+                                        std::add_lvalue_reference_t<T>(std::declval<T>()) /*value& */))>
+                                     > : std::true_type {};
+    template<class CTX, typename T> inline constexpr auto is_serdeable_v = is_serdeable<CTX, T>::value;
 }
 
 #endif

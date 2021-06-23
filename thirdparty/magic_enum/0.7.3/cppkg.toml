@@ -1,0 +1,9 @@
+[magic_enum]
+version="0.7.3" #(require)
+type="lib" #lib(default) | bin | cmake
+description="magic enum" #(require)
+module="magic_enum::magic_enum" #(require) if none_module=true -> no require
+url="https://github.com/Neargye/magic_enum/archive/refs/tags/v0.7.3.tar.gz" #(require)
+flags= "-DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF -DMAGIC_ENUM_OPT_BUILD_TESTS=OFF"
+#branch="" #(optional & require git)
+#link="public" #default

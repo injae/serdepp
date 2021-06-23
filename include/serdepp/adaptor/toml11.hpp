@@ -10,8 +10,7 @@
 namespace serde {
     using toml_v = toml::value;
     template<> struct serde_adaptor_helper<toml_v>: default_serde_adaptor_helper<toml_v> {
-        static toml_v init() { return toml::table{}; }
-        constexpr static bool is_null(toml_v& adaptor, std::string_view key) {
+        inline constexpr static bool is_null(toml_v& adaptor, std::string_view key) {
             return adaptor.contains(std::string{key});
         }
         static toml_v parse_file(std::string_view path) { return toml::parse(path); }
@@ -35,20 +34,32 @@ namespace serde {
         }
     };
 
+    template<typename T>
+    struct serde_adaptor<toml_v, T, type::enum_t> {
+        constexpr static void from(toml_v& s, std::string_view key, T& data) {
+            data = type::enum_t::from_str<T>(serialize_at<std::string>(s, key));
+        }
+        constexpr static void into(toml_v& s, std::string_view key, T& data) {
+            (key.empty() ? s : s[std::string{key}]) = type::enum_t::to_str(data);
+        }
+    };
+
     template<typename T> struct serde_adaptor<toml_v, T, type::seq_t> {
     using E = type::seq_e<T>;
         static void from(toml_v& s, std::string_view key, T& arr) {
             auto& table = key.empty() ? s : s[std::string{key}];
+            arr.reserve(table.size());
             for(auto& value : table.as_array()) { arr.push_back(serialize<E>(value)); }
         }
         static void into(toml_v& s, std::string_view key, T& data) {
             toml::array arr;
+            arr.reserve(data.size());
             if constexpr(type::is_struct_v<E>) {
-                for(auto& value: data) { arr.push_back(deserialize<toml_v>(value).as_table()); }
+                for(auto& value: data) { arr.push_back(std::move(deserialize<toml_v>(value).as_table())); }
             } else {
-                for(auto& value: data) { arr.push_back(deserialize<toml_v>(value));  }
+                for(auto& value: data) { arr.push_back(std::move(deserialize<toml_v>(value)));  }
             }
-            (key.empty() ? s : s[std::string{key}]) = arr;
+            (key.empty() ? s : s[std::string{key}]) = std::move(arr);
         }
     };
 
@@ -58,10 +69,10 @@ namespace serde {
             auto& table = key.empty() ? s : s[std::string{key}];
             for(auto& [key_, value_] : table.as_table()) { serialize_to<E>(value_, map[key_]);}
         }
-        inline static void into(toml_v &s, std::string_view key, Map& data) {
+        inline static void into(toml_v& s, std::string_view key, Map& data) {
             toml_v map;
             for(auto& [key_, value_] : data) { map[key_] = deserialize<toml_v>(value_); }
-            (key.empty() ? s : s[std::string{key}]) = map;
+            (key.empty() ? s : s[std::string{key}]) = std::move(map);
         }
     };
 }

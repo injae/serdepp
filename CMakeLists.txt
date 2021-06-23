@@ -11,13 +11,11 @@ cppm_compiler_option(DEFAULT)
 
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib)
 find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
+find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib)
 find_cppkg(toml11 3.6.0  MODULE toml11::toml11 TYPE lib)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
-endif()
+find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib)
 
 
 cppm_target_define(serdepp STATIC
@@ -36,10 +34,7 @@ SOURCES
 )
 
 
-set(serdepp_global_deps PUBLIC benchmark fmt nameof nlohmann_json toml11)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-   list(APPEND serdepp_global_deps PUBLIC yaml-cpp)
-endif()
+set(serdepp_global_deps PUBLIC benchmark fmt magic_enum nameof nlohmann_json toml11 yaml-cpp)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 

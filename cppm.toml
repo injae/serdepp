@@ -69,8 +69,9 @@
     nlohmann_json = "3.9.1"
     nameof = "0.10.0"
     benchmark="1.5.2"
+    yaml-cpp ="0.6.3"
+    magic_enum = "0.7.3"
 
-[dev-dependencies]
-#    tomlpp="git"
-    yaml-cpp= {version="0.6.3", optional=true}
+[dev-dependncies]
     #benchmark={version="1.5.2", optional=true}
+    #yaml-cpp= {version="0.6.3", optional=true}
