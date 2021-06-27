@@ -34,7 +34,8 @@
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Release .
 cd build
 cmake --build . --config Release --target install
-```
+``
+`
 
 ## CMake 
 ```cmake
@@ -62,7 +63,6 @@ class test {
 public:
     template<class Context>
     constexpr static auto serde(Context& context, test& value) {
-        using serde::attribute::set_default;
         serde::serde_struct(context, value)
             .field(&test::str, "str")
             .field(&test::i,   "i")
