@@ -291,7 +291,9 @@ namespace serde
         
         inline constexpr serde_struct& no_remain() {
             if constexpr (Context::is_serialize) {
-                const auto adaptor_size = Context::Helper::size(context_.adaptor);
+                const auto adaptor_size = Context::Helper::is_struct(context_.adaptor)
+                    ? Context::Helper::size(context_.adaptor)
+                    : 1;
                 const auto serde_size   = context_.read_count_;
                 if(adaptor_size > serde_size) {
                     throw unregisted_data_error(fmt::format(
