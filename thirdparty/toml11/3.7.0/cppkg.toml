@@ -1,0 +1,8 @@
+[toml11]
+version="3.7.0" #(require)
+type="lib" #lib(default) | bin | cmake
+description="c++ toml parser" #(require)
+module="toml11::toml11" #(require) if none_module=true -> no require
+url="https://github.com/ToruNiina/toml11/archive/refs/tags/v3.7.0.tar.gz" #(require)
+#branch="" #(optional & require git)
+#link="public" #default

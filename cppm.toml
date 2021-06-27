@@ -25,7 +25,7 @@
     nameof = "0.10.0"
     magic_enum = "0.7.3"
     yaml-cpp  = {version="0.6.3", optional=true}
-    toml11    = {version="3.6.0", optional=true}
+    toml11    = {version="3.7.0", optional=true}
     nlohmann_json = {version="3.9.1", optional=true}
     benchmark = {version="1.5.2", optional=true}
 
