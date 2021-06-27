@@ -316,6 +316,7 @@ class test {
 ```
 ### Result
 ```console
+2021-06-27T23:58:10+09:00
 Running ./benchmark
 Run on (12 X 2600 MHz CPU s)
 CPU Caches:
@@ -323,22 +324,22 @@ CPU Caches:
   L1 Instruction 32 KiB (x6)
   L2 Unified 256 KiB (x6)
   L3 Unified 12288 KiB (x1)
-Load Average: 2.97, 2.97, 2.76
+Load Average: 2.47, 2.43, 2.51
 --------------------------------------------------------------
 Benchmark                    Time             CPU   Iterations
 --------------------------------------------------------------
-nljson_set_se_bench        453 ns          452 ns      1568968  // serde<nlohmann> serialize
-nljson_set_nl_bench        447 ns          446 ns      1542571  // nlohmann serialize
-nljson_get_se_bench       2369 ns         2365 ns       301281  // serde<nlohmann> struct deserialize
-nljson_get_nl_bench       2733 ns         2729 ns       259948  // nlohmann struct deserialize
-toml11_set_se_bench        525 ns          517 ns      1000000  // serde<toml11> struct serialize
-toml11_set_tl_bench        546 ns          540 ns      1228372  // toml11 strcut serialize
-toml11_get_se_bench       3516 ns         3509 ns       198763  // serde<toml11> struct deserialize
-toml11_get_tl_bench       4191 ns         4181 ns       170082  // toml11 struct deserialize
-yaml_set_se_bench         2096 ns         2089 ns       339427  // serde<yaml-cpp> struct serialize
-yaml_set_tl_bench         2132 ns         2128 ns       323027  // yaml-cpp strcut serialize
-yaml_get_se_bench        20363 ns        20323 ns        31356  // serde<yaml-cpp> struct deserialize
-yaml_get_tl_bench        28897 ns        28847 ns        24286  // yaml-cpp struct deserialize
+nljson_set_se_bench        425 ns          424 ns      1575076  // serde<nlohmann> serialize
+nljson_set_nl_bench        442 ns          442 ns      1617058  // nlohmann serialize
+nljson_get_se_bench       2277 ns         2274 ns       309051  // serde<nlohmann> struct deserialize
+nljson_get_nl_bench       2610 ns         2606 ns       264174  // nlohmann struct deserialize
+toml11_set_se_bench        466 ns          465 ns      1462581  // serde<toml11> struct serialize
+toml11_set_tl_bench        499 ns          498 ns      1425691  // toml11 strcut serialize
+toml11_get_se_bench       3327 ns         3322 ns       208100  // serde<toml11> struct deserialize
+toml11_get_tl_bench       4048 ns         4043 ns       175482  // toml11 struct deserialize
+yaml_set_se_bench         1955 ns         1951 ns       355640  // serde<yaml-cpp> struct serialize
+yaml_set_tl_bench         2044 ns         2042 ns       341966  // yaml-cpp strcut serialize
+yaml_get_se_bench        19619 ns        19592 ns        35286  // serde<yaml-cpp> struct deserialize
+yaml_get_tl_bench        28810 ns        28754 ns        25024  // yaml-cpp struct deserialize
 ```
 
 

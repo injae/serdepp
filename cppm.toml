@@ -8,7 +8,6 @@
    type = "static"
    source= ["src/to_static.cpp"]
 
-#[[example]]
 [[example]]
     name = "serde_example"
     source = ["examples/example.cpp"]
