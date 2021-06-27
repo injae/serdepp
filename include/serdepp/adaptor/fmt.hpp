@@ -20,22 +20,40 @@ namespace serde {
         std::string to_string() {
             return fmt::format("{}", iter);
         }
-        bool contains(std::string_view key)  { return true; }
-        size_t size() { return 1; }
     };
 
-    template<> struct serde_adaptor_helper<literal>: default_serde_adaptor_helper<literal> {};
+    template<> struct serde_adaptor_helper<literal>: derive_serde_adaptor_helper<literal> {
+        inline constexpr static bool is_null(literal& adaptor, std::string_view key) { return false; }
+        inline constexpr static size_t size(literal& adaptor) { return 1; }
+        inline constexpr static bool is_struct(literal& adaptor) { return true; }
+    };
 
     template<typename T> struct serde_adaptor<literal, T, type::struct_t> {
-        static void from(literal& s, std::string_view key, T& data) { /*unimplemented*/ }
+        static void from(literal& s, std::string_view key, T& data) {
+            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::from(literal, key data)",
+                                                         nameof::nameof_short_type<literal>()));
+        }
         static void into(literal& s, std::string_view key, const T& data) {
             s.add(key, deserialize<serde::literal>(data).to_string());
         }
     };
 
     template<typename T, typename U> struct serde_adaptor<literal, T, U> {
-        static void from(literal& s, std::string_view key, T& data){ /*unimplemented*/ }
+        static void from(literal& s, std::string_view key, T& data){
+            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::from(literal, key data)",
+                                                         nameof::nameof_short_type<literal>()));
+        }
         static void into(literal& s, std::string_view key, const T& data) { s.add(key, data);  }
+    };
+
+    template<typename T>
+    struct serde_adaptor<literal, T, type::enum_t> {
+        constexpr static void from(literal& s, std::string_view key, T& data) {
+            data = type::enum_t::from_str<T>(serialize_at<std::string>(s, key));
+        }
+        constexpr static void into(literal& s, std::string_view key, const T& data) {
+            s.add(key, type::enum_t::to_str(data));
+        }
     };
 }
 

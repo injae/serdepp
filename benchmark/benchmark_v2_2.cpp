@@ -1,7 +1,4 @@
 #include <benchmark/benchmark.h>
-#include <fmt/format.h>
-#include <any>
-#include <functional>
 #include <map>
 #include <nameof.hpp>
 #include <optional>
@@ -9,19 +6,22 @@
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 #include <serdepp/adaptor/toml11.hpp>
+#include <fmt/format.h>
 
 struct test {
     template<class Context>
-    static constexpr auto serde(Context& context, test& value) {
-      return serde::serde_struct<Context, test, 3>(context, value)
+    constexpr static auto serde(Context& context, test& value) {
+      serde::serde_struct(context, value)
           .field(&test::str, "str")
           .field(&test::i, "i")
-          .field(&test::vec, "vec");
+          .field(&test::vec, "vec")
+          .field(&test::sm, "sm");
       //.no_remain();
     }
     std::string str;
     int i;
     std::vector<std::string> vec;
+    std::map<std::string, std::string> sm;
 };
 
 namespace ns {
@@ -29,22 +29,40 @@ namespace ns {
         std::string str;
         int i;
         std::vector<std::string> vec;
-        NLOHMANN_DEFINE_TYPE_INTRUSIVE(nl_test, str, i, vec)
+        std::map<std::string, std::string> sm;
+        NLOHMANN_DEFINE_TYPE_INTRUSIVE(nl_test, str, i, vec, sm)
     };
 }
 
 
+using namespace toml::literals;
+
+nlohmann::json json_v = R"({
+"str" : "hello",
+"i": 10,
+"vec": [ "one", "two" ],
+"sm": { "one" : "tone", "two" : "ttwo"}
+})"_json;
+
+toml::value toml_v = R"(
+vec = ["one", "two"]
+i = 10
+str = "hello"
+[sm]
+one = "tone"
+two = "ttwo"
+)"_toml;
+
+
 static void nljson_set_se_bench(benchmark::State& state) {
-    nlohmann::json v = R"({"str":"hello", "i": 10, "vec": [ "one", "two" ]})"_json;
     for(auto _ : state) {
-        serde::serialize<test>(v);
+        serde::serialize<test>(json_v);
     }
 }
 
 static void nljson_set_nl_bench(benchmark::State& state) {
-    nlohmann::json v = R"({"str":"hello", "i": 10, "vec": [ "one", "two" ]})"_json;
     for(auto _ : state) {
-        v.get<ns::nl_test>();
+        json_v.get<ns::nl_test>();
     }
 }
 
@@ -53,6 +71,7 @@ static void nljson_get_se_bench(benchmark::State& state) {
     t.i = 10;
     t.str = "hello";
     t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
         serde::deserialize<nlohmann::json>(t);
     }
@@ -63,11 +82,12 @@ static void nljson_get_nl_bench(benchmark::State& state) {
     t.i = 10;
     t.str = "hello";
     t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
          nlohmann::json{t};
     }
 }
-using namespace toml::literals::toml_literals;
+
 namespace ext
 {
 struct test
@@ -75,40 +95,33 @@ struct test
     std::string str;
     int i;
     std::vector<std::string> vec;
+    std::map<std::string, std::string> sm;
     template<typename C, template<typename ...> class M, template<typename ...> class A>
     void from_toml(const toml::basic_value<C, M, A>& v)
     {
         this->str = toml::find<std::string>(v, "str");
-        this->i = toml::find<int>(v, "i");
+        this->i   = toml::find<int>(v, "i");
         this->vec = toml::find<std::vector<std::string>>(v, "vec");
+        this->sm  = toml::find<std::map<std::string, std::string>>(v, "sm");
         return;
     }
 
     toml::value into_toml() const // you need to mark it const.
     {
-        return toml::value{{"str", this->str}, {"i", this->i}, {"vec", this->vec}};
+        return toml::value{{"str", this->str}, {"i", this->i}, {"vec", this->vec}, {"sm", this->sm}};
     }
 };
 } // ext
 
 static void toml11_set_se_bench(benchmark::State& state) {
-    toml::value v = R"(
-        vec = ["one", "two"]
-        i = 10
-        str = "hello")"_toml;
     for(auto _ : state) {
-        serde::serialize<test>(v);
+        serde::serialize<test>(toml_v);
     }
 }
 
 static void toml11_set_tl_bench(benchmark::State& state) {
-    toml::value v = R"(
-        vec = ["one", "two"]
-        i = 10
-        str = "hello"
-    )"_toml;
     for(auto _ : state) {
-        toml::get<ext::test>(v);
+        toml::get<ext::test>(toml_v);
     }
 }
 
@@ -117,6 +130,7 @@ static void toml11_get_se_bench(benchmark::State& state) {
     t.i = 10;
     t.str = "hello";
     t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
         serde::deserialize<serde::toml_v>(t);
     }
@@ -127,6 +141,7 @@ static void toml11_get_tl_bench(benchmark::State& state) {
     t.i = 10;
     t.str = "hello";
     t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
         toml::value v(t);
     }

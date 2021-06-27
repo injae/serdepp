@@ -69,8 +69,6 @@ namespace serde::type {
         using element = T;
         constexpr static bool value = true;
     };
-
-    template<class T> constexpr static bool is_struct_v = is_serdeable_v<detail::dummy_context, T>;
 }
 
 #endif

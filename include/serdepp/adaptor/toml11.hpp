@@ -9,9 +9,15 @@
 
 namespace serde {
     using toml_v = toml::value;
-    template<> struct serde_adaptor_helper<toml_v>: default_serde_adaptor_helper<toml_v> {
+    template<> struct serde_adaptor_helper<toml_v>: derive_serde_adaptor_helper<toml_v> {
         inline constexpr static bool is_null(toml_v& adaptor, std::string_view key) {
-            return adaptor.contains(std::string{key});
+            return !adaptor.contains(std::string{key});
+        }
+        inline constexpr static bool is_struct(toml_v& adaptor) {
+            return adaptor.is_table();
+        }
+        inline constexpr static size_t size(toml_v& adaptor) {
+            return adaptor.size();
         }
         static toml_v parse_file(std::string_view path) { return toml::parse(path); }
     };
@@ -70,9 +76,8 @@ namespace serde {
             for(auto& [key_, value_] : table.as_table()) { serialize_to<E>(value_, map[key_]);}
         }
         inline static void into(toml_v& s, std::string_view key, const Map& data) {
-            toml_v map;
-            for(auto& [key_, value_] : data) { map[key_] = deserialize<toml_v>(value_); }
-            (key.empty() ? s : s[std::string{key}]) = std::move(map);
+            toml_v& map = key.empty() ? s : s[std::string{key}];
+            for(auto& [key_, value] : data) { deserialize_from<toml_v>(value, map[key_]); }
         }
     };
 }

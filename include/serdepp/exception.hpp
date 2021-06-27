@@ -13,6 +13,14 @@ namespace serde {
         virtual const char* what() const noexcept override {return "";}
     };
 
+    struct unimplemented_error :exception {
+        explicit unimplemented_error(std::string what) : what_(fmt::format("unimplemented function: {}\n", what)) {}
+        virtual ~unimplemented_error() noexcept override = default;
+        virtual const char* what() const noexcept override {return what_.c_str();}
+    protected:
+        std::string what_;
+    };
+
     struct enum_error : exception {
     public:
         explicit enum_error(std::string what) : what_(fmt::format("unregisted enum value: {}\n", what)) {}

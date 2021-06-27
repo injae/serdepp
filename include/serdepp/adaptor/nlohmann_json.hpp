@@ -11,19 +11,22 @@
 
 namespace serde {
     using nlohmann::json;
-    template<> struct serde_adaptor_helper<json> : default_serde_adaptor_helper<json> {
+    template<> struct serde_adaptor_helper<json> : derive_serde_adaptor_helper<json> {
         static json parse_file(const std::string& path) {
             json table;
             std::ifstream i(path);
             i >> table;
             return table;
         }
+        inline constexpr static bool is_null(json& adaptor, std::string_view key) { return !adaptor.contains(key); }
+        inline constexpr static size_t size(json& adaptor)    { return adaptor.size(); }
+        inline constexpr static bool is_struct(json& adaptor) { return adaptor.is_object(); }
     };
 
     template<typename T>
     struct serde_adaptor<json, T>  {
         constexpr static void from(json& s, std::string_view key, T& data) {
-            data = key.empty() ? s.get<T>() : s[std::string{key}].template get<T>();
+            key.empty() ? s.get_to<T>(data) : s[std::string{key}].get_to<T>(data);
         }
 
         constexpr static void into(json& s, std::string_view key, const T& data) {
@@ -61,27 +64,39 @@ namespace serde {
        }
 
        static void into(json& s, std::string_view key, const T& data) {
-            json arr;
+            json& arr = key.empty() ? s : s[std::string {key}];
             for(auto& value: data) { arr.push_back(std::move(deserialize<json>(value))); }
-            (key.empty() ? s : s[std::string {key}]) = std::move(arr);
        }
     };
 
 
     template <typename Map>
     struct serde_adaptor<json, Map, type::map_t> {
-        using T = type::map_e<Map>;
-        static void from(json& s, std::string_view key, Map& map) {
+        using E = type::map_e<Map>;
+        inline static void from(json& s, std::string_view key, Map& map) {
             auto& table = key.empty() ? s : s[std::string{key}];
-            for(auto& [key_, value_] : table.items()) { map[key_] = serialize<T>(value_); }
+            for(auto& [key_, value_] : table.items()) { serialize_to<E>(value_, map[key_]); }
         }
-        static void into(json& s, std::string_view key, const Map& data) {
-            json map;
-            for(auto& [key_, value] : data) { map[key_] = deserialize<json>(value); }
-            (key.empty() ? s : s[std::string{key}]) = std::move(map);
+        inline static void into(json& s, std::string_view key, const Map& data) {
+            json& map = key.empty() ? s : s[std::string{key}];
+            for(auto& [key_, value] : data) { deserialize_from<json>(value, map[key_]); }
         }
     };
 
+    //template <typename K, typename E>
+    //struct serde_adaptor<json, std::unordered_map<K,E>, type::map_t> {
+    //    using Map = std::unordered_map<K,E>;
+    //    static void from(json& s, std::string_view key, Map& map) {
+    //        auto& table = key.empty() ? s : s[std::string{key}];
+    //        map.reserve(table.size());
+    //        for(auto& [key_, value_] : table.items()) { serialize_to<E>(value_, map[key_]); }
+    //    }
+    //    static void into(json& s, std::string_view key, const Map& data) {
+    //        json map;
+    //        for(auto& [key_, value] : data) { map[key_] = deserialize<json>(value); }
+    //        (key.empty() ? s : s[std::string{key}]) = std::move(map);
+    //    }
+    //};
 }
 
 #endif

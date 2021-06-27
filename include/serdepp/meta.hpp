@@ -102,6 +102,10 @@ namespace serde::meta {
                                         std::add_lvalue_reference_t<T>(std::declval<T>()) /*value& */))>
                                      > : std::true_type {};
     template<class CTX, typename T> inline constexpr auto is_serdeable_v = is_serdeable<CTX, T>::value;
+
+
+    template<typename Attribute, typename T>
+    using attr = typename Attribute::template serde_attribute<T>;
 }
 
 #endif

@@ -4,7 +4,7 @@
 #include <serdepp/adaptor/fmt.hpp>
 #include <serdepp/ostream.hpp>
 
-#include <serdepp/attribute.hpp>
+#include <serdepp/attributes.hpp>
 
 using namespace serde::ostream;
 
@@ -16,22 +16,25 @@ enum class tenum {
 struct nested {
     template<class Context>
     constexpr static auto serde(Context& context, nested& value) {
+        using namespace serde::attribute;
         serde::serde_struct(context, value)
-            .value_or_struct(&nested::version, "version")
-            .field(&nested::desc ,"desc")
+            .field(&nested::version, "version", value_or_struct{})
+            .field(&nested::opt_desc ,"opt_desc")
+            .field(&nested::desc ,"desc", set_default("default value"))
             .no_remain();
     }
     std::string version;
-    std::optional<std::string> desc;
+    std::string desc;
+    std::optional<std::string> opt_desc;
 };
 
 class test {
 public:
     template<class Context>
     constexpr static auto serde(Context& context, test& value) {
-        using serde::attribute::attr_default;
+        using serde::attribute::set_default;
         serde::serde_struct(context, value)
-            .field_attr(&test::str, "str", attr_default{})
+            .field(&test::str, "str", set_default("hello"))
             .field(&test::i,   "i")
             .field(&test::vec, "vec")
             .field(&test::io,  "io")
@@ -55,7 +58,6 @@ private:
 int main()
 {
   nlohmann::json v = R"({
-"str":"hello",
 "i": 10,
 "vec": [ "one", "two", "three" ],
 "io": "INPUT",
@@ -70,7 +72,7 @@ int main()
 
   try {
   test t = serde::serialize<test>(v);
-  fmt::print("test:{{ str:{}, i:{}, vec:{} }}\n", t.str.value(), t.i, t.vec.value());
+  t.str.value();
 
   auto v_to_json = serde::deserialize<nlohmann::json>(t);
   auto v_to_toml = serde::deserialize<serde::toml_v>(t);
