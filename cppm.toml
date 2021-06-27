@@ -1,6 +1,6 @@
 [package]
    name = "serdepp"
-   version = "0.0.2"
+   version = "0.1.0"
    description = "c++ universal serialize deserialize library like rust serde"
 
 [lib]
@@ -9,44 +9,25 @@
    source= ["src/to_static.cpp"]
 
 [[example]]
-    name = "nlohmann_json_example"
-    source = ["examples/nlohmann_json_example.cpp"]
+    name = "serde_example"
+    source = ["examples/example.cpp"]
 
 [[example]]
-    name = "toml11_example"
-    source = ["examples/toml11_example.cpp"]
+    name = "simple_example"
+    source = ["examples/simple_example.cpp"]
 
-[[example]]
-    name = "convert_example"
-    source = ["examples/convert_example.cpp"]
-
-[[example]]
-    name = "test_all"
-    source = ["examples/variant_test.cpp"]
-
-[[example]]
-    name = "overwrite"
-    source = ["examples/overwrite.cpp"]
-
-[[example]]
+[[benchmark]]
     name = "benchmark"
     source = ["benchmark/benchmark.cpp"]
 
-#[[bin]]
-#    name = "yaml-cpp_example"
-#    source = ["examples/yaml-cpp_example.cpp"]
-
-#[[example]]
-#    name = "tomlpp_example"
-#    source = ["examples/tomlpp_example.cpp"]
-
 [dependencies]
     fmt = "7.1.3"
-    toml11= {version="3.6.0", optional=true}
-    nlohmann_json= {version="3.9.1", optional=true}
-    #benchmark="1.5.2"
+    nameof = "0.10.0"
+    magic_enum = "0.7.3"
+    yaml-cpp  = {version="0.6.3", optional=true}
+    toml11    = {version="3.6.0", optional=true}
+    nlohmann_json = {version="3.9.1", optional=true}
+    benchmark = {version="1.5.2", optional=true}
 
-[dev-dependencies]
-#    tomlpp="git"
-    yaml-cpp= {version="0.6.3", optional=true}
-    benchmark={version="1.5.2", optional=true}
+#[dev-dependencies]
+#    benchmark = {version="1.5.2", optional=true}

@@ -10,46 +10,59 @@
 
 namespace serde {
     using namespace fmt::literals;
-    class literal {
-    public:
-        literal() {}
-        literal(const std::string& str) { data_ = str; }
-        literal(const literal& other) :  members_(other.members_), data_(other.data_) {}
-        inline void add_child(const std::string& key, literal child) {
-            child.data_ = "{}:"_format(key);
-            members_.push_back(child);
-        }
+    struct literal {
+        std::vector<std::string> iter;
         template<typename T>
-        inline void add_child(const std::string& key, const T& child) {
-            members_.push_back({"{}:{}"_format(key, child)});
+        literal& add(std::string_view key, const T& data) {
+            iter.push_back("{}: {}"_format(key, data));
+            return *this;
         }
+        std::string to_string() {
+            return fmt::format("{}", iter);
+        }
+    };
 
-        std::string to_string(int step=0) {
-            if(!members_.empty()) {
-                if(step != 0) data_ += "{\n";
-                for(auto& it : members_) {
-                    auto str = it.to_string(step + 1);
-                    data_ += "{:>{}}\n"_format(str, step * 4 + str.size());
-                }
-                if(step != 0) data_ += "{:>{}}"_format("}", (step * 4)-4);
-            }
-            return data_;
-        }
-        bool contains(const std::string& key)  { return true; }
-    private:
-        std::list<literal> members_;
-        std::string data_;
+    template<> struct serde_adaptor_helper<literal>: derive_serde_adaptor_helper<literal> {
+        inline constexpr static bool is_null(literal& adaptor, std::string_view key) { return false; }
+        inline constexpr static size_t size(literal& adaptor) { return 1; }
+        inline constexpr static bool is_struct(literal& adaptor) { return true; }
     };
 
     template<typename T> struct serde_adaptor<literal, T, type::struct_t> {
-        static void from(literal& s, const std::string& key, T& data) { /*unimplemented*/ }
-        static void into(literal& s, const std::string& key, T& data) { s.add_child(key, deserialize<literal>(data)); }
+        static void from(literal& s, std::string_view key, T& data) {
+            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::from(literal, key data)",
+                                                         nameof::nameof_short_type<literal>()));
+        }
+        static void into(literal& s, std::string_view key, const T& data) {
+            s.add(key, deserialize<serde::literal>(data).to_string());
+        }
     };
 
     template<typename T, typename U> struct serde_adaptor<literal, T, U> {
-        static void from(literal& s, const std::string& key, T& data){ /*unimplemented*/ }
-        static void into(literal& s, const std::string& key, T& data) { s.add_child(key,data);  }
+        static void from(literal& s, std::string_view key, T& data){
+            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::from(literal, key data)",
+                                                         nameof::nameof_short_type<literal>()));
+        }
+        static void into(literal& s, std::string_view key, const T& data) { s.add(key, data);  }
+    };
+
+    template<typename T>
+    struct serde_adaptor<literal, T, type::enum_t> {
+        constexpr static void from(literal& s, std::string_view key, T& data) {
+            data = type::enum_t::from_str<T>(serialize_at<std::string>(s, key));
+        }
+        constexpr static void into(literal& s, std::string_view key, const T& data) {
+            s.add(key, type::enum_t::to_str(data));
+        }
     };
 }
 
+template <typename T>
+struct fmt::formatter<T, std::enable_if_t<serde::type::is_struct_v<T>, char>>
+    : fmt::formatter<std::string> {
+    template <typename format_ctx>
+    auto format(const T& serde_type, format_ctx& ctx) {
+        return formatter<std::string>::format(serde::deserialize<serde::literal>(serde_type).to_string(), ctx);
+    }
+};
 #endif

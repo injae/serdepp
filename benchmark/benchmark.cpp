@@ -1,128 +1,223 @@
 #include <benchmark/benchmark.h>
+#include <map>
+#include <nameof.hpp>
+#include <optional>
+#include <variant>
+#include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
-#include <serdepp/utility.hpp>
-#include <nlohmann/json.hpp>
-#include <string>
+#include <serdepp/adaptor/toml11.hpp>
+#include <serdepp/adaptor/yaml-cpp.hpp>
+#include <fmt/format.h>
 
-struct TestStruct {
-    derive_serde(TestStruct, ctx.TAG(str).TAG(i).TAG(vec);)
-    std::optional<std::string> str;
+struct test {
+    template<class Context>
+    constexpr static auto serde(Context& context, test& value) {
+      serde::serde_struct(context, value)
+          .field(&test::str, "str")
+          .field(&test::i, "i")
+          .field(&test::vec, "vec")
+          .field(&test::sm, "sm");
+      //.no_remain();
+    }
+    std::string str;
     int i;
     std::vector<std::string> vec;
+    std::map<std::string, std::string> sm;
 };
 
 namespace ns {
-    struct TestStruct2 {
+    struct nl_test {
         std::string str;
         int i;
         std::vector<std::string> vec;
-        NLOHMANN_DEFINE_TYPE_INTRUSIVE(TestStruct2, str, i, vec)
+        std::map<std::string, std::string> sm;
+        NLOHMANN_DEFINE_TYPE_INTRUSIVE(nl_test, str, i, vec, sm)
     };
 }
 
-static void serialize_struct_serde_nlohmann_json(benchmark::State& state) {
-    using namespace serde;
-    nlohmann::json test_json = R"({"str":"hello", "i": 10, "vec": [ "one", "two" ]})"_json;
+
+using namespace toml::literals;
+
+nlohmann::json json_v = R"({
+"str" : "hello",
+"i": 10,
+"vec": [ "one", "two" ],
+"sm": { "one" : "tone", "two" : "ttwo"}
+})"_json;
+
+test base_t = serde::serialize<test>(json_v);
+
+toml::value toml_v = serde::deserialize<toml::value>(base_t);
+
+//toml::value toml_v = R"(
+//vec = ["one", "two"]
+//i = 10
+//str = "hello"
+//[sm]
+//one = "tone"
+//two = "ttwo"
+//)"_toml;
+
+YAML::Node yaml_v = serde::deserialize<YAML::Node>(base_t);
+
+static void nljson_set_se_bench(benchmark::State& state) {
     for(auto _ : state) {
-        auto _v = serde::serialize<TestStruct>(test_json);
+        serde::serialize<test>(json_v);
     }
 }
 
-static void serialize_struct_nlohmann_json(benchmark::State& state) {
-    nlohmann::json test_json = R"({"str":"hello", "i": 10, "vec": [ "one", "two" ]})"_json;
+static void nljson_set_nl_bench(benchmark::State& state) {
     for(auto _ : state) {
-       auto _v = test_json.get<ns::TestStruct2>();
+        json_v.get<ns::nl_test>();
     }
 }
 
-static void deserialize_serde_nlohmann_json(benchmark::State& state) {
-    nlohmann::json test_json = R"({"str":"hello", "i": 10, "vec": [ "one", "two" ]})"_json;
-    auto value = serde::serialize<TestStruct>(test_json);
+static void nljson_get_se_bench(benchmark::State& state) {
+    test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        auto _v = serde::deserialize<nlohmann::json>(value);
+        serde::deserialize<nlohmann::json>(t);
     }
 }
 
-static void deserialize_nlohmann_json(benchmark::State& state) {
-    nlohmann::json test_json = R"({"str":"hello", "i": 10, "vec": [ "one", "two" ]})"_json;
-    auto value = test_json.get<ns::TestStruct2>();
+static void nljson_get_nl_bench(benchmark::State& state) {
+    ns::nl_test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        auto _v = nlohmann::json{value};
+         nlohmann::json{t};
     }
 }
 
+namespace ext
+{
+struct test
+{
+    std::string str;
+    int i;
+    std::vector<std::string> vec;
+    std::map<std::string, std::string> sm;
+    template<typename C, template<typename ...> class M, template<typename ...> class A>
+    void from_toml(const toml::basic_value<C, M, A>& v)
+    {
+        this->str = toml::find<std::string>(v, "str");
+        this->i   = toml::find<int>(v, "i");
+        this->vec = toml::find<std::vector<std::string>>(v, "vec");
+        this->sm  = toml::find<std::map<std::string, std::string>>(v, "sm");
+        return;
+    }
 
-static void serialize_int_serde_nlohmann_json(benchmark::State& state) {
-    using namespace serde;
-    nlohmann::json test_type_json = 10;
+    toml::value into_toml() const // you need to mark it const.
+    {
+        return toml::value{{"str", this->str}, {"i", this->i}, {"vec", this->vec}, {"sm", this->sm}};
+    }
+};
+} // ext
+
+static void toml11_set_se_bench(benchmark::State& state) {
     for(auto _ : state) {
-        auto _v = serde::serialize<int>(test_type_json);
+        serde::serialize<test>(toml_v);
     }
 }
 
-static void serialize_int_nlohmann_json(benchmark::State& state) {
-    nlohmann::json test_type_json = 10;
+static void toml11_set_tl_bench(benchmark::State& state) {
     for(auto _ : state) {
-       auto _v = test_type_json.get<int>();
+        toml::get<ext::test>(toml_v);
     }
 }
 
-static void deserialize_int_serde_nlohmann_json(benchmark::State& state) {
-    using namespace serde;
-    int value = 1000;
+static void toml11_get_se_bench(benchmark::State& state) {
+    test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        auto _v = serde::deserialize<nlohmann::json>(value);
+        serde::deserialize<serde::toml_v>(t);
     }
 }
 
-static void deserialize_int_nlohmann_json(benchmark::State& state) {
-    int value = 1000;
+static void toml11_get_tl_bench(benchmark::State& state) {
+    ext::test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        auto _v = nlohmann::json{value};
+        toml::value v(t);
     }
 }
 
-nlohmann::json test_vec_json = { 10, 11, 12, 13 };
+namespace YAML {
+    template<> struct convert<test> {
+        static Node encode(const test& v) {
+            Node node;
+            node["str"] = v.str;
+            node["i"] = v.i;
+            node["vec"] = v.vec;
+            node["sm"] = v.sm;
+            return node;
+        }
 
-static void serialize_vec_serde_nlohmann_json(benchmark::State& state) {
-    using namespace serde;
+        static bool decode(const Node& node, test& v) {
+            v.str = node["str"].as<std::string>();
+            v.i   = node["i"].as<int>();
+            v.vec = node["vec"].as<std::vector<std::string>>();
+            v.sm  = node["sm"].as<std::map<std::string, std::string>>();
+            return true;
+        }
+    };
+}
+
+static void yaml_set_se_bench(benchmark::State& state) {
     for(auto _ : state) {
-        auto _v = serde::serialize<std::vector<int>>(test_vec_json);
+        serde::serialize<test>(yaml_v);
     }
 }
 
-static void serialize_vec_nlohmann_json(benchmark::State& state) {
+static void yaml_set_tl_bench(benchmark::State& state) {
     for(auto _ : state) {
-       auto _v = test_vec_json.get<std::vector<int>>();
+        yaml_v.as<test>();
     }
 }
 
-static void deserialize_vec_serde_nlohmann_json(benchmark::State& state) {
-    using namespace serde;
-    std::vector<int> value = { 1, 2, 3, 4, 5};
+static void yaml_get_se_bench(benchmark::State& state) {
+    test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        auto _v = serde::deserialize<nlohmann::json>(value);
+        serde::deserialize<serde::yaml>(t);
     }
 }
 
-static void deserialize_vec_nlohmann_json(benchmark::State& state) {
-    std::vector<int> value = { 1, 2, 3, 4, 5};
+static void yaml_get_tl_bench(benchmark::State& state) {
+    test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        auto _v = nlohmann::json{value};
+        YAML::Node v(t);
     }
 }
 
-BENCHMARK(serialize_struct_serde_nlohmann_json);
-BENCHMARK(serialize_struct_nlohmann_json);
-BENCHMARK(deserialize_serde_nlohmann_json);
-BENCHMARK(deserialize_nlohmann_json);
-BENCHMARK(serialize_int_serde_nlohmann_json);
-BENCHMARK(serialize_int_nlohmann_json);
-BENCHMARK(deserialize_int_serde_nlohmann_json);
-BENCHMARK(deserialize_int_nlohmann_json);
-BENCHMARK(serialize_vec_serde_nlohmann_json);
-BENCHMARK(serialize_vec_nlohmann_json);
-BENCHMARK(deserialize_vec_serde_nlohmann_json);
-BENCHMARK(deserialize_vec_nlohmann_json);
-
+BENCHMARK(nljson_set_se_bench);
+BENCHMARK(nljson_set_nl_bench);
+BENCHMARK(nljson_get_se_bench);
+BENCHMARK(nljson_get_nl_bench);
+BENCHMARK(toml11_set_se_bench);
+BENCHMARK(toml11_set_tl_bench);
+BENCHMARK(toml11_get_se_bench);
+BENCHMARK(toml11_get_tl_bench);
+BENCHMARK(yaml_set_se_bench);
+BENCHMARK(yaml_set_tl_bench);
+BENCHMARK(yaml_get_se_bench);
+BENCHMARK(yaml_get_tl_bench);
 BENCHMARK_MAIN();
