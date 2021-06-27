@@ -1,16 +1,12 @@
 # serdepp (Beta)
-> c++17 zero cost serialize deserialize adaptor library  
-> this library inspired Rust serde  
+> c++17 zero cost serialize deserialize adaptor library like rust serde   
 > Multiple types of serializer deserializer(json, toml, fmt(deserialize only)) can be created in one serializer function.  
-> Adapters currently available (nlohmann::json, toml11, fmt)  
-> You can easily add various formats.  
-> support vairalbe type ( enum, optional, class, sequence, map, standard type, value_or_struct, nested_class)
 
 ## Features
 - [x] zero cost serializer, deserializer adaptor
 - [x] json serielize, deserialize (with nlohmann_json)
 - [x] toml serielize, deserialize (with toml11)
-- [ ] yaml serielize, deserialize (with yaml-cpp)
+- [x] yaml serielize, deserialize (with yaml-cpp)
 - [x] fmt::format support 
 - [x] std::cout(ostream) support (Beta)
 - [x] struct, class support
@@ -49,6 +45,7 @@ target_link_libraries({target name} PUBLIC serdepp::serdepp)
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 #include <serdepp/adaptor/toml11.hpp>
+#include <serdepp/adaptor/yaml-cpp.hpp>
 #include <serdepp/adaptor/fmt.hpp>
 #include <serdepp/ostream.hpp>
 
@@ -97,9 +94,10 @@ int main()
 
     auto v_to_json = serde::deserialize<nlohmann::json>(t);
     auto v_to_toml = serde::deserialize<serde::toml_v>(t);
+    auto v_to_toml = serde::deserialize<serde::yaml>(t);
 
     test t_from_toml = serde::serialize<test>(v_to_toml);
-
+    test t_from_yaml = serde::serialize<test>(v_to_yaml);
 
     fmt::print("{}\n", t);
     std::cout << t << '\n';
@@ -197,14 +195,24 @@ int main()
     // class(test) -> toml11 
     auto v_to_toml = serde::deserialize<serde::toml_v>(t);
 
+    // class(test) -> yaml-cpp
+    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
+
     // nlohmann::json -> string
     fmt::print("json: {}\n", v_to_json.dump());
 
     // toml11 -> string
     std::cout << "toml: " << v_to_toml << std::endl;
 
+
+    // yaml-cpp -> string
+    std::cout << "yaml: " << v_to_yaml << std::endl;
+
     // toml11 -> class(test)
     test t_from_toml = serde::serialize<test>(v_to_toml);
+
+    // yaml-cpp -> class(test)
+    test t_from_yaml = serde::serialize<test>(v_to_yaml);
 
     // class(test) -> string
     fmt::print("{}\n", t);
@@ -308,26 +316,29 @@ class test {
 ```
 ### Result
 ```console
-2021-06-27T15:44:48+09:00
-Running ./benchmark2
+Running ./benchmark
 Run on (12 X 2600 MHz CPU s)
 CPU Caches:
   L1 Data 32 KiB (x6)
   L1 Instruction 32 KiB (x6)
   L2 Unified 256 KiB (x6)
   L3 Unified 12288 KiB (x1)
-Load Average: 3.04, 2.40, 2.33
+Load Average: 2.97, 2.97, 2.76
 --------------------------------------------------------------
 Benchmark                    Time             CPU   Iterations
 --------------------------------------------------------------
-nljson_set_se_bench        469 ns          466 ns      1436051  // serde<nlohmann> serialize
-nljson_set_nl_bench        462 ns          459 ns      1539869  // nlohmann serialize
-nljson_get_se_bench       2454 ns         2437 ns       290291  // serde<nlohmann> struct deserialize
-nljson_get_nl_bench       2826 ns         2793 ns       255620  // nlohmann struct deserialize
-toml11_set_se_bench        508 ns          504 ns      1320755  // serde<toml11> struct serialize
-toml11_set_tl_bench        564 ns          560 ns      1228652  // nlohmann strcut serialize
-toml11_get_se_bench       3628 ns         3602 ns       194309  // serde<toml11> struct deserialize
-toml11_get_tl_bench       4187 ns         4149 ns       167348  // toml11 struct deserialize
+nljson_set_se_bench        453 ns          452 ns      1568968  // serde<nlohmann> serialize
+nljson_set_nl_bench        447 ns          446 ns      1542571  // nlohmann serialize
+nljson_get_se_bench       2369 ns         2365 ns       301281  // serde<nlohmann> struct deserialize
+nljson_get_nl_bench       2733 ns         2729 ns       259948  // nlohmann struct deserialize
+toml11_set_se_bench        525 ns          517 ns      1000000  // serde<toml11> struct serialize
+toml11_set_tl_bench        546 ns          540 ns      1228372  // toml11 strcut serialize
+toml11_get_se_bench       3516 ns         3509 ns       198763  // serde<toml11> struct deserialize
+toml11_get_tl_bench       4191 ns         4181 ns       170082  // toml11 struct deserialize
+yaml_set_se_bench         2096 ns         2089 ns       339427  // serde<yaml-cpp> struct serialize
+yaml_set_tl_bench         2132 ns         2128 ns       323027  // yaml-cpp strcut serialize
+yaml_get_se_bench        20363 ns        20323 ns        31356  // serde<yaml-cpp> struct deserialize
+yaml_get_tl_bench        28897 ns        28847 ns        24286  // yaml-cpp struct deserialize
 ```
 
 

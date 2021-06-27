@@ -1,6 +1,7 @@
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 #include <serdepp/adaptor/toml11.hpp>
+#include <serdepp/adaptor/yaml-cpp.hpp>
 #include <serdepp/adaptor/fmt.hpp>
 #include <serdepp/ostream.hpp>
 
@@ -29,7 +30,7 @@ public:
     }
     std::optional<std::string> str;
     int i;
-    std::optional<std::list<std::string>> vec;
+    std::optional<std::vector<std::string>> vec;
     tenum io;
     std::map<std::string, std::string> m;
 private:
@@ -53,14 +54,18 @@ int main()
 
     auto v_to_json = serde::deserialize<nlohmann::json>(t);
     auto v_to_toml = serde::deserialize<serde::toml_v>(t);
+    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
 
     std::cout << "toml: " << v_to_toml << std::endl;
     fmt::print("json: {}\n", v_to_json.dump());
+    std::cout << "yaml: " << v_to_yaml << std::endl;
 
     test t_from_toml = serde::serialize<test>(v_to_toml);
+    test t_from_yaml = serde::serialize<test>(v_to_yaml);
 
 
-    fmt::print("{}\n", t);
+    fmt::print("{}\n", t_from_toml);
+    fmt::print("{}\n", t_from_yaml);
     std::cout << t << '\n';
 
   }catch(std::exception& e) {

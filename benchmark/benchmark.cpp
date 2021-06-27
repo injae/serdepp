@@ -6,6 +6,7 @@
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 #include <serdepp/adaptor/toml11.hpp>
+#include <serdepp/adaptor/yaml-cpp.hpp>
 #include <fmt/format.h>
 
 struct test {
@@ -44,15 +45,20 @@ nlohmann::json json_v = R"({
 "sm": { "one" : "tone", "two" : "ttwo"}
 })"_json;
 
-toml::value toml_v = R"(
-vec = ["one", "two"]
-i = 10
-str = "hello"
-[sm]
-one = "tone"
-two = "ttwo"
-)"_toml;
+test base_t = serde::serialize<test>(json_v);
 
+toml::value toml_v = serde::deserialize<toml::value>(base_t);
+
+//toml::value toml_v = R"(
+//vec = ["one", "two"]
+//i = 10
+//str = "hello"
+//[sm]
+//one = "tone"
+//two = "ttwo"
+//)"_toml;
+
+YAML::Node yaml_v = serde::deserialize<YAML::Node>(base_t);
 
 static void nljson_set_se_bench(benchmark::State& state) {
     for(auto _ : state) {
@@ -147,6 +153,61 @@ static void toml11_get_tl_bench(benchmark::State& state) {
     }
 }
 
+namespace YAML {
+    template<> struct convert<test> {
+        static Node encode(const test& v) {
+            Node node;
+            node["str"] = v.str;
+            node["i"] = v.i;
+            node["vec"] = v.vec;
+            node["sm"] = v.sm;
+            return node;
+        }
+
+        static bool decode(const Node& node, test& v) {
+            v.str = node["str"].as<std::string>();
+            v.i   = node["i"].as<int>();
+            v.vec = node["vec"].as<std::vector<std::string>>();
+            v.sm  = node["sm"].as<std::map<std::string, std::string>>();
+            return true;
+        }
+    };
+}
+
+static void yaml_set_se_bench(benchmark::State& state) {
+    for(auto _ : state) {
+        serde::serialize<test>(yaml_v);
+    }
+}
+
+static void yaml_set_tl_bench(benchmark::State& state) {
+    for(auto _ : state) {
+        yaml_v.as<test>();
+    }
+}
+
+static void yaml_get_se_bench(benchmark::State& state) {
+    test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
+    for(auto _ : state) {
+        serde::deserialize<serde::yaml>(t);
+    }
+}
+
+static void yaml_get_tl_bench(benchmark::State& state) {
+    test t;
+    t.i = 10;
+    t.str = "hello";
+    t.vec = {"one", "two"};
+    t.sm = {{"one", "town"}, {"two", "ttwo"}};
+    for(auto _ : state) {
+        YAML::Node v(t);
+    }
+}
+
 BENCHMARK(nljson_set_se_bench);
 BENCHMARK(nljson_set_nl_bench);
 BENCHMARK(nljson_get_se_bench);
@@ -155,4 +216,8 @@ BENCHMARK(toml11_set_se_bench);
 BENCHMARK(toml11_set_tl_bench);
 BENCHMARK(toml11_get_se_bench);
 BENCHMARK(toml11_get_tl_bench);
+BENCHMARK(yaml_set_se_bench);
+BENCHMARK(yaml_set_tl_bench);
+BENCHMARK(yaml_get_se_bench);
+BENCHMARK(yaml_get_tl_bench);
 BENCHMARK_MAIN();
