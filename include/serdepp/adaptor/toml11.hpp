@@ -11,7 +11,7 @@ namespace serde {
     using toml_v = toml::value;
     template<> struct serde_adaptor_helper<toml_v>: derive_serde_adaptor_helper<toml_v> {
         inline constexpr static bool is_null(toml_v& adaptor, std::string_view key) {
-            return !adaptor.contains(std::string{key});
+            return adaptor.is_table() ? !adaptor.contains(std::string{key}) : false;
         }
         inline constexpr static bool is_struct(toml_v& adaptor) {
             return adaptor.is_table();
