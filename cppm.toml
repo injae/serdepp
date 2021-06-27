@@ -8,15 +8,17 @@
    type = "static"
    source= ["src/to_static.cpp"]
 
-
-#[[example]]
-[[bin]]
+[[example]]
     name = "serde_example"
     source = ["examples/example.cpp"]
 
+[[example]]
+    name = "simple_example"
+    source = ["examples/simple_example.cpp"]
+
 [[benchmark]]
     name = "benchmark"
-    source = ["benchmark/benchmark_v2_2.cpp"]
+    source = ["benchmark/benchmark.cpp"]
 
 
 [dependencies]

@@ -54,7 +54,7 @@ namespace serde {
     using E = type::seq_e<T>;
         static void from(toml_v& s, std::string_view key, T& arr) {
             auto& table = key.empty() ? s : s[std::string{key}];
-            arr.reserve(table.size());
+            if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
             for(auto& value : table.as_array()) { arr.push_back(serialize<E>(value)); }
         }
         static void into(toml_v& s, std::string_view key, const T& data) {

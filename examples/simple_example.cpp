@@ -9,23 +9,8 @@
 using namespace serde::ostream;
 
 enum class tenum {
-    INPUT  = 1,
-    OUTPUT = 2,
-};
-
-struct nested {
-    template<class Context>
-    constexpr static auto serde(Context& context, nested& value) {
-        using namespace serde::attribute;
-        serde::serde_struct(context, value)
-            .field(&nested::version, "version", value_or_struct{})
-            .field(&nested::opt_desc ,"opt_desc")
-            .field(&nested::desc ,"desc", set_default("default value"))
-            .no_remain();
-    }
-    std::string version;
-    std::string desc;
-    std::optional<std::string> opt_desc;
+    INPUT ,
+    OUTPUT,
 };
 
 class test {
@@ -34,23 +19,19 @@ public:
     constexpr static auto serde(Context& context, test& value) {
         using serde::attribute::set_default;
         serde::serde_struct(context, value)
-            .field(&test::str, "str", set_default("hello"))
+            .field(&test::str, "str")
             .field(&test::i,   "i")
             .field(&test::vec, "vec")
             .field(&test::io,  "io")
-            .field(&test::in,  "in")
             .field(&test::pri, "pri")
             .field(&test::m ,  "m")
-            .field(&test::nm , "nm")
             ;
     }
     std::optional<std::string> str;
     int i;
-    std::optional<std::vector<std::string>> vec;
+    std::optional<std::list<std::string>> vec;
     tenum io;
-    std::vector<nested> in;
     std::map<std::string, std::string> m;
-    std::map<std::string, nested> nm;
 private:
     std::string pri;
 };
@@ -62,12 +43,9 @@ int main()
 "vec": [ "one", "two", "three" ],
 "io": "INPUT",
 "pri" : "pri",
-"in" : [{ "version" : "hello" }, "single"],
 "m" : { "a" : "1",
         "b" : "2",
-        "c" : "3" },
-"nm" : { "a" : {"version" : "hello" },
-         "b" : "hello2" }
+        "c" : "3" }
 })"_json;
 
   try {

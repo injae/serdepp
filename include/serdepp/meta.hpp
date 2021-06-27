@@ -28,6 +28,14 @@ namespace serde::meta {
         : std::true_type {};
     template<class T> constexpr auto is_iterable_v = is_iterable<T>::value;
 
+    template <typename T, typename = void> struct is_arrayable : std::false_type {};
+    template <typename T>
+    struct is_arrayable<T, std::void_t<decltype(std::declval<T>().begin()),
+                                       decltype(std::declval<T>().end()),
+                                       decltype(std::declval<T>().reserve(0))>
+                        > : std::true_type {};
+    template<class T> constexpr auto is_arrayable_v = is_arrayable<T>::value;
+
     template <typename T, typename = void> struct is_emptyable : std::false_type {};
 
     template <typename T>
@@ -43,7 +51,6 @@ namespace serde::meta {
                                       decltype(std::declval<T&>()[std::declval<const typename T::key_type&>()])>>
     : std::true_type { };
     template<typename T>  inline constexpr auto is_mappable_v = is_mappable<T>::value;
-
 
     template<typename T, typename U = void> struct is_sequenceable : std::false_type { };
     template<typename T>

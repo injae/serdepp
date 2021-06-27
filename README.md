@@ -1,23 +1,115 @@
 # serdepp (Beta)
 > c++17 zero cost serialize deserialize adaptor library  
 > this library inspired Rust serde  
-> Multiple types of serializer deserializer(like json, toml, fmt(deserialize only)) can be created in one serializer function.  
+> Multiple types of serializer deserializer(json, toml, fmt(deserialize only)) can be created in one serializer function.  
 > Adapters currently available (nlohmann::json, toml11, fmt)  
 > You can easily add various formats.  
 > support vairalbe type ( enum, optional, class, sequence, map, standard type, value_or_struct, nested_class)
-> attribute support (value_or_struct, set_default)
+
+## Features
+- [x] zero cost serializer, deserializer adaptor
+- [x] json serielize, deserialize (with nlohmann_json)
+- [x] toml serielize, deserialize (with toml11)
+- [ ] yaml serielize, deserialize (with yaml-cpp)
+- [x] fmt::format support 
+- [x] std::cout(ostream) support (Beta)
+- [x] struct, class support
+- [x] nested struct, class support
+- [x] enum, enum_class support (with magic_enum)
+- [x] optional support 
+- [x] container support (sequence(like vector, list), map(map, unordered_map ...))
+- [x] attributes and custom attribute support (value_or_struct, set_default, ...)
+
 
 ## Dependencies
-- fmt
-- nameof
-- magic_enum
-- nlohmann_json (optional) (CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
-- toml11 (optional) (CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
-- yaml-cpp (optional) (CMAKE FLAG -DSERDEPP_USE_YAML_CPP=ON)
+- fmt         (Auto Install)
+- nameof      (Auto Install)
+- magic_enum  (Auto Install)
+- nlohmann_json (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
+- toml11 (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
+- yaml-cpp (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_YAML_CPP=ON)
 
-# Examples
+## Install
+```console
+cmake -Bbuild -DCMAKE_BUILD_TYPE=Release .
+cd build
+cmake --build . --config Release --target install
+```
 
-## Simple Example
+## CMake 
+```cmake
+find_package(serdepp)
+target_link_libraries({target name} PUBLIC serdepp::serdepp)
+```
+
+## Examples (examples/*.cpp)
+### Simple Example
+```cpp
+#include <serdepp/serializer.hpp>
+#include <serdepp/adaptor/nlohmann_json.hpp>
+#include <serdepp/adaptor/toml11.hpp>
+#include <serdepp/adaptor/fmt.hpp>
+#include <serdepp/ostream.hpp>
+
+using namespace serde::ostream;
+
+enum class tenum {
+    INPUT ,
+    OUTPUT,
+};
+
+class test {
+public:
+    template<class Context>
+    constexpr static auto serde(Context& context, test& value) {
+        using serde::attribute::set_default;
+        serde::serde_struct(context, value)
+            .field(&test::str, "str")
+            .field(&test::i,   "i")
+            .field(&test::vec, "vec")
+            .field(&test::io,  "io")
+            .field(&test::pri, "pri")
+            .field(&test::m ,  "m")
+            ;
+    }
+    std::optional<std::string> str;
+    int i;
+    std::optional<std::vector<std::string>> vec;
+    tenum io;
+    std::map<std::string, std::string> m;
+private:
+    std::string pri;
+};
+
+int main()
+{
+    nlohmann::json v = R"({
+    "i": 10,
+    "vec": [ "one", "two", "three" ],
+    "io": "INPUT",
+    "pri" : "pri",
+    "m" : { "a" : "1",
+            "b" : "2",
+            "c" : "3" }
+    })"_json;
+
+    test t = serde::serialize<test>(v);
+
+    auto v_to_json = serde::deserialize<nlohmann::json>(t);
+    auto v_to_toml = serde::deserialize<serde::toml_v>(t);
+
+    test t_from_toml = serde::serialize<test>(v_to_toml);
+
+
+    fmt::print("{}\n", t);
+    std::cout << t << '\n';
+
+  return 0;
+}
+```
+
+
+### Full Example
 ```cpp
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
@@ -36,7 +128,8 @@ enum class tenum {
 };
 
 struct nested {
-    template<class Context>
+    tem
+plate<class Context>
     constexpr static auto serde(Context& context, nested& value) {
         using namespace serde::attribute;
         serde::serde_struct(context, value)
@@ -69,12 +162,14 @@ public:
     int i;
     std::optional<std::vector<std::string>> vec;
     tenum io;
+
     std::vector<nested> in;
     std::map<std::string, std::string> m;
     std::map<std::string, nested> nm;
 private:
     std::string pri;
 };
+
 
 int main()
 {
@@ -128,8 +223,8 @@ int main()
   return 0;
 }
 ```
-## Attributes
-### value_or_struct
+# Attributes
+## value_or_struct
 ```cpp
 struct attribute_example {
     template<class Context>
@@ -143,11 +238,11 @@ struct attribute_example {
 
 ```
 
-### set_default
-#### tree type default value serialzier
+## set_default
+### support tree type default value serialzier
 1. Type with Attribute set_default
-2. Optional<Type> with default
-3. Optional<Type> with Atribute set_default
+2. std::optional Type with default
+3. std::optional Type with Atribute set_default
 
 ```cpp
 struct attribute_example {
@@ -164,11 +259,36 @@ struct attribute_example {
     std::optional<std::string> ver_opt_att_default;
 };
 ```
+## Custom Attribute
+```
+namespace serde::attribute {
+    struct value_or_struct {
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                    Next&& next_attr, Attributes&&... remains) {
+            using Helper = serde_adaptor_helper<typename serde_ctx::Adaptor>;
+            if(Helper::is_struct(ctx.adaptor)) {
+                next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+            } else {
+                next_attr.template from<T, serde_ctx>(ctx, data, "", remains...);
+            }
+        }
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                    Next&& next_attr, Attributes&&... remains) {
+            next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
+        }
+    };
+}
+```
+
+
 
 ## Benchmark
-serdepp's serializer, deserizlier  vs nlohmann_json's serializer, deserizlier  
-serdepp's serializer, deserializer vs toml11 serializer, deserializer  
-### Benchmark 
+- serdepp's serializer, deserizlier  vs nlohmann_json's serializer, deserizlier  
+- serdepp's serializer, deserializer vs toml11 serializer, deserializer  
+### Benchmark code, More(benchmark/benchmark.cpp)
 ```cpp
 class test {
     std::string str;
@@ -200,14 +320,14 @@ Load Average: 3.04, 2.40, 2.33
 --------------------------------------------------------------
 Benchmark                    Time             CPU   Iterations
 --------------------------------------------------------------
-nljson_set_se_bench        469 ns          466 ns      1436051
-nljson_set_nl_bench        462 ns          459 ns      1539869
-nljson_get_se_bench       2454 ns         2437 ns       290291
-nljson_get_nl_bench       2826 ns         2793 ns       255620
-toml11_set_se_bench        508 ns          504 ns      1320755
-toml11_set_tl_bench        564 ns          560 ns      1228652
-toml11_get_se_bench       3628 ns         3602 ns       194309
-toml11_get_tl_bench       4187 ns         4149 ns       167348
+nljson_set_se_bench        469 ns          466 ns      1436051  // serde<nlohmann> serialize
+nljson_set_nl_bench        462 ns          459 ns      1539869  // nlohmann serialize
+nljson_get_se_bench       2454 ns         2437 ns       290291  // serde<nlohmann> struct deserialize
+nljson_get_nl_bench       2826 ns         2793 ns       255620  // nlohmann struct deserialize
+toml11_set_se_bench        508 ns          504 ns      1320755  // serde<toml11> struct serialize
+toml11_set_tl_bench        564 ns          560 ns      1228652  // nlohmann strcut serialize
+toml11_get_se_bench       3628 ns         3602 ns       194309  // serde<toml11> struct deserialize
+toml11_get_tl_bench       4187 ns         4149 ns       167348  // toml11 struct deserialize
 ```
 
 

@@ -26,10 +26,20 @@ SOURCES
     src/to_static.cpp
 )
 
+cppm_examples_area()
+if(SERDEPP_BUILD_EXAMPLES)
+
 cppm_target_define(serde_example BINARY
 SOURCES
     examples/example.cpp
 )
+
+cppm_target_define(simple_example BINARY
+SOURCES
+    examples/simple_example.cpp
+)
+
+endif()
 
 
 set(serdepp_global_deps PUBLIC fmt magic_enum nameof nlohmann_json toml11 yaml-cpp)
@@ -43,7 +53,10 @@ cppm_target_dependencies(serde_example
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(simple_example
+   ${serdepp_global_deps}
+   serdepp)
+
 
 cppm_target_install(serdepp)
-cppm_target_install(serde_example)
 

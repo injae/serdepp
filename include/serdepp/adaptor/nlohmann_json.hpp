@@ -59,7 +59,7 @@ namespace serde {
        using E = type::seq_e<T>;
        static void from(json& s, std::string_view key, T& arr) {
             auto& table = key.empty() ? s : s[std::string{key}];
-            arr.reserve(table.size());
+            if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
             for(auto& value : table) { arr.push_back(std::move(serialize<E>(value))); }
        }
 
