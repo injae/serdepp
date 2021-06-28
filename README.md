@@ -243,7 +243,6 @@ struct attribute_example {
     }
     std::string version;
 };
-
 ```
 
 ## set_default
@@ -255,18 +254,51 @@ struct attribute_example {
 ```cpp
 struct attribute_example {
     template<class Context>
-    constexpr static auto serde(Context& context, nested& value) {
+    constexpr static auto serde(Context& context, attribute_example& value) {
         using namespace serde::attribute;
+        using Self = attribute_example;
         serde::serde_struct(context, value)
-            .field(&nested::ver, "ver", set_default{"0.0.1"}) // 1.
-            .field(&nested::ver_opt, "ver_opt")               // 2.
-            .field(&nested::ver_opt_defualt, "ver_opt_defalut", set_default{"0.0.1"}); // 3.
+            .field(&Self::ver, "ver", set_default{"0.0.1"}) // 1.
+            .field(&Self::ver_opt, "ver_opt")               // 2.
+            .field(&Self::ver_opt_defualt, "ver_opt_defalut", set_default{"0.0.1"}); // 3.
     }
     std::string version;
     std::optional<std::string> ver_opt = "0.0.1";
     std::optional<std::string> ver_opt_att_default;
 };
 ```
+
+## enum_toupper or enum_tolower
+```cpp
+enum class u_enum {
+    INPUT ,
+    OUTPUT,
+}
+
+enum class l_enum {
+    input ,
+    output,
+}
+
+struct attribute_example {
+    template<class Context>
+    constexpr static auto serde(Context& context, attribute_example& value) {
+        using namespace serde::attribute;
+        using Self = attribute_example;
+        serde::serde_struct(context, value)
+        // serialize:   input        -> INPUT -> uenum::INPUT
+        // deserialize: uenum::INPUT -> INPUT -> input
+            .field(&Self::test_uenum, "uenum", enum_toupper) 
+        // serialize:   INPUT        -> input -> uenum::input
+        // deserialize: uenum::input -> input -> INPUT
+            .field(&Self::test_lenum, "lenum", enum_tolower);
+    }
+    u_enum test_uenum;
+    l_enum test_lenum;
+};
+```
+
+
 ## Custom Attribute
 ```
 namespace serde::attribute {
