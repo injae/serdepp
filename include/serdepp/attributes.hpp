@@ -27,7 +27,7 @@ namespace serde::attribute {
             next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
         }
     };
-
+    // deduce guide
     template<typename D> set_default(D&&) -> set_default<D>;
 
     struct value_or_struct {
@@ -48,7 +48,49 @@ namespace serde::attribute {
             next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
         }
     };
+
+    template<typename SFunc, typename DFunc>
+    struct enum_hook {
+        SFunc&& serialize_;
+        DFunc&& deserialize_;
+        explicit enum_hook(SFunc&& se, DFunc&& de) noexcept : serialize_(std::move(se))
+                                                            , deserialize_(std::move(de)) {}
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            if constexpr(meta::is_enumable_v<T>) {
+                std::string buffer;
+                next_attr.template from<std::string, serde_ctx>(ctx, buffer, key, remains...);
+                std::transform(buffer.begin(), buffer.end(), buffer.begin(), serialize_);
+                data = type::enum_t::from_str<T>(buffer);
+            } else {
+                throw serde::enum_error("enum_hook requried enum_type");
+            }
+        }
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            if constexpr(meta::is_enumable_v<T>) {
+                std::string buffer = std::string{type::enum_t::to_str(data)};
+                std::transform(buffer.begin(), buffer.end(), buffer.begin(), deserialize_);
+                next_attr.template into<std::string, serde_ctx>(ctx, buffer, key, remains...);
+            } else {
+                throw serde::enum_error("enum_hook requried enum_type");
+            }
+        }
+    };
+
+    struct enum_toupper : enum_hook<decltype(::toupper), decltype(::tolower)> {
+        enum_toupper() noexcept : enum_hook(::toupper, ::tolower) {}
+    };
+
+    struct enum_tolower : enum_hook<decltype(::tolower), decltype(::toupper)> {
+        enum_tolower() noexcept : enum_hook(::tolower, ::toupper) {}
+    };
 }
+
 
 
 #endif
