@@ -306,40 +306,6 @@ namespace serde
             }
             return *this;
         }
-
-    //template<class MEM_PTR, class... Ts>
-    //inline constexpr serde_struct& field(MEM_PTR&& ptr, std::string_view name, attributes<Ts...>&& opt) {
-    //        using sde = serde::serde_adaptor_helper<typename Context::Adaptor>;
-    //        using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
-    //        if constexpr(Context::is_serialize) {
-    //            constexpr auto opt_check = serde::is_optional_v<rtype>;
-    //            if constexpr (opt_check) {
-    //                auto& val = value_.*ptr;
-    //                if(sde::is_null(context_.adaptor, name)) {
-    //                    if(!val) val.emplace();
-    //                    serde::serde_serializer<typename rtype::value_type, Context>::from(context_, *val, name);
-    //                } else {
-    //                    val = std::nullopt;
-    //                }
-    //            }
-    //            else {
-    //            serde::serde_serializer<rtype, Context>::from(context_, value_.*ptr, name);
-    //            }
-    //            context_.visit(opt);
-    //    } else {
-    //        auto& mem_ptr = std::invoke(ptr, value_);
-    //        if constexpr (serde::is_optional_v<rtype>) {
-    //            fmt::print("opt:");
-    //            if (mem_ptr){
-    //            serde::serde_serializer<typename rtype::value_type, Context>::into(context_, *(value_.*ptr), name);
-    //            }
-    //        } else {
-    //            serde::serde_serializer<rtype, Context>::into(context_, mem_ptr, name);
-    //        }
-    //        context_.visit(std::move(opt));
-    //    }
-    //    return *this;
-    //}
     };
     template<class Context, class T> serde_struct(Context&, T&) -> serde_struct<Context, T>;
 
