@@ -7,9 +7,9 @@
 
 namespace serde::attribute {
     template<typename D>
-    struct set_default {
+    struct default_se {
         D&& default_value_;
-        explicit set_default(D&& default_value) noexcept : default_value_(std::move(default_value)) {}
+        explicit default_se(D&& default_value) noexcept : default_value_(std::move(default_value)) {}
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
                                    Next&& next_attr, Attributes&&... remains) {
@@ -28,9 +28,9 @@ namespace serde::attribute {
         }
     };
     // deduce guide
-    template<typename D> set_default(D&&) -> set_default<D>;
+    template<typename D> default_se(D&&) -> default_se<D>;
 
-    struct value_or_struct {
+    struct value_or_struct_se {
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
                                    Next&& next_attr, Attributes&&... remains) {
@@ -73,7 +73,7 @@ namespace serde::attribute {
         inline void into(serde_ctx& ctx, const T& data, std::string_view key,
                                    Next&& next_attr, Attributes&&... remains) {
             if constexpr(meta::is_enumable_v<T>) {
-                std::string buffer = std::string{type::enum_t::to_str(data)};
+                constexpr auto buffer = type::enum_t::to_str(data);
                 std::transform(buffer.begin(), buffer.end(), buffer.begin(), deserialize_);
                 next_attr.template into<std::string, serde_ctx>(ctx, buffer, key, remains...);
             } else {
@@ -89,6 +89,68 @@ namespace serde::attribute {
     struct enum_tolower : enum_hook<decltype(::tolower), decltype(::toupper)> {
         enum_tolower() noexcept : enum_hook(::tolower, ::toupper) {}
     };
+
+    struct make_optional {
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            using Helper = serde_adaptor_helper<typename serde_ctx::Adaptor>;
+            if constexpr (meta::is_emptyable_v<T>) {
+                if(Helper::is_null(ctx.adaptor, key)) {
+                    data = std::move(T{});
+                } else {
+                    next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+                }
+            } else {
+                throw serde::attribute_error(fmt::format("this {} is not emptyable type",
+                                                         nameof::nameof_short_type<T>()));
+            }
+        }
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            if(!data.empty()) {
+                next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
+            }
+        }
+    };
+
+    struct skip {
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {}
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {}
+    };
+    
+    struct skip_de {
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+        }
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+        }
+    };
+
+    struct skip_se {
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {}
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
+        }
+    };
+
 }
 
 

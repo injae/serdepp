@@ -29,9 +29,9 @@ class test {
 public:
     template<class Context>
     constexpr static auto serde(Context& context, test& value) {
-        using serde::attribute::attr_default;
+        using namespace serde::attribute;
         serde::serde_struct(context, value)
-            .field_attr(&test::str, "str", attr_default{})
+            .field_attr(&test::str, "str", se_default{})
             .field(&test::i,   "i")
             .field(&test::vec, "vec")
             .field(&test::io,  "io")

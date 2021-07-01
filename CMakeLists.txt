@@ -26,6 +26,11 @@ SOURCES
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)
 
+cppm_target_define(serde_example1 BINARY
+SOURCES
+    examples/example1.cpp
+)
+
 cppm_target_define(serde_example BINARY
 SOURCES
     examples/example.cpp
@@ -36,6 +41,11 @@ SOURCES
     examples/simple_example.cpp
 )
 
+cppm_target_define(benchmark BINARY
+SOURCES
+    benchmark/benchmark.cpp
+)
+
 endif()
 
 
@@ -43,11 +53,19 @@ set(serdepp_global_deps PUBLIC benchmark fmt magic_enum nameof nlohmann_json tom
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 
+cppm_target_dependencies(serde_example1
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(serde_example
    ${serdepp_global_deps}
    serdepp)
 
 cppm_target_dependencies(simple_example
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
 

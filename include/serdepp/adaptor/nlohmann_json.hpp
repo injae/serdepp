@@ -58,14 +58,14 @@ namespace serde {
     struct serde_adaptor<json, T, type::seq_t> {
        using E = type::seq_e<T>;
        static void from(json& s, std::string_view key, T& arr) {
-            auto& table = key.empty() ? s : s[std::string{key}];
-            if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
-            for(auto& value : table) { arr.push_back(std::move(serialize<E>(value))); }
+           auto& table = key.empty() ? s : s.at(std::string{key});
+           if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
+           for(auto& value : table) { arr.push_back(std::move(serialize<E>(value))); }
        }
 
        static void into(json& s, std::string_view key, const T& data) {
-            json& arr = key.empty() ? s : s[std::string {key}];
-            for(auto& value: data) { arr.push_back(std::move(deserialize<json>(value))); }
+           json& arr = key.empty() ? s : s[std::string {key}];
+           for(auto& value: data) { arr.push_back(std::move(deserialize<json>(value))); }
        }
     };
 
@@ -74,7 +74,7 @@ namespace serde {
     struct serde_adaptor<json, Map, type::map_t> {
         using E = type::map_e<Map>;
         inline static void from(json& s, std::string_view key, Map& map) {
-            auto& table = key.empty() ? s : s[std::string{key}];
+            auto& table = key.empty() ? s : s.at(std::string{key});
             for(auto& [key_, value_] : table.items()) { serialize_to<E>(value_, map[key_]); }
         }
         inline static void into(json& s, std::string_view key, const Map& data) {

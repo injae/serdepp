@@ -2,7 +2,19 @@
 #include "serdepp/serializer.hpp"
 #include "serdepp/adaptor/fmt.hpp"
 #include "serdepp/adaptor/nlohmann_json.hpp"
-#include <any>
+#include "serdepp/utility.hpp"
+#include "serdepp/attributes.hpp"
+
+using namespace serde::attribute;
+struct tt {
+    derive_serde(tt,
+                 .field(&Self::a, "a", set_default{1})
+                 .field(&Self::b, "b")
+                 )
+    int a;
+    int b;
+};
+
 
 //struct bbb {
 //    friend serde::serializer<bbb>;
