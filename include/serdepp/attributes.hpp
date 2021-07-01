@@ -73,7 +73,7 @@ namespace serde::attribute {
         inline void into(serde_ctx& ctx, const T& data, std::string_view key,
                                    Next&& next_attr, Attributes&&... remains) {
             if constexpr(meta::is_enumable_v<T>) {
-                constexpr auto buffer = type::enum_t::to_str(data);
+                auto buffer = type::enum_t::to_str(data);
                 std::transform(buffer.begin(), buffer.end(), buffer.begin(), deserialize_);
                 next_attr.template into<std::string, serde_ctx>(ctx, buffer, key, remains...);
             } else {
