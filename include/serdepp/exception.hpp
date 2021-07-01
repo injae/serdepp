@@ -38,6 +38,15 @@ namespace serde {
     protected:
         std::string what_;
     };
+
+    struct attribute_error : exception {
+    public:
+        explicit attribute_error(std::string what) : what_(fmt::format("attribute error: {}\n", what)) {}
+        virtual ~attribute_error() noexcept override = default;
+        virtual const char* what() const noexcept override {return what_.c_str();}
+    protected:
+        std::string what_;
+    };
 }
 
 

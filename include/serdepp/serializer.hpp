@@ -85,7 +85,7 @@ namespace serde
     };
 
     namespace attribute {
-        struct serilzier_call_attr {
+        struct serializer_call_attr {
             template<typename T, typename serde_ctx>
             constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key) {
                 serde::serde_serializer<T, serde_ctx>::from(ctx, data, key);
@@ -110,68 +110,69 @@ namespace serde
         constexpr void read() { read_count_++; }
     };
 
-
     namespace type {
-        struct seq_t{};
-        struct map_t{};
-        struct struct_t{};
-        struct enum_t{
-            template<class Enum>
-            inline constexpr static std::string_view to_str(Enum value) {
-                return magic_enum::enum_name(value);
+      struct seq_t {};
+      struct map_t {};
+      struct struct_t {};
+      struct enum_t {
+        template <class Enum>
+        inline constexpr static std::string_view to_str(Enum value) {
+            return magic_enum::enum_name(value);
+        }
+        template <class Enum>
+        inline constexpr static Enum from_str(std::string_view str) {
+            auto value = magic_enum::enum_cast<Enum>(str);
+            if (!value.has_value()) {
+                throw enum_error(fmt::format("{}::{}", nameof::nameof_type<Enum>(), str));
             }
-            template<class Enum>
-            inline constexpr static Enum from_str(std::string_view str) {
-                auto value = magic_enum::enum_cast<Enum>(str);
-                if(!value.has_value()) {
-                    throw enum_error(fmt::format("{}::{}", nameof::nameof_type<Enum>(), str));
-                }
-                return *value;
-            }
-        };
+            return *value;
+        }
+      };
 
-        template<typename T> using map_e = typename T::mapped_type;
-        template<typename T> using map_k = typename T::key_type;
-        template<typename T> using seq_e = typename T::value_type;
-        template<typename T> using opt_e = typename T::value_type;
+      template <typename T> using map_e = typename T::mapped_type;
+      template <typename T> using map_k = typename T::key_type;
+      template <typename T> using seq_e = typename T::value_type;
+      template <typename T> using opt_e = typename T::value_type;
 
-        template<typename T, typename = void> struct not_null;
+      template <typename T, typename = void> struct not_null;
 
-        template<typename T>
-        struct not_null<T, std::enable_if_t<is_emptyable_v<T>>> {
-            not_null(T& origin) : data(origin) { }
-            T& data;
-        };
+      template <typename T>
+      struct not_null<T, std::enable_if_t<is_emptyable_v<T>>> {
+        not_null(T &origin) : data(origin) {}
+        T &data;
+      };
 
-        template<class T> struct is_optional {
-            using type = T;
-            using element = T;
-            constexpr static bool value = false;
-        };
+      template <class T> struct is_optional {
+        using type = T;
+        using element = T;
+        constexpr static bool value = false;
+      };
 
-        template<class T> struct is_optional<std::optional<T>> {
-            using type = std::optional<T>;
-            using element = T;
-            constexpr static bool value = true;
-        };
+      template <class T> struct is_optional<std::optional<T>> {
+        using type = std::optional<T>;
+        using element = T;
+        constexpr static bool value = true;
+      };
 
-        template<typename T> using optional_element = typename is_optional<T>::element;
+      template <typename T>
+      using optional_element = typename is_optional<T>::element;
 
-        template<class T> struct is_not_null {
-            using type = T;
-            using element = T;
-            constexpr static bool value = false;
-        };
+      template <class T> struct is_not_null {
+        using type = T;
+        using element = T;
+        constexpr static bool value = false;
+      };
 
-        template<class T>
-        struct is_not_null<not_null<T>> {
-            using type = not_null<T>;
-            using element = T;
-            constexpr static bool value = true;
-        };
+      template <class T> struct is_not_null<not_null<T>> {
+        using type = not_null<T>;
+        using element = T;
+        constexpr static bool value = true;
+      };
 
-        template<class T> using is_struct = is_serdeable<serde_context<detail::dummy_adaptor>, T>;
-        template<class T> inline constexpr auto is_struct_v = is_struct<T>::value;
+      template <class T>
+      using is_struct = is_serdeable<serde_context<detail::dummy_adaptor>, T>;
+      template <class T>
+      inline constexpr auto is_struct_v = is_struct<T>::value;
     }
 
     using namespace std::string_view_literals;
@@ -250,30 +251,17 @@ namespace serde
         constexpr const static std::string_view type = nameof::nameof_type<T>();
     public:
         constexpr serde_struct(Context& context, T& value) : context_(context), value_(value) {}
-        //template<class MEM_PTR>
-        //inline constexpr serde_struct& value_or_struct(MEM_PTR&& ptr, std::string_view name) {
-        //    using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
-        //    if constexpr(Context::is_serialize) {
-        //        if(Context::Helper::is_struct(context_.adaptor)) {
-        //            serde::serde_serializer<rtype, Context>::from(context_, value_.*ptr, name);
-        //        } else {
-        //            serde::serde_serializer<rtype, Context>::from(context_, value_.*ptr, "");
-        //        }
-        //    } else {
-        //        serde::serde_serializer<rtype, Context>::into(context_, value_.*ptr, name);
-        //    }
-        //    return *this;
-        //}
+
         template<class MEM_PTR, typename Attribute, typename... Attributes>
         inline constexpr serde_struct& field(MEM_PTR&& ptr, std::string_view name,
                                              Attribute&& attribute, Attributes&&... attributes) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
             if constexpr(Context::is_serialize) {
                 attribute.template from<rtype, Context>(context_, value_.*ptr, name,
-                                                        attributes..., attribute::serilzier_call_attr{});
+                                                        attributes..., attribute::serializer_call_attr{});
             } else {
                 attribute.template into<rtype, Context>(context_, value_.*ptr, name,
-                                                        attributes..., attribute::serilzier_call_attr{});
+                                                        attributes..., attribute::serializer_call_attr{});
             }
             return *this;
         }
@@ -303,6 +291,31 @@ namespace serde
                                                     nameof::nameof_short_type<decltype(context_.adaptor)>(),
                                                     adaptor_size));
                 }
+            }
+            return *this;
+        }
+
+        template<class MEM_PTR>
+        inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name) {
+            using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
+            if constexpr(Context::is_serialize) {
+                serde::serde_serializer<rtype, Context>::from(context_, value_.*ptr, name);
+            } else {
+                serde::serde_serializer<rtype, Context>::into(context_, value_.*ptr, name);
+            }
+            return *this;
+        }
+
+        template<class MEM_PTR, typename Attribute, typename... Attributes>
+        inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name,
+                                             Attribute&& attribute, Attributes&&... attributes) {
+            using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
+            if constexpr(Context::is_serialize) {
+                attribute.template from<rtype, Context>(context_, value_.*ptr, name,
+                                                        attributes..., attribute::serializer_call_attr{});
+            } else {
+                attribute.template into<rtype, Context>(context_, value_.*ptr, name,
+                                                        attributes..., attribute::serializer_call_attr{});
             }
             return *this;
         }

@@ -18,19 +18,22 @@ class test {
 public:
     template<class Context>
     constexpr static auto serde(Context& context, test& value) {
-        using serde::attribute::set_default;
+        using namespace serde::attribute;
         serde::serde_struct(context, value)
-            .field(&test::str, "str")
-            .field(&test::i,   "i")
-            .field(&test::vec, "vec")
-            .field(&test::io,  "io")
-            .field(&test::pri, "pri")
-            .field(&test::m ,  "m")
+            (&test::str, "str")
+            (&test::str, "str")
+            (&test::i,   "i")
+            (&test::vec, "vec")
+            (&test::no_vec, "no_vec", make_optional{})
+            (&test::io,  "io")
+            (&test::pri, "pri")
+            (&test::m ,  "m")
             ;
     }
     std::optional<std::string> str;
     int i;
     std::optional<std::vector<std::string>> vec;
+    std::vector<std::string> no_vec;
     tenum io;
     std::map<std::string, std::string> m;
 private:
@@ -44,6 +47,7 @@ int main()
 "vec": [ "one", "two", "three" ],
 "io": "INPUT",
 "pri" : "pri",
+"no_vec": ["t", "b"],
 "m" : { "a" : "1",
         "b" : "2",
         "c" : "3" }

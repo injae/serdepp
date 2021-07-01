@@ -8,6 +8,11 @@
    type = "static"
    source= ["src/to_static.cpp"]
 
+
+[[example]]
+    name = "serde_example1"
+    source = ["examples/example1.cpp"]
+
 [[example]]
     name = "serde_example"
     source = ["examples/example.cpp"]
@@ -16,7 +21,7 @@
     name = "simple_example"
     source = ["examples/simple_example.cpp"]
 
-[[benchmark]]
+[[example]]
     name = "benchmark"
     source = ["benchmark/benchmark.cpp"]
 

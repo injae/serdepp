@@ -6,6 +6,7 @@
 #include <serdepp/ostream.hpp>
 
 #include <serdepp/attributes.hpp>
+#include <serdepp/utility.hpp>
 
 using namespace serde::ostream;
 
@@ -15,15 +16,11 @@ enum class tenum {
 };
 
 struct nested {
-    template<class Context>
-    constexpr static auto serde(Context& context, nested& value) {
-        using namespace serde::attribute;
-        serde::serde_struct(context, value)
-            .field(&nested::version, "version", value_or_struct{})
-            .field(&nested::opt_desc ,"opt_desc")
-            .field(&nested::desc ,"desc", set_default("default value"))
-            .no_remain();
-    }
+    DERIVE_SERDE(nested,
+            (&Self::version, "version", value_or_struct_se{})
+            (&Self::opt_desc ,"opt_desc")
+            (&Self::desc ,"desc", default_se{"default value"})
+            .no_remain())
     std::string version;
     std::string desc;
     std::optional<std::string> opt_desc;
@@ -33,16 +30,17 @@ class test {
 public:
     template<class Context>
     constexpr static auto serde(Context& context, test& value) {
-        using serde::attribute::set_default;
+        using namespace serde::attribute;
+        using Self = test;
         serde::serde_struct(context, value)
-            .field(&test::str, "str", set_default("hello"))
-            .field(&test::i,   "i")
-            .field(&test::vec, "vec")
-            .field(&test::io,  "io")
-            .field(&test::in,  "in")
-            .field(&test::pri, "pri")
-            .field(&test::m ,  "m")
-            .field(&test::nm , "nm")
+            .field(&Self::str, "str", default_se("hello"))
+            .field(&Self::i,   "i")
+            .field(&Self::vec, "vec")
+            .field(&Self::io,  "io")
+            .field(&Self::in,  "in")
+            .field(&Self::pri, "pri")
+            .field(&Self::m ,  "m")
+            .field(&Self::nm , "nm")
             ;
     }
     std::optional<std::string> str;
@@ -58,40 +56,40 @@ private:
 
 int main()
 {
-  nlohmann::json v = R"({
-"i": 10,
-"vec": [ "one", "two", "three" ],
-"io": "INPUT",
-"pri" : "pri",
-"in" : [{ "version" : "hello" }, "single"],
-"m" : { "a" : "1",
-        "b" : "2",
-        "c" : "3" },
-"nm" : { "a" : {"version" : "hello" },
-         "b" : "hello2" }
-})"_json;
+    nlohmann::json v = R"({
+    "i": 10,
+    "vec": [ "one", "two", "three" ],
+    "io": "INPUT",
+    "pri" : "pri",
+    "in" : [{ "version" : "hello" }, "single"],
+    "m" : { "a" : "1",
+            "b" : "2",
+            "c" : "3" },
+    "nm" : { "a" : {"version" : "hello" },
+            "b" : "hello2" }
+    })"_json;
 
-  try {
-    test t = serde::serialize<test>(v);
+    try {
+        test t = serde::serialize<test>(v);
 
-    auto v_to_json = serde::deserialize<nlohmann::json>(t);
-    auto v_to_toml = serde::deserialize<serde::toml_v>(t);
-    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
+        auto v_to_json = serde::deserialize<nlohmann::json>(t);
+        auto v_to_toml = serde::deserialize<serde::toml_v>(t);
+        auto v_to_yaml = serde::deserialize<serde::yaml>(t);
 
-    std::cout << "toml: " << v_to_toml << std::endl;
-    fmt::print("json: {}\n", v_to_json.dump());
-    std::cout << "yaml: " << v_to_yaml << std::endl;
+        std::cout << "toml: " << v_to_toml << std::endl;
+        fmt::print("json: {}\n", v_to_json.dump());
+        std::cout << "yaml: " << v_to_yaml << std::endl;
 
-    test t_from_toml = serde::serialize<test>(v_to_toml);
-    test t_from_yaml = serde::serialize<test>(v_to_yaml);
+        test t_from_toml = serde::serialize<test>(v_to_toml);
+        test t_from_yaml = serde::serialize<test>(v_to_yaml);
 
-    fmt::print("{}\n", t_from_toml);
-    fmt::print("{}\n", t_from_yaml);
-    std::cout << t << '\n';
+        fmt::print("{}\n", t_from_toml);
+        fmt::print("{}\n", t_from_yaml);
+        std::cout << t << '\n';
 
-  }catch(std::exception& e) {
-      fmt::print(stderr,"{}\n",e.what());
-  }
+    }catch(std::exception& e) {
+        fmt::print(stderr,"{}\n",e.what());
+    }
 
-  return 0;
+    return 0;
 }
