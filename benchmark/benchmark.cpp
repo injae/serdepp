@@ -8,17 +8,14 @@
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
 #include <fmt/format.h>
+#include <serdepp/utility.hpp>
 
 struct test {
-    template<class Context>
-    constexpr static auto serde(Context& context, test& value) {
-      serde::serde_struct(context, value)
-          .field(&test::str, "str")
-          .field(&test::i, "i")
-          .field(&test::vec, "vec")
-          .field(&test::sm, "sm");
-      //.no_remain();
-    }
+    DERIVE_SERDE(test,
+          (&test::str, "str")
+          (&test::i, "i")
+          (&test::vec, "vec")
+          (&test::sm, "sm"))
     std::string str;
     int i;
     std::vector<std::string> vec;
