@@ -1,23 +1,23 @@
 # serdepp
-c++17 zero cost serialize deserialize adaptor library like rust serde.rs    
-support attribute
+c++17 zero cost serialize deserialize adaptor library like rust serde.rs  
 
 - [Features](#Features)
-- [Get Started](#Get Started)
+- [Get Started](#Get-Started)
   - [Dependencies](#Dependencies)
   - [Install](#Install)
   - [CMake](#CMake)
 - [Examples](#Examples)
-  - [Basic Usage](#Basic Usage)
-  - [Macro Version](#Macro Version)
-  - [Nested Class](#Nested Class Example)
+  - [Basic Usage](#Basic-Usage)
+  - [Macro Version](#Macro-Version)
+  - [Nested Class](#Nested-Class-Example)
+  - [Custom Serializer](#Custom-Serializer)
 - [Attributes](#Attributes)
-  - [Naming Rule](#Nameing Rule)
+  - [Naming Rule](#Nameing-Rule)
   - [Value or Struct](#value_or_struct_se)
   - [Default Value](#default_se)
   - [Enum](#enum_toupper)
   - [Container](#make_optional)
-  - [Custom Attribute](#Custom Attribute)
+  - [Custom Attribute](#Custom-Attribute)
 - [Benchmark](#Benchmark)
 
 ## Features
@@ -134,6 +134,28 @@ private:
     std::string str;
     int i;
     std::vector<std::string> vec;
+};
+```
+
+## Custom Serializer
+```cpp
+struct Test {
+    int i = 0;
+};
+
+template<typename serde_ctx>
+    struct serde_serializer<Test, serde_ctx  /*SFINE Support*/> {
+    // serialize step
+    constexpr inline static auto from(serde_ctx& ctx, Test& data, std::string_view key) {
+        // serialize int -> Test
+        serde_adaptor<typename serde_ctx::Adaptor, int>::from(ctx.adaptor, key, data.i);
+    }
+
+    // deserialize step
+    constexpr inline static auto into(serde_ctx& ctx, const Test& data, std::string_view key) {
+        // deserialize  Test -> int
+        serde_adaptor<typename serde_ctx::Adaptor, int>::into(ctx.adaptor, key, data.i);
+    }
 };
 ```
 
