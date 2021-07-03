@@ -1,6 +1,24 @@
-# serdepp (Beta)
-c++17 zero cost serialize deserialize adaptor library like rust serde   
-Multiple types of serializer deserializer(json, toml, fmt(deserialize only)) can be created in one serializer function.  
+# serdepp
+c++17 zero cost serialize deserialize adaptor library like rust serde.rs    
+support attribute
+
+- [Features](#Features)
+- [Get Started](#Get Started)
+  - [Dependencies](#Dependencies)
+  - [Install](#Install)
+  - [CMake](#CMake)
+- [Examples](#Examples)
+  - [Basic Usage](#Basic Usage)
+  - [Macro Version](#Macro Version)
+  - [Nested Class](#Nested Class Example)
+- [Attributes](#Attributes)
+  - [Naming Rule](#Nameing Rule)
+  - [Value or Struct](#value_or_struct_se)
+  - [Default Value](#default_se)
+  - [Enum](#enum_toupper)
+  - [Container](#make_optional)
+  - [Custom Attribute](#Custom Attribute)
+- [Benchmark](#Benchmark)
 
 ## Features
 - [x] zero cost serializer, deserializer adaptor
@@ -14,66 +32,52 @@ Multiple types of serializer deserializer(json, toml, fmt(deserialize only)) can
 - [x] enum, enum_class support (with [magic_enum](https://github.com/Neargye/magic_enum))
 - [x] optional support 
 - [x] container support (sequence(like vector, list), map(map, unordered_map ...))
-- [x] attributes and custom attribute support (se_value_or_struct, se_default, ...)
+- [x] [attributes](#Attributes) and custom attribute support (se_value_or_struct, se_default, ...)
 
-
+## Get Started
 ```cpp
-#include <serdepp/serializer.hpp>
+#include <serdepp/serde.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 
-enum class t_enum {
-    A,
-    B
-};
+enum class t_enum { A, B };
 
-class example {
-public:
-    DERIVE_SERDE(example,
-        (&Self::number,   "number", default_se{1024})
-        (&Self::vec,      "vec")
-        (&Self::opt_vec,  "opt_vec")
-        (&Self::t_enum_,  "t_enum"))
-
-private:
-    int number;
-    std::vector<std::string> vec;
-    std::optional<std::vector<std::string>> opt_vec;
-    t_enum t_enum_;
+struct example {
+    DERIVE_SERDE(example, 
+                 (&Self::number_,  "number", skip{}) // attribute skip
+                 (&Self::vec_,     "vec") 
+                 (&Self::opt_vec_, "opt_vec")
+                 (&Self::tenum_,   "t_enum"))
+    int number_;
+    std::vector<std::string> vec_;
+    std::optional<std::vector<std::string>> opt_vec_;
+    t_enum tenum_;
 };  
 
 int main() {
-   example ex{10, {"a","b","c"}, std::nullopt, t_enum::INPUT};
-   nlohmann_json json_from_ex = serde::deserialize<nlohmann_json::json>(ex);
-   example ex_from_json = serde::serialize<example>(json_from_ex);
+    example ex;
+    ex.number_ = 1024;
+    ex.vec_ = {"a", "b", "c"};
+    ex.tenum_ = t_enum::B;
+
+    nlohmann::json json_from_ex = serde::deserialize<nlohmann::json>(ex);
+    example ex_from_json = serde::serialize<example>(json_from_ex);
+
+    fmt::print("json:{}\n",json_from_ex.dump(4));
+
+    fmt::print("fmt:{}\n",ex_from_json);
 }
 
-```
-### Result
-```console
-2021-06-27T23:58:10+09:00
-Running ./benchmark
-Run on (12 X 2600 MHz CPU s)
-CPU Caches:
-  L1 Data 32 KiB (x6)
-  L1 Instruction 32 KiB (x6)
-  L2 Unified 256 KiB (x6)
-  L3 Unified 12288 KiB (x1)
-Load Average: 2.47, 2.43, 2.51
---------------------------------------------------------------
-Benchmark                    Time             CPU   Iterations
---------------------------------------------------------------
-nljson_set_se_bench        425 ns          424 ns      1575076  // serde<nlohmann> serialize
-nljson_set_nl_bench        442 ns          442 ns      1617058  // nlohmann serialize
-nljson_get_se_bench       2277 ns         2274 ns       309051  // serde<nlohmann> struct deserialize
-nljson_get_nl_bench       2610 ns         2606 ns       264174  // nlohmann struct deserialize
-toml11_set_se_bench        466 ns          465 ns      1462581  // serde<toml11> struct serialize
-toml11_set_tl_bench        499 ns          498 ns      1425691  // toml11 struct serialize
-toml11_get_se_bench       3327 ns         3322 ns       208100  // serde<toml11> struct deserialize
-toml11_get_tl_bench       4048 ns         4043 ns       175482  // toml11 struct deserialize
-yaml_set_se_bench         1955 ns         1951 ns       355640  // serde<yaml-cpp> struct serialize
-yaml_set_tl_bench         2044 ns         2042 ns       341966  // yaml-cpp struct serialize
-yaml_get_se_bench        19619 ns        19592 ns        35286  // serde<yaml-cpp> struct deserialize
-yaml_get_tl_bench        28810 ns        28754 ns        25024  // yaml-cpp struct deserialize
+/* Result
+json:{
+    "t_enum": "B",
+    "vec": [
+        "a",
+        "b",
+        "c"
+    ]
+}
+fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
+*/
 ```
 
 ## Dependencies
@@ -83,6 +87,7 @@ yaml_get_tl_bench        28810 ns        28754 ns        25024  // yaml-cpp stru
 - [nlohmann_json](https://github.com/nlohmann/json) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
 - [toml11](https://github.com/ToruNiina/toml11) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_YAML_CPP=ON)
+
 
 ## Install
 ```console
@@ -97,8 +102,42 @@ find_package(serdepp)
 target_link_libraries({target name} PUBLIC serdepp::serdepp)
 ```
 
-## [Examples](./examples/)
-### [Simple Example](./examples/simple_example.cpp)
+
+# [Examples](./examples/)
+## Basic Usage
+```cpp
+#include <serdepp/serializer.hpp>
+class test {
+public:
+    template<class Context>
+    constexpr static auto serde(Context& context, test& value) {
+        using Self = test;
+        serde::serde_struct(context, value)
+            (&Self::str, "str")  // or .field(&Self::str, "str")
+            (&Self::i,   "i")    // or .field(&Self::i , "i")
+            (&Self::vec, "vec"); // or .field(&Self::vec, "vec")
+    }
+private:
+    std::string str;
+    int i;
+    std::vector<std::string> vec;
+};
+```
+
+## Macro Version
+```cpp
+#include <serdepp/serializer.hpp>
+class test {
+public:
+    DERIVE_SERDE(test,(&Self::str, "str")(&Self::i, "i")(&Self::vec, "vec"))
+private:
+    std::string str;
+    int i;
+    std::vector<std::string> vec;
+};
+```
+
+## [Simple Example](./examples/simple_example.cpp)
 ```cpp
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
@@ -118,13 +157,14 @@ class test {
 public:
     template<class Context>
     constexpr static auto serde(Context& context, test& value) {
+        using Self = test;
         serde::serde_struct(context, value)
-            .field(&test::str, "str")
-            .field(&test::i,   "i")
-            .field(&test::vec, "vec")
-            .field(&test::io,  "io")
-            .field(&test::pri, "pri")
-            .field(&test::m ,  "m")
+            .field(&Self::str, "str") // or (&test::str, "str")
+            .field(&Self::i,   "i")
+            .field(&Self::vec, "vec")
+            .field(&Self::io,  "io")
+            .field(&Self::pri, "pri")
+            .field(&Self::m ,  "m")
             ;
     }
     std::optional<std::string> str;
@@ -152,7 +192,7 @@ int main()
 
     auto v_to_json = serde::deserialize<nlohmann::json>(t);
     auto v_to_toml = serde::deserialize<serde::toml_v>(t);
-    auto v_to_toml = serde::deserialize<serde::yaml>(t);
+    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
 
     test t_from_toml = serde::serialize<test>(v_to_toml);
     test t_from_yaml = serde::serialize<test>(v_to_yaml);
@@ -165,7 +205,7 @@ int main()
 ```
 
 
-### [Full Example](./examples/example.cpp)
+### [Nested Class Example](./examples/example.cpp)
 ```cpp
 #include <serdepp/serializer.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
@@ -288,6 +328,34 @@ int main()
   return 0;
 }
 ```
+
+## 3 Way make optional container field
+1. with se_default 
+   - if empty in serialize step -> set `std::vector<std::string>{}`
+   - if empty in deserialize step -> set null, ex json: "vec" : null
+2. with optional
+   - if empty in serialize step -> set `std::nullopt`
+   - if empty in deserialize step -> skip
+3. with make_optional
+   - if empty in serialize step -> set `std::vector<std::string>{}`
+   - if empty in deserialize step -> skip
+```cpp
+struct attribute_example {
+    template<class Context>
+    constexpr static auto serde(Context& context, attribute_example& value) {
+        using namespace serde::attribute;
+        using Self = attribute_example;
+        serde::serde_struct(context, value)
+            .field(&Self::vec, "vec", default_se<std::vector<std::string>>{{}}) // 1.
+            .field(&Self::vec_opt, "vec_opt")       // 2.
+            .field(&Self::vec_attr_opt, "vec_attr_opt", make_optional{});  // 3.
+    }
+    std::vector<std::string> ver;
+    std::optional<std::vector<std::string>> vec_opt;
+    std::vector<std::string> ver_att_opt;
+};
+```
+
 # Attributes
 ## Naming Rule
 - `*_se` serialize only     ex: `default_se` `value_or_struct_se`
@@ -360,7 +428,7 @@ struct attribute_example {
 };
 ```
 
-## make_optional
+## `make_optional`
 - c++ container make like optional type
 - if empty in serialize step -> set `std::vector<std::string>{}`
 - if empty in deserialize step -> not set
@@ -374,33 +442,6 @@ struct attribute_example {
             .field(&Self::vec, "vec", make_optional{});  // 3.
     }
     std::vector<std::string> ver;
-};
-```
-
-## 3 Way make optional container field
-1. with se_default 
-   - if empty in serialize step -> set `std::vector<std::string>{}`
-   - if empty in deserialize step -> set null, ex json: "vec" : null
-2. with optional
-   - if empty in serialize step -> set `std::nullopt`
-   - if empty in deserialize step -> not set  
-3. with make_optional
-   - if empty in serialize step -> set `std::vector<std::string>{}`
-   - if empty in deserialize setp -> not set
-```cpp
-struct attribute_example {
-    template<class Context>
-    constexpr static auto serde(Context& context, attribute_example& value) {
-        using namespace serde::attribute;
-        using Self = attribute_example;
-        serde::serde_struct(context, value)
-            .field(&Self::vec, "vec", se_default<std::vector<std::string>>{{}}) // 1.
-            .field(&Self::vec_opt, "vec_opt")       // 2.
-            .field(&Self::vec_attr_opt, "vec_attr_opt", make_optional{});  // 3.
-    }
-    std::vector<std::string> ver;
-    std::optional<std::vector<std::string>> vec_opt;
-    std::vector<std::string> ver_att_opt;
 };
 ```
 
