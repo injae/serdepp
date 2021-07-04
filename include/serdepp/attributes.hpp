@@ -140,7 +140,7 @@ namespace serde::attribute {
             using Helper = serde_adaptor_helper<typename serde_ctx::Adaptor>;
             if constexpr (meta::is_emptyable_v<T>) {
                 if(Helper::is_null(ctx.adaptor, key)) {
-                    data = std::move(T{});
+                    if(data.empty()) data = std::move(T{});
                 } else {
                     next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
                 }
