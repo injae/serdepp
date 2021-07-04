@@ -46,7 +46,9 @@ struct example {
                  (&Self::number_,  "number", skip{}) // attribute skip
                  (&Self::vec_,     "vec") 
                  (&Self::opt_vec_, "opt_vec")
-                 (&Self::tenum_,   "t_enum"))
+                 (&Self::tenum_,   "t_enum")
+                 //.no_remain() optional: if have unregiested data -> Exception
+                 )
     int number_;
     std::vector<std::string> vec_;
     std::optional<std::vector<std::string>> opt_vec_;
@@ -110,7 +112,7 @@ target_link_libraries({target name} PUBLIC serdepp::serdepp)
 class test {
 public:
     template<class Context>
-    constexpr static auto serde(Context& context, test& value) {
+    constexpr static void serde(Context& context, test& value) {
         using Self = test;
         serde::serde_struct(context, value)
             (&Self::str, "str")  // or .field(&Self::str, "str")
