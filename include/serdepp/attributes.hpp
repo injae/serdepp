@@ -90,6 +90,49 @@ namespace serde::attribute {
         enum_tolower() noexcept : enum_hook(::tolower, ::toupper) {}
     };
 
+    template<typename SFunc, typename DFunc>
+    struct enum_under_to_dash {
+        SFunc&& serialize_;
+        DFunc&& deserialize_;
+        explicit enum_under_to_dash(SFunc&& se, DFunc&& de) noexcept
+            : serialize_(std::move(se)) , deserialize_(std::move(de)) {}
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            if constexpr(meta::is_enumable_v<T>) {
+                std::string buffer;
+                next_attr.template from<std::string, serde_ctx>(ctx, buffer, key, remains...);
+                std::transform(buffer.begin(), buffer.end(), buffer.begin(), serialize_);
+                std::replace_if(buffer.begin(), buffer.end() ,[](auto _c){ return _c == '-'; }, '_');
+                data = type::enum_t::from_str<T>(buffer);
+            } else {
+                throw serde::enum_error("enum_hook requried enum_type");
+            }
+        }
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
+            if constexpr(meta::is_enumable_v<T>) {
+                auto buffer = std::string{type::enum_t::to_str(data)};
+                std::transform(buffer.begin(), buffer.end(), buffer.begin(), deserialize_);
+                std::replace_if(buffer.begin(), buffer.end() ,[](auto _c){ return _c == '_'; }, '-');
+                next_attr.template into<std::string, serde_ctx>(ctx, buffer, key, remains...);
+            } else {
+                throw serde::enum_error("enum_hook requried enum_type");
+            }
+        }
+    };
+
+    struct enum_under_to_dash_toupper : enum_under_to_dash<decltype(::toupper), decltype(::tolower)> {
+        enum_under_to_dash_toupper() noexcept : enum_under_to_dash(::toupper, ::tolower) {}
+    };
+
+    struct enum_under_to_dash_tolower : enum_under_to_dash<decltype(::toupper), decltype(::tolower)> {
+        enum_under_to_dash_tolower () noexcept : enum_under_to_dash(::toupper, ::tolower) {}
+    };
+
     struct make_optional {
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,

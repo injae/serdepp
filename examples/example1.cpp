@@ -5,8 +5,8 @@ enum class t_enum { A, B };
 
 struct example {
     DERIVE_SERDE(example,
-                 (&Self::number_,  "number")
-                 (&Self::vec_,     "vec",     skip_de{}) //skip deserialize
+                 (&Self::number_,  "number", skip{}) //skip
+                 (&Self::vec_,     "vec") 
                  (&Self::opt_vec_, "opt_vec")
                  (&Self::tenum_,   "t_enum"))
 
@@ -23,14 +23,7 @@ int main() {
     ex.tenum_ = t_enum::B;
 
     nlohmann::json json_from_ex = serde::deserialize<nlohmann::json>(ex);
-    fmt::print("\n---\n");
-    fmt::print("json:{}\n",json_from_ex.dump(4));
-
     example ex_from_json = serde::serialize<example>(json_from_ex);
-    fmt::print("\n---\n");
-
     fmt::print("json:{}\n",json_from_ex.dump(4));
-
-    fmt::print("\n---\n");
     fmt::print("fmt:{}\n",ex_from_json);
 }
