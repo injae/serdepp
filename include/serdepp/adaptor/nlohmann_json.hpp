@@ -18,9 +18,9 @@ namespace serde {
             i >> table;
             return table;
         }
-        inline constexpr static bool is_null(json& adaptor, std::string_view key) { return !adaptor.contains(key); }
-        inline constexpr static size_t size(json& adaptor)    { return adaptor.size(); }
-        inline constexpr static bool is_struct(json& adaptor) { return adaptor.is_object(); }
+        inline static bool is_null(json& adaptor, std::string_view key) { return !adaptor.contains(key); }
+        inline static size_t size(json& adaptor)    { return adaptor.size(); }
+        inline static bool is_struct(json& adaptor) { return adaptor.is_object(); }
     };
 
     template<typename T>

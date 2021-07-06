@@ -10,13 +10,13 @@
 namespace serde {
     using toml_v = toml::value;
     template<> struct serde_adaptor_helper<toml_v>: derive_serde_adaptor_helper<toml_v> {
-        inline constexpr static bool is_null(toml_v& adaptor, std::string_view key) {
+        inline static bool is_null(toml_v& adaptor, std::string_view key) {
             return adaptor.is_table() ? !adaptor.contains(std::string{key}) : true;
         }
-        inline constexpr static bool is_struct(toml_v& adaptor) {
+        inline static bool is_struct(toml_v& adaptor) {
             return adaptor.is_table();
         }
-        inline constexpr static size_t size(toml_v& adaptor) {
+        inline static size_t size(toml_v& adaptor) {
             return adaptor.size();
         }
         static toml_v parse_file(std::string_view path) { return toml::parse(path); }

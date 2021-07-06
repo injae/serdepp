@@ -12,8 +12,8 @@ namespace serde {
     template<> struct serde_adaptor_helper<yaml> : derive_serde_adaptor_helper<yaml> {
         static yaml parse_file(const std::string& path) { return YAML::LoadFile(path); }
         inline static bool is_null(yaml& adaptor, std::string_view key) { return !adaptor[key.data()]; }
-        inline constexpr static size_t size(yaml& adaptor)    { return adaptor.size(); }
-        inline constexpr static bool is_struct(yaml& adaptor) { return adaptor.IsMap(); }
+        inline static size_t size(yaml& adaptor)    { return adaptor.size(); }
+        inline static bool is_struct(yaml& adaptor) { return adaptor.IsMap(); }
     };
 
     template<typename T>
