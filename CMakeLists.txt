@@ -10,18 +10,15 @@ cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
-find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
-find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
-find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
+find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
+find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
+find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
 
 
-cppm_target_define(serdepp STATIC
-SOURCES
-    src/to_static.cpp
-)
+cppm_target_define(serdepp INTERFACE)
 
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)
@@ -49,7 +46,8 @@ SOURCES
 endif()
 
 
-set(serdepp_global_deps PUBLIC benchmark fmt magic_enum nameof nlohmann_json toml11 yaml-cpp)
+set(serdepp_global_deps PRIVATE benchmark
+PUBLIC nlohmann_json toml11 yaml-cpp nameof magic_enum fmt)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 
@@ -71,4 +69,8 @@ cppm_target_dependencies(benchmark
 
 
 cppm_target_install(serdepp)
+cppm_target_install(serde_example1)
+cppm_target_install(serde_example)
+cppm_target_install(simple_example)
+cppm_target_install(benchmark)
 

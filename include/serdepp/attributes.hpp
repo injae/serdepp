@@ -132,7 +132,6 @@ namespace serde::attribute {
     struct enum_under_to_dash_tolower : enum_under_to_dash<decltype(::toupper), decltype(::tolower)> {
         enum_under_to_dash_tolower () noexcept : enum_under_to_dash(::toupper, ::tolower) {}
     };
-
     struct make_optional {
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,

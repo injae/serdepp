@@ -98,6 +98,12 @@ cd build
 cmake --build . --config Release --target install
 ```
 
+## UnInstall
+```console
+cd build
+cmake --build . --config Release --target uninstall
+```
+
 ## CMake 
 ```cmake
 find_package(serdepp)
