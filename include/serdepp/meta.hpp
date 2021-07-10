@@ -65,14 +65,14 @@ namespace serde::meta {
 
 
     template<class T>
-    struct is_literal {
+    struct is_str_type {
         using type = T;
         using traits = T;
         constexpr static bool value = false;
     };
 
     template<class T, class Traits, class Alloc>
-    struct is_literal<std::basic_string<T, Traits, Alloc>> {
+    struct is_str_type<std::basic_string<T, Traits, Alloc>> {
         using type = T;
         using traits = Traits;
         using alloc = Alloc;
@@ -80,12 +80,12 @@ namespace serde::meta {
     };
 
     template<class T, class Traits>
-    struct is_literal<std::basic_string_view<T, Traits>> {
+    struct is_str_type<std::basic_string_view<T, Traits>> {
         using type = T;
         using traits = Traits;
         constexpr static bool value = true;
     };
-    template<typename T>  inline constexpr auto is_literal_v = is_literal<T>::value;
+    template<typename T>  inline constexpr auto is_str_v = is_str_type<T>::value;
 
 
     template<typename T, typename = void> struct is_optional : std::false_type {};

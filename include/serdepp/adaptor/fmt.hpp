@@ -43,17 +43,7 @@ namespace serde {
             throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::from(literal, key data)",
                                                          nameof::nameof_short_type<literal>()));
         }
-        static void into(literal& s, std::string_view key, const T& data) { s.add(key, data);  }
-    };
-
-    template<typename T>
-    struct serde_adaptor<literal, T, type::enum_t> {
-        constexpr static void from(literal& s, std::string_view key, T& data) {
-            data = type::enum_t::from_str<T>(serialize_at<std::string>(s, key));
-        }
-        constexpr static void into(literal& s, std::string_view key, const T& data) {
-            s.add(key, type::enum_t::to_str(data));
-        }
+        static void into(literal& s, std::string_view key, const T& data) { s.add(key, data); }
     };
 }
 

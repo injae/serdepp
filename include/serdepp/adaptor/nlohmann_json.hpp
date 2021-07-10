@@ -45,16 +45,6 @@ namespace serde {
     };
 
     template<typename T>
-    struct serde_adaptor<json, T, type::enum_t> {
-        constexpr static void from(json& s, std::string_view key, T& data) {
-            data = type::enum_t::from_str<T>(serialize_at<std::string>(s, key));
-        }
-        constexpr static void into(json& s, std::string_view key, const T& data) {
-            (key.empty() ? s : s[std::string{key}]) = type::enum_t::to_str(data);
-        }
-    };
-
-    template<typename T>
     struct serde_adaptor<json, T, type::seq_t> {
        using E = type::seq_e<T>;
        static void from(json& s, std::string_view key, T& arr) {
@@ -68,7 +58,6 @@ namespace serde {
            for(auto& value: data) { arr.push_back(std::move(deserialize<json>(value))); }
        }
     };
-
 
     template <typename Map>
     struct serde_adaptor<json, Map, type::map_t> {

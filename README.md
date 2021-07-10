@@ -43,7 +43,7 @@ enum class t_enum { A, B };
 
 struct example {
     DERIVE_SERDE(example, 
-                 (&Self::number_,  "number", skip{}) // attribute skip
+                 (&Self::number_,  "number", skip) // attribute skip
                  (&Self::vec_,     "vec") 
                  (&Self::opt_vec_, "opt_vec")
                  (&Self::tenum_,   "t_enum")
@@ -110,6 +110,13 @@ find_package(serdepp)
 target_link_libraries({target name} PUBLIC serdepp::serdepp)
 ```
 
+```
+```
+
+## Compiler
+- minimum compiler version clang-8, gcc-10, 
+- gcc-8~9 version constexpr has complie error 
+
 
 # [Examples](./examples/)
 ## Basic Usage
@@ -152,7 +159,7 @@ struct Test {
 };
 
 template<typename serde_ctx>
-    struct serde_serializer<Test, serde_ctx  /*SFINE Support*/> {
+    struct serde_serializer<Test, serde_ctx  /*, SFINE*/> {
     // serialize step
     constexpr inline static auto from(serde_ctx& ctx, Test& data, std::string_view key) {
         // serialize int -> Test
@@ -258,7 +265,7 @@ struct nested {
     constexpr static auto serde(Context& context, nested& value) {
         using namespace serde::attribute;
         serde::serde_struct(context, value)
-            .field(&nested::version, "version", value_or_struct_se{}) // value_or_struct attribute
+            .field(&nested::version, "version", value_or_struct) // value_or_struct attribute
             .field(&nested::opt_desc ,"opt_desc")
             .field(&nested::desc ,"desc", default_se("default value")) // serialize step set default value
             .no_remain();
@@ -360,7 +367,7 @@ int main()
 ```
 
 ## 3 Way make optional container field
-1. with se_default 
+1. with default_se
    - if empty in serialize step -> set `std::vector<std::string>{}`
    - if empty in deserialize step -> set null, ex json: "vec" : null
 2. with optional
@@ -378,7 +385,7 @@ struct attribute_example {
         serde::serde_struct(context, value)
             .field(&Self::vec, "vec", default_se<std::vector<std::string>>{{}}) // 1.
             .field(&Self::vec_opt, "vec_opt")       // 2.
-            .field(&Self::vec_attr_opt, "vec_attr_opt", make_optional{});  // 3.
+            .field(&Self::vec_attr_opt, "vec_attr_opt", make_optional);  // 3.
     }
     std::vector<std::string> ver;
     std::optional<std::vector<std::string>> vec_opt;
@@ -392,14 +399,14 @@ struct attribute_example {
 - `*_de` deserialize only   ex: not yet
 - `*` serialize deserialize ex: `enum_toupper`, `enum_tolower`
 
-## `value_or_struct_se`
+## `value_or_struct`
 ```cpp
 struct attribute_example {
     template<class Context>
     constexpr static auto serde(Context& context, nested& value) {
         using namespace serde::attribute;
         serde::serde_struct(context, value)
-            .field(&nested::version, "version", value_or_struct_se{});
+            .field(&nested::version, "version", value_or_struct);
     }
     std::string version;
 };
@@ -420,7 +427,7 @@ struct attribute_example {
         serde::serde_struct(context, value)
             .field(&Self::ver, "ver", default_se{"0.0.1"}) // 1.
             .field(&Self::ver_opt, "ver_opt")               // 2.
-            .field(&Self::ver_opt_default, "ver_opt_default", default{"0.0.1"}_se); // 3.
+            .field(&Self::ver_opt_default, "ver_opt_default", default_se{"0.0.1"}); // 3.
     }
     std::string version;
     std::optional<std::string> ver_opt = "-1.0.1";
@@ -428,7 +435,7 @@ struct attribute_example {
 };
 ```
 
-## `enum_toupper` or `enum_tolower`
+## `toupper` or `tolower`
 ```cpp
 enum class u_enum {
     INPUT ,
@@ -448,10 +455,10 @@ struct attribute_example {
         serde::serde_struct(context, value)
         // serialize:   input        -> INPUT -> uenum::INPUT
         // deserialize: uenum::INPUT -> INPUT -> input
-            .field(&Self::test_uenum, "uenum", enum_toupper) 
+            .field(&Self::test_uenum, "uenum", to_upper) 
         // serialize:   INPUT        -> input -> uenum::input
         // deserialize: uenum::input -> input -> INPUT
-            .field(&Self::test_lenum, "lenum", enum_tolower);
+            .field(&Self::test_lenum, "lenum", to_lower);
     }
     u_enum test_uenum;
     l_enum test_lenum;
@@ -469,36 +476,71 @@ struct attribute_example {
         using namespace serde::attribute;
         using Self = attribute_example;
         serde::serde_struct(context, value)
-            .field(&Self::vec, "vec", make_optional{});  // 3.
+            .field(&Self::vec, "vec", make_optional);  // 3.
     }
     std::vector<std::string> ver;
 };
 ```
 
+## [more attribute](./include/serdepp/attribute/)
+
 ## Custom Attribute
+### 1. Normal Attribute
 ```cpp
-// se_value_or_struct code in serde/attribute.hpp
+// value_or_struct code in serde/attribute/value_or_struct.hpp
 namespace serde::attribute {
-    struct value_or_struct_se {
-        //serialize step
+    namespace detail {
+        struct value_or_struct {
+            //serialize step
+            template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+            constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                        Next&& next_attr, Attributes&&... remains) {
+                using Helper = serde_adaptor_helper<typename serde_ctx::Adaptor>;
+                if(Helper::is_struct(ctx.adaptor)) {
+                    next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+                } else {
+                    next_attr.template from<T, serde_ctx>(ctx, data, "", remains...);
+                }
+            }
+
+            //deserialize step
+            template<typename T, typename serde_ctx, typename Next, typename ...Attributes> 
+            constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key,
+                                        Next&& next_attr, Attributes&&... remains) {
+                next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
+            }
+        };
+    }
+    constexpr static auto value_or_struct = value_or_struct{};
+}
+```
+### 2. Args Attribute
+```cpp
+// default_se code in serde/attribute/default.hpp
+namespace serde::attribute {
+    template<typename D>
+    struct default_se {
+        D&& default_value_;
+        explicit default_se(D&& default_value) noexcept : default_value_(std::move(default_value)) {}
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
-                                    Next&& next_attr, Attributes&&... remains) {
+                                   Next&& next_attr, Attributes&&... remains) {
             using Helper = serde_adaptor_helper<typename serde_ctx::Adaptor>;
-            if(Helper::is_struct(ctx.adaptor)) {
-                next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+            if(Helper::is_null(ctx.adaptor, key)) {
+                data = std::move(default_value_);
             } else {
-                next_attr.template from<T, serde_ctx>(ctx, data, "", remains...);
+                next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
             }
         }
 
-        //deserialize step
-        template<typename T, typename serde_ctx, typename Next, typename ...Attributes> 
-        constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key,
-                                    Next&& next_attr, Attributes&&... remains) {
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key,
+                                   Next&& next_attr, Attributes&&... remains) {
             next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
         }
     };
+    // deduce guide
+    template<typename D> default_se(D&&) -> default_se<D>;
 }
 ```
 

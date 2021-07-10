@@ -5,7 +5,7 @@ enum class t_enum { A, B };
 
 struct example {
     DERIVE_SERDE(example,
-                 (&Self::number_,  "number", skip{}) //skip
+                 (&Self::number_,  "number", skip) //skip
                  (&Self::vec_,     "vec") 
                  (&Self::opt_vec_, "opt_vec")
                  (&Self::tenum_,   "t_enum"))

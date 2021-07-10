@@ -24,7 +24,7 @@ public:
             (&test::str, "str")
             (&test::i,   "i")
             (&test::vec, "vec")
-            (&test::no_vec, "no_vec", make_optional{})
+            (&test::no_vec, "no_vec", make_optional)
             (&test::io,  "io")
             (&test::pri, "pri")
             (&test::m ,  "m")
