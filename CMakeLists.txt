@@ -18,7 +18,10 @@ find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
 
 
-cppm_target_define(serdepp INTERFACE)
+cppm_target_define(serdepp STATIC
+SOURCES
+    src/to_static.cpp
+)
 
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)
