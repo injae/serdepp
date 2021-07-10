@@ -6,9 +6,9 @@
 
 [lib]
    name = "serdepp"
-   #type = "static"
-   #source= ["src/to_static.cpp"]
-   type = "header-only"
+   type = "static"
+   source= ["src/to_static.cpp"]
+   #type = "header-only"
 
 
 [[example]]
