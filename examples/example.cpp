@@ -11,13 +11,16 @@
 using namespace serde::ostream;
 
 enum class tenum {
-    INPUT  = 1,
-    OUTPUT = 2,
+    INPUT    ,
+    OUTPUT   ,
+    INPUT_2  ,
+    OUTPUT_2 ,
 };
+
 
 struct nested {
     DERIVE_SERDE(nested,
-            (&Self::version, "version", value_or_struct_se{})
+            (&Self::version, "version", value_or_struct)
             (&Self::opt_desc ,"opt_desc")
             (&Self::desc ,"desc", default_se{"default value"})
             .no_remain())
@@ -36,9 +39,9 @@ public:
             .field(&Self::str, "str", default_se("hello"))
             .field(&Self::i,   "i")
             .field(&Self::vec, "vec")
-            .field(&Self::io,  "io")
-            .field(&Self::in,  "in")
-            .field(&Self::pri, "pri")
+            .field(&Self::io,  "io", default_se(tenum::OUTPUT), to_lower, under_to_dash)
+            .field(&Self::in,  "in", make_optional)
+            .field(&Self::pri, "pri", to_upper, under_to_dash)
             .field(&Self::m ,  "m")
             .field(&Self::nm , "nm")
             ;
@@ -50,7 +53,6 @@ public:
     std::vector<nested> in;
     std::map<std::string, std::string> m;
     std::map<std::string, nested> nm;
-private:
     std::string pri;
 };
 
@@ -59,8 +61,8 @@ int main()
     nlohmann::json v = R"({
     "i": 10,
     "vec": [ "one", "two", "three" ],
-    "io": "INPUT",
-    "pri" : "pri",
+    "io" : "OUTPUT-2",
+    "pri" : "PRi-FF",
     "in" : [{ "version" : "hello" }, "single"],
     "m" : { "a" : "1",
             "b" : "2",
@@ -69,27 +71,29 @@ int main()
             "b" : "hello2" }
     })"_json;
 
-    try {
-        test t = serde::serialize<test>(v);
+    // try {
+    test t = serde::serialize<test>(v);
+    fmt::print("{}\n",t.pri);
+    fmt::print("{}\n",t);
 
-        auto v_to_json = serde::deserialize<nlohmann::json>(t);
-        auto v_to_toml = serde::deserialize<serde::toml_v>(t);
-        auto v_to_yaml = serde::deserialize<serde::yaml>(t);
+    auto v_to_json = serde::deserialize<nlohmann::json>(t);
+    auto v_to_toml = serde::deserialize<serde::toml_v>(t);
+    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
 
-        std::cout << "toml: " << v_to_toml << std::endl;
-        fmt::print("json: {}\n", v_to_json.dump());
-        std::cout << "yaml: " << v_to_yaml << std::endl;
+    std::cout << "toml: " << v_to_toml << std::endl;
+    fmt::print("json: {}\n", v_to_json.dump());
+    std::cout << "yaml: " << v_to_yaml << std::endl;
 
-        test t_from_toml = serde::serialize<test>(v_to_toml);
-        test t_from_yaml = serde::serialize<test>(v_to_yaml);
+    test t_from_toml = serde::serialize<test>(v_to_toml);
+    test t_from_yaml = serde::serialize<test>(v_to_yaml);
 
-        fmt::print("{}\n", t_from_toml);
-        fmt::print("{}\n", t_from_yaml);
-        std::cout << t << '\n';
+    fmt::print("{}\n", t_from_toml);
+    fmt::print("{}\n", t_from_yaml);
+    std::cout << t << '\n';
 
-    }catch(std::exception& e) {
-        fmt::print(stderr,"{}\n",e.what());
-    }
+    //}catch(std::exception& e) {
+    //    fmt::print(stderr,"{}\n",e.what());
+    //}
 
     return 0;
 }

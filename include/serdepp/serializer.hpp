@@ -85,19 +85,35 @@ namespace serde
     };
 
     namespace attribute {
-        struct serializer_call_attr {
-            template<typename T, typename serde_ctx>
-            constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key) {
-                serde::serde_serializer<T, serde_ctx>::from(ctx, data, key);
-            }
+        namespace detail {
+            struct serializer_call_attr {
+                template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+                inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                Next&& next_attr, Attributes&&... remains) const {
+                    serde::serde_serializer<T, serde_ctx>::from(ctx, data, key);
+                    next_attr.template from<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+                }
 
-            template<typename T, typename serde_ctx>
-            constexpr inline void into(serde_ctx& ctx, const T& data, std::string_view key) {
-                serde::serde_serializer<T, serde_ctx>::into(ctx, data, key);
-            }
-        };
-    } // namespace attribute
+                template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+                inline void into(serde_ctx& ctx, T& data, std::string_view key,
+                                Next&& next_attr, Attributes&&... remains) const {
+                    serde::serde_serializer<T, serde_ctx>::into(ctx, data, key);
+                    next_attr.template into<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+                }
 
+                template<typename T, typename serde_ctx>
+                inline void from(serde_ctx& ctx, T& data, std::string_view key) const {
+                    serde::serde_serializer<T, serde_ctx>::from(ctx, data, key);
+                }
+
+                template<typename T, typename serde_ctx>
+                inline void into(serde_ctx& ctx, T& data, std::string_view key) const { 
+                    serde::serde_serializer<T, serde_ctx>::into(ctx, data, key);
+                }
+            };
+        }
+        inline constexpr auto serializer_call = detail::serializer_call_attr{};
+    }
 
     template<class T, bool is_serialize_=true>
     struct serde_context {
@@ -258,10 +274,14 @@ namespace serde
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
             if constexpr(Context::is_serialize) {
                 attribute.template from<rtype, Context>(context_, value_.*ptr, name,
-                                                        attributes..., attribute::serializer_call_attr{});
+                                                        std::forward<meta::remove_cvref_t<Attributes>>
+                                                        (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                        attribute::detail::serializer_call_attr{});
             } else {
                 attribute.template into<rtype, Context>(context_, value_.*ptr, name,
-                                                        attributes..., attribute::serializer_call_attr{});
+                                                        std::forward<meta::remove_cvref_t<Attributes>>
+                                                        (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                        attribute::detail::serializer_call_attr{});
             }
             return *this;
         }
@@ -312,10 +332,14 @@ namespace serde
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
             if constexpr(Context::is_serialize) {
                 attribute.template from<rtype, Context>(context_, value_.*ptr, name,
-                                                        attributes..., attribute::serializer_call_attr{});
+                                                        std::forward<meta::remove_cvref_t<Attributes>>
+                                                        (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                        attribute::serializer_call);
             } else {
                 attribute.template into<rtype, Context>(context_, value_.*ptr, name,
-                                                        attributes..., attribute::serializer_call_attr{});
+                                                        std::forward<meta::remove_cvref_t<Attributes>>
+                                                        (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                        attribute::serializer_call);
             }
             return *this;
         }
@@ -382,7 +406,7 @@ namespace serde
     template<typename T, typename serde_ctx>
     struct serde_serializer<T, serde_ctx, std::enable_if_t<is_sequenceable_v<T> &&
                                                            is_emptyable_v<T> &&
-                                                           !is_literal_v<T>  >>{
+                                                           !is_str_v<T>  >>{
         constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
             serde_adaptor<typename serde_ctx::Adaptor, T, type::seq_t>::from(ctx.adaptor, key, data);
             ctx.read();
@@ -397,12 +421,15 @@ namespace serde
 
     template<typename T, typename serde_ctx>
     struct serde_serializer<T, serde_ctx, std::enable_if_t<is_enumable_v<T>>>{
-        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
-            serde_adaptor<typename serde_ctx::Adaptor, T, type::enum_t>::from(ctx.adaptor, key, data);
+        inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
+            std::string str_to_enum;
+            serde_adaptor<typename serde_ctx::Adaptor, std::string>::from(ctx.adaptor, key, str_to_enum);
+            data = type::enum_t::from_str<T>(str_to_enum);
             ctx.read();
         }
-        constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
-            serde_adaptor<typename serde_ctx::Adaptor, T, type::enum_t>::into(ctx.adaptor, key, data);
+        inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
+            auto enum_to_str = std::string{type::enum_t::to_str(data)};
+            serde_adaptor<typename serde_ctx::Adaptor, std::string>::into(ctx.adaptor, key, enum_to_str);
             ctx.read();
         }
     };
