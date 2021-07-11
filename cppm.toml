@@ -23,7 +23,7 @@
     name = "simple_example"
     source = ["examples/simple_example.cpp"]
 
-[[example]]
+[[benchmark]]
     name = "benchmark"
     source = ["benchmark/benchmark.cpp"]
 
