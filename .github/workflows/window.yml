@@ -1,0 +1,24 @@
+name: Windows
+
+on: [push]
+
+jobs:
+  windows-msvc:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        build-type: ['Release', 'Debug']
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@master
+      with:
+        submodules: true
+    - name: CMake build
+      run: |
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -DUSE_CPPM_PATH=ON . 
+        cd build
+        cmake --build . --config ${{matrix.build-type}} --target install --target cppm_link
+    - name: Cppm build install
+      run: |
+        cd build/${{matrix.build-type}}
+        ./cppm build -h
