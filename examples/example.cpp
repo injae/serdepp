@@ -36,10 +36,10 @@ public:
         using namespace serde::attribute;
         using Self = test;
         serde::serde_struct(context, value)
-            .field(&Self::str, "str", default_se("hello"))
+            .field(&Self::str, "str", default_se<std::string>{"hello"})
             .field(&Self::i,   "i")
             .field(&Self::vec, "vec")
-            .field(&Self::io,  "io", default_se(tenum::OUTPUT), to_lower, under_to_dash)
+            .field(&Self::io,  "io", default_se{tenum::OUTPUT}, to_lower, under_to_dash)
             .field(&Self::in,  "in", make_optional)
             .field(&Self::pri, "pri", to_upper, under_to_dash)
             .field(&Self::m ,  "m")
