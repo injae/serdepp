@@ -30,6 +30,8 @@ namespace serde
         inline constexpr static size_t size(Adaptor& adaptor);
         // for support string_or_struct
         inline constexpr static bool is_struct(Adaptor& adaptor);
+        // for support parse_file
+        inline constexpr static Adaptor parse_file(const std::string& path);
     };
 
     template <class Adaptor>
@@ -48,6 +50,12 @@ namespace serde
 
         inline constexpr static bool is_struct(Adaptor& adaptor) {
             throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::is_struct(adaptor, key)",
+                                                          nameof::nameof_short_type<Adaptor>()));
+            return true;
+        }
+
+        inline constexpr static Adaptor parse_file(Adaptor& adaptor) {
+            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::parse_file(path)",
                                                           nameof::nameof_short_type<Adaptor>()));
             return true;
         }
@@ -258,6 +266,12 @@ namespace serde
         serde_context<Adaptor, false> ctx(adaptor);
         serde_serializer<origin, serde_context<Adaptor,false>>::into(ctx, target, key);
     }
+
+    template<class Adaptor>
+    constexpr inline Adaptor parse_file(const std::string& path) {
+        return serde_adaptor_helper<Adaptor>::parse_file(path);
+    }
+
 
     template<class Context, class T>
     class serde_struct {
