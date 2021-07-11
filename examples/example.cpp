@@ -31,21 +31,15 @@ struct nested {
 
 class test {
 public:
-    template<class Context>
-    constexpr static auto serde(Context& context, test& value) {
-        using namespace serde::attribute;
-        using Self = test;
-        serde::serde_struct(context, value)
-            .field(&Self::str, "str", default_se("hello"))
-            .field(&Self::i,   "i")
-            .field(&Self::vec, "vec")
-            .field(&Self::io,  "io", default_se(tenum::OUTPUT), to_lower, under_to_dash)
-            .field(&Self::in,  "in", make_optional)
-            .field(&Self::pri, "pri", to_upper, under_to_dash)
-            .field(&Self::m ,  "m")
-            .field(&Self::nm , "nm")
-            ;
-    }
+    DERIVE_SERDE(test,
+            (&Self::str, "str", default_se{"hello"})
+            (&Self::i,   "i")
+            (&Self::vec, "vec")
+            (&Self::io,  "io", default_se{tenum::OUTPUT}, to_lower, under_to_dash)
+            (&Self::in,  "in", make_optional)
+            (&Self::pri, "pri", to_upper, under_to_dash)
+            (&Self::m ,  "m")
+            (&Self::nm , "nm"))
     std::optional<std::string> str;
     int i;
     std::optional<std::vector<std::string>> vec;

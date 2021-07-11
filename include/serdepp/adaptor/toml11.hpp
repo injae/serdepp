@@ -19,7 +19,7 @@ namespace serde {
         inline static size_t size(toml_v& adaptor) {
             return adaptor.size();
         }
-        static toml_v parse_file(std::string_view path) { return toml::parse(path); }
+        static toml_v parse_file(const std::string& path) { return toml::parse(path); }
     };
 
     template<typename T> struct serde_adaptor<toml_v, T, type::struct_t> {
