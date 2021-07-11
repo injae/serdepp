@@ -43,7 +43,7 @@ namespace serde {
        static void from(yaml& s, std::string_view key, T& arr) {
             auto table = key.empty() ? s : s[std::string{key}];
             if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
-            for(auto i = 0 ; i < table.size(); ++i) { arr.push_back(std::move(serialize<E, yaml>(table[i]))); }
+            for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(std::move(serialize<E, yaml>(table[i]))); }
        }
 
        static void into(yaml& s, std::string_view key, const T& data) {
