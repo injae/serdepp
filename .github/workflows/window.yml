@@ -19,7 +19,7 @@ jobs:
       run: |
         cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} $CMAKE_FLAGS .
         cd build
-        cmake --build . --config ${{matrix.build-type}} --target install
+        cmake --build . --config ${{matrix.build-type}} --target install --target cppm_link
     - name: Run Test Script
       run: |
         cd build/${{matrix.build-type}}
