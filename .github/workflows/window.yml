@@ -17,7 +17,7 @@ jobs:
         submodules: true
     - name: CMake build
       run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} $CMAKE_FLAGS .
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} %CMAKE_FLAGS% .
         cd build
         cmake --build . --config ${{matrix.build-type}} --target install --target cppm_link
     - name: Run Test Script
