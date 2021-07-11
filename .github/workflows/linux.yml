@@ -47,10 +47,6 @@ jobs:
       matrix:
         build-type: ['Release', 'Debug']
     steps:
-    - name: Clone Repository
-      uses: actions/checkout@master
-      with:
-        submodules: true
     - name: C++ Setting
       run: |
         sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -64,6 +60,10 @@ jobs:
       run: |
         echo "CC=clang-8" >> $GITHUB_ENV
         echo "CXX=clang++-8" >> $GITHUB_ENV
+    - name: Clone Repository
+      uses: actions/checkout@master
+      with:
+        submodules: true
     - name: CMake build
       run: |
         cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} $CMAKE_FLAGS .
