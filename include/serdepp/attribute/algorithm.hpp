@@ -25,14 +25,14 @@ namespace serde::attribute {
         inline void from(serde_ctx& ctx, T& data, std::string_view key,
                             Next&& next_attr, Attributes&&... remains) const {
             std::transform(data.begin(), data.end(), data.begin(), serialize_);
-            next_attr.template from<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+            next_attr.from(ctx, data, key, std::forward<Attributes>(remains)...);
         }
 
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         inline void into(serde_ctx& ctx, T& data, std::string_view key,
                             Next&& next_attr, Attributes&&... remains) const{
             std::transform(data.begin(), data.end(), data.begin(), deserialize_);
-            next_attr.template into<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+            next_attr.into(ctx, data, key, std::forward<Attributes>(remains)...);
         }
 
         FUNC&& serialize_;

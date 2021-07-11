@@ -16,7 +16,7 @@ namespace serde::attribute {
                     if (Helper::is_null(ctx.adaptor, key)) {
                         if (data.empty()) data = std::move(T{});
                     } else {
-                        next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+                        next_attr.from(ctx, data, key, remains...);
                     }
                 } else {
                     throw serde::attribute_error(fmt::format("this {} is not emptyable type",
@@ -27,9 +27,7 @@ namespace serde::attribute {
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
             constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key,
                                        Next&& next_attr, Attributes&& ...remains) const{
-                if (!data.empty()) {
-                    next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
-                }
+                if (!data.empty()) { next_attr.into(ctx, data, key, remains...); }
             }
         };
     }

@@ -21,7 +21,7 @@ namespace serde::attribute {
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
             constexpr inline void from(serde_ctx &ctx, T &data, std::string_view key,
                                        Next &&next_attr, Attributes &&...remains) const{
-            next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+            next_attr.from(ctx, data, key, remains...);
             }
 
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
@@ -37,7 +37,7 @@ namespace serde::attribute {
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
             constexpr inline void into(serde_ctx &ctx, T &data, std::string_view key,
                                        Next &&next_attr, Attributes &&...remains) const{
-            next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
+                next_attr.into(ctx, data, key, remains...);
             }
         };
 
@@ -50,10 +50,10 @@ namespace serde::attribute {
                 if constexpr (meta::is_optional_v<T>) {
                     if (Helper::is_null(ctx.adaptor, key)) return;
                     if(!data) data.emplace();
-                    next_attr.template from<type::opt_e<std::remove_reference_t<T>>,
-                                            serde_ctx>(ctx, *data, key, remains...);
+                    next_attr.template from<type::opt_e<std::remove_reference_t<T>>, serde_ctx>
+                        (ctx, *data, key, remains...);
                 } else {
-                    next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+                    next_attr.from(ctx, data, key, remains...);
                 }
             }
 
@@ -61,10 +61,10 @@ namespace serde::attribute {
             inline void into(serde_ctx& ctx, T& data, std::string_view key,
                              Next&& next_attr, Attributes&&... remains) const{
                 if constexpr (meta::is_optional_v<T>) {
-                    if(data) next_attr.template into<type::opt_e<std::remove_reference_t<T>>,
-                                                     serde_ctx>(ctx, *data, key, remains...);
+                    if(data) next_attr.template into<type::opt_e<std::remove_reference_t<T>>, serde_ctx>
+                                 (ctx, *data, key, remains...);
                 } else {
-                    next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
+                    next_attr.into(ctx, data, key, remains...);
                 }
             }
         };
