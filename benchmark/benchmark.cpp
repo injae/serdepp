@@ -13,9 +13,9 @@
 struct test {
     DERIVE_SERDE(test,
           (&Self::str, "str")
-          (&Self::i, "i")
+          (&Self::i,   "i")
           (&Self::vec, "vec")
-          (&Self::sm, "sm"))
+          (&Self::sm,  "sm"))
     std::string str;
     int i;
     std::vector<std::string> vec;

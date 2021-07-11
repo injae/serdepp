@@ -17,14 +17,14 @@ namespace serde::attribute {
             if(Helper::is_null(ctx.adaptor, key)) {
                 data = std::move(default_value_);
             } else {
-                next_attr.template from<T, serde_ctx>(ctx, data, key, remains...);
+                next_attr.from(ctx, data, key, remains...);
             }
         }
 
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key,
                                    Next&& next_attr, Attributes&&... remains) {
-            next_attr.template into<T, serde_ctx>(ctx, data, key, remains...);
+            next_attr.into(ctx, data, key, remains...);
         }
     };
     // deduce guide
