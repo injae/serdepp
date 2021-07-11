@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef __SERDEPP_ADAPTOR_FMT_HPP__
+
 #define __SERDEPP_ADAPTOR_FMT_HPP__
 
 #include <serdepp/serializer.hpp>
-#include <fmt/ostream.h>
 #include <fmt/ranges.h>
 #include <fmt/format.h>
 
