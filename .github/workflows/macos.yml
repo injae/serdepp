@@ -26,7 +26,7 @@ jobs:
         echo "CXX=/usr/local/opt/llvm/bin/clang++" >> $GITHUB_ENV
     - name: CMake build
       run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} $CMAKE_FLAGS .
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
         cd build
         cmake --build . --config ${{matrix.build-type}}
     - name: Run Test Script
