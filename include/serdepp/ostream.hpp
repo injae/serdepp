@@ -8,7 +8,7 @@
 namespace serde::ostream {
     template<class Ostream, class T>
     Ostream&& operator<<(Ostream&& os, const T& x) {
-        if constexpr (type::is_struct_v<T>) {
+        if constexpr (type::is_struct_v<meta::remove_cvref<T>>) {
             return os << fmt::format("{}", x);
         } else {
             return os << x;

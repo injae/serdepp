@@ -10,6 +10,7 @@ jobs:
     strategy:
       matrix:
         build-type: ['Release', 'Debug']
+        gcc-version: ['11', '10', '9', '8']
     steps:
     - name: Clone Repository
       uses: actions/checkout@master
