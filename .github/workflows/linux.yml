@@ -66,7 +66,7 @@ jobs:
         cmake --build . --config ${{matrix.build-type}}
     - name: Run Test Script
       run: |
-        cd ${{matrix.build-type}}
+        cd build/${{matrix.build-type}}
         ./serde_example
         ./serde_example1
         ./simple_example

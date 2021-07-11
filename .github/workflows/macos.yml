@@ -29,25 +29,8 @@ jobs:
         cmake --build . --config ${{matrix.build-type}}
     - name: Run Test Script
       run: |
-        cd ${{matrix.build-type}}
+        cd build/${{matrix.build-type}}
         ./serde_example
         ./serde_example1
         ./simple_example
 
-
-  #  runs-on: macos-latest
-  #  strategy:
-  #    matrix:
-  #      c-compiler: [gcc, clang]
-  #      cxx-compiler: [g++, clang++]
-  #  steps:
-  #  - name: Clone Repository
-  #    uses: actions/checkout@master
-  #  - name: Compiler Setting
-  #    run: echo Compiler Setting
-  #    env:
-  #      CC: ${{matrix.compiler}}
-  #  - name: CMake build
-  #    run: cmake -Bbuild . && cd build && cmake --build .
-  #  - name: Cppm build install
-  #    run: cd build && ./cppm build install
