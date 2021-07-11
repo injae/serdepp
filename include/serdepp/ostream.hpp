@@ -11,7 +11,7 @@ namespace serde::ostream {
         if constexpr (type::is_struct_v<meta::remove_cvref<T>>) {
             return os << fmt::format("{}", x);
         } else {
-            return os << x;
+            return os << std::forward<T>(x);
         }
     }
 };
