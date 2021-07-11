@@ -86,7 +86,8 @@ namespace serde::attribute {
                 }
                 else if constexpr(meta::is_enumable_v<T>) {
                     std::string buffer;
-                    str_enum(data).into(ctx, buffer, key, transform{::tolower, ::toupper}, next_attr, remains...);
+                    auto se = str_enum(data);
+                    se.into(ctx, buffer, key, transform{::tolower, ::toupper}, next_attr, remains...);
                 }
                 else if constexpr(meta::is_str_v<T>) {
                     std::string buffer = data;
@@ -130,7 +131,8 @@ namespace serde::attribute {
                 }
                 else if constexpr(meta::is_enumable_v<T>) {
                     std::string buffer;
-                    str_enum(data).template into<std::string, serde_ctx>(ctx, buffer, key,
+                    auto se = str_enum(data);
+                    se.template into<std::string, serde_ctx>(ctx, buffer, key,
                                                                          transform{::toupper, ::tolower},
                                                                          next_attr, remains...);
                 }
@@ -180,7 +182,8 @@ namespace serde::attribute {
                 }
                 else if constexpr(meta::is_enumable_v<T>) {
                     std::string buffer;
-                    str_enum(data).template into<std::string, serde_ctx>(ctx, buffer, key,
+                    auto se = str_enum(data);
+                    se.template into<std::string, serde_ctx>(ctx, buffer, key,
                                                                          transform{to_under, to_dash},
                                                                          next_attr, remains...);
                 }
