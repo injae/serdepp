@@ -43,6 +43,14 @@ SOURCES
 
 endif()
 
+if(SERDEPP_BUILD_BENCHMARKS)
+
+cppm_target_define(benchmark BINARY
+SOURCES
+    benchmark/benchmark.cpp
+)
+
+endif()
 
 set(serdepp_global_deps PRIVATE benchmark
 PUBLIC nlohmann_json toml11 yaml-cpp nameof magic_enum fmt)
