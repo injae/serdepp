@@ -144,6 +144,7 @@ namespace serde
             return magic_enum::enum_name(value);
         }
         template <class Enum>
+
         inline constexpr static Enum from_str(std::string_view str) {
             auto value = magic_enum::enum_cast<Enum>(str);
             if (!value.has_value()) {
@@ -157,6 +158,7 @@ namespace serde
       template <typename T> using map_k = typename T::key_type;
       template <typename T> using seq_e = typename T::value_type;
       template <typename T> using opt_e = typename T::value_type;
+
 
       template <typename T, typename = void> struct not_null;
 
@@ -202,25 +204,8 @@ namespace serde
     using namespace std::string_view_literals;
 
     template <typename T, class Adaptor>
-    constexpr inline T serialize(Adaptor&& adaptor) {
+    constexpr inline T serialize(Adaptor&& adaptor, std::string_view key="") {
         using origin = meta::remove_cvref_t<Adaptor>;
-        T target;
-        serde_context<origin> ctx(adaptor);
-        serde_serializer<T, serde_context<origin>>::from(ctx, target, ""sv);
-        return target;
-    }
-
-    template<typename T, class Adaptor>
-    constexpr inline void serialize_to(Adaptor&& adaptor, T& target) {
-        using origin = meta::remove_cvref_t<Adaptor>;
-        serde_context<origin> ctx(adaptor);
-        serde_serializer<T, serde_context<origin>>::from(ctx, target, ""sv);
-    }
-
-    template<typename T, class Adaptor>
-    constexpr inline T serialize_at(Adaptor&& adaptor, std::string_view key) {
-        using origin = meta::remove_cvref_t<Adaptor>;
-
         T target;
         serde_context<origin> ctx(adaptor);
         serde_serializer<T, serde_context<origin>>::from(ctx, target, key);
@@ -228,31 +213,14 @@ namespace serde
     }
 
     template<typename T, class Adaptor>
-    constexpr inline void serialize_at_to(Adaptor& adaptor, T& target, std::string_view name) {
+    constexpr inline void serialize_to(Adaptor&& adaptor, T& target, std::string_view key="") {
         using origin = meta::remove_cvref_t<Adaptor>;
         serde_context<origin> ctx(adaptor);
-        serde_serializer<T, serde_context<origin>>::from(ctx, target, name);
-    }
-
-
-    template<class Adaptor, typename T>
-    constexpr inline Adaptor deserialize(T&& target) {
-        using origin = meta::remove_cvref_t<T>;
-        Adaptor adaptor;
-        serde_context<Adaptor, false> ctx(adaptor);
-        serde_serializer<origin, serde_context<Adaptor,false>>::into(ctx, target, ""sv);
-        return adaptor;
-    }
-
-    template<class Adaptor, typename T, typename U = meta::remove_cvref_t<T>>
-    constexpr inline void deserialize_from(T&& target, Adaptor& adaptor) {
-        using origin = meta::remove_cvref_t<T>;
-        serde_context<Adaptor, false> ctx(adaptor);
-        serde_serializer<origin, serde_context<Adaptor,false>>::into(ctx, target, ""sv);
+        serde_serializer<T, serde_context<origin>>::from(ctx, target, key);
     }
 
     template<class Adaptor, typename T>
-    constexpr inline Adaptor deserialize_by(T&& target, std::string_view key) {
+    constexpr inline Adaptor deserialize(T&& target, std::string_view key="") {
         using origin = meta::remove_cvref_t<T>;
         Adaptor adaptor;
         serde_context<Adaptor, false> ctx(adaptor);
@@ -261,7 +229,7 @@ namespace serde
     }
 
     template<class Adaptor, typename T, typename U = meta::remove_cvref_t<T>>
-    constexpr inline void deserialize_by_from(Adaptor& adaptor, T&& target, std::string_view key) {
+    constexpr inline void deserialize_from(T&& target, Adaptor& adaptor, std::string_view key="") {
         using origin = meta::remove_cvref_t<T>;
         serde_context<Adaptor, false> ctx(adaptor);
         serde_serializer<origin, serde_context<Adaptor,false>>::into(ctx, target, key);
@@ -271,7 +239,6 @@ namespace serde
     constexpr inline Adaptor parse_file(const std::string& path) {
         return serde_adaptor_helper<Adaptor>::parse_file(path);
     }
-
 
     template<class Context, class T>
     class serde_struct {

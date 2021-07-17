@@ -10,6 +10,7 @@
 #include "serdepp/attribute/default.hpp"
 #include "serdepp/attribute/algorithm.hpp"
 #include "serdepp/attribute/make_optional.hpp"
+#include "serdepp/attribute/mutli_key.hpp"
 
 //namespace serde::attribute {}
 

@@ -22,7 +22,7 @@ struct nested {
     DERIVE_SERDE(nested,
             (&Self::version, "version", value_or_struct)
             (&Self::opt_desc ,"opt_desc")
-            (&Self::desc ,"desc", default_se{"default value"})
+            (&Self::desc ,"desc", default_{"default value"})
             .no_remain())
     std::string version;
     std::string desc;
@@ -32,10 +32,10 @@ struct nested {
 class test {
 public:
     DERIVE_SERDE(test,
-            (&Self::str, "str", default_se{"hello"})
+            (&Self::str, "str", default_{"hello"})
             (&Self::i,   "i")
             (&Self::vec, "vec")
-            (&Self::io,  "io", default_se{tenum::OUTPUT}, to_lower, under_to_dash)
+            (&Self::io,  "io", default_{tenum::OUTPUT}, to_lower, under_to_dash)
             (&Self::in,  "in", make_optional)
             (&Self::pri, "pri", to_upper, under_to_dash)
             (&Self::m ,  "m")
@@ -66,6 +66,7 @@ int main()
     })"_json;
 
     // try {
+
     test t = serde::serialize<test>(v);
     fmt::print("{}\n",serde::to_str(t.io));
 
