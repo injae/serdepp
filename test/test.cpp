@@ -7,8 +7,8 @@
 
 using namespace serde::attribute;
 struct tt {
-    derive_serde(tt,
-                 .field(&Self::a, "a", set_default{1})
+    DERIVE_SERDE(tt,
+                 .field(&Self::a, "a", default_{1})
                  .field(&Self::b, "b")
                  )
     int a;
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     nlohmann::json json = R"({"a": 1, "b": 222})"_json;
 
     
-    int normal = serialize_at<int>(R"({"num":10})"_json, "num");
+    int normal = serialize<int>(R"({"num":10})"_json, "num");
     deserialize<nlohmann::json>(normal);
     fmt::print("{}\n",normal);
 

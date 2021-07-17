@@ -19,7 +19,7 @@ namespace serde::attribute {
                 if constexpr(meta::is_enumable_v<ET>) {
                     enum_data_ = type::enum_t::from_str<ET>(data);
                 } else {
-                    throw serde::enum_error("this attribute requried enum type");
+                    throw serde::attribute_error("requried enum type");
                 }
             }
 
@@ -30,7 +30,7 @@ namespace serde::attribute {
                     data = type::enum_t::to_str(enum_data_);
                     next_attr.template into<std::string, serde_ctx>(ctx, data, key, remains...);
                 } else {
-                    throw serde::enum_error("this attribute requried enum type");
+                    throw serde::attribute_error("requried enum type");
                 }
             }
 
@@ -39,7 +39,7 @@ namespace serde::attribute {
                 if constexpr(meta::is_enumable_v<ET>) {
                     enum_data_ = type::enum_t::from_str<ET>(data);
                 } else {
-                    throw serde::enum_error("this attribute requried enum type");
+                    throw serde::attribute_error("this attribute requried enum type");
                 }
             }
 
@@ -48,7 +48,7 @@ namespace serde::attribute {
                 if constexpr(meta::is_enumable_v<ET>) {
                     data = type::enum_t::to_str(enum_data_);
                 } else {
-                    throw serde::enum_error("this attribute requried enum type");
+                    throw serde::attribute_error("this attribute requried enum type");
                 }
             }
             ET& enum_data_;
@@ -74,7 +74,7 @@ namespace serde::attribute {
                   }
                 }
                 else {
-                    throw serde::enum_error("this attribute requried str or enum type");
+                    throw serde::attribute_error("requried str or enum type");
                 }
             }
 
@@ -94,7 +94,7 @@ namespace serde::attribute {
                     transform{::tolower, ::toupper}.into(ctx, buffer, key, next_attr , remains...);
                 }
                 else {
-                    throw serde::enum_error("this attribute requried str or enum type");
+                    throw serde::attribute_error("requried str or enum type");
                 }
             }
         };
@@ -119,7 +119,7 @@ namespace serde::attribute {
                   }
                 }
                 else {
-                    throw serde::enum_error("this attribute requried str or enum type");
+                    throw serde::attribute_error("this attribute requried str or enum type");
                 }
             }
 
@@ -133,15 +133,15 @@ namespace serde::attribute {
                     std::string buffer;
                     auto se = str_enum(data);
                     se.template into<std::string, serde_ctx>(ctx, buffer, key,
-                                                                         transform{::toupper, ::tolower},
-                                                                         next_attr, remains...);
+                                                             transform{::toupper, ::tolower},
+                                                             next_attr, remains...);
                 }
                 else if constexpr(meta::is_str_v<T>) {
                     std::string buffer = data;
                     transform{::toupper, ::tolower}.into(ctx, data, key, next_attr, remains...);
                 }
                 else {
-                    throw serde::enum_error("this attribute requried str or enum type");
+                    throw serde::attribute_error("this attribute requried str or enum type");
                 }
             }
         };
@@ -184,15 +184,15 @@ namespace serde::attribute {
                     std::string buffer;
                     auto se = str_enum(data);
                     se.template into<std::string, serde_ctx>(ctx, buffer, key,
-                                                                         transform{to_under, to_dash},
-                                                                         next_attr, remains...);
+                                                             transform{to_under, to_dash},
+                                                             next_attr, remains...);
                 }
                 else if constexpr(meta::is_str_v<T>) {
                     std::string buffer = data;
                     transform{to_under, to_dash}.into(ctx, buffer, key, next_attr , remains...);
                 }
                 else {
-                    throw serde::enum_error("this attribute requried str or enum type");
+                    throw serde::attribute_error("this attribute requried str or enum type");
                 }
             }
         };

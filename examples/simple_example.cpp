@@ -21,12 +21,11 @@ public:
         using namespace serde::attribute;
         serde::serde_struct(context, value)
             (&test::str, "str")
-            (&test::str, "str")
             (&test::i,   "i")
             (&test::vec, "vec")
             (&test::no_vec, "no_vec", make_optional)
             (&test::io,  "io")
-            (&test::pri, "pri")
+            (&test::pri, "pri", multi_key{"pri2"}, default_{"dd"})
             (&test::m ,  "m")
             ;
     }
@@ -46,7 +45,7 @@ int main()
 "i": 10,
 "vec": [ "one", "two", "three" ],
 "io": "INPUT",
-"pri" : "pri",
+"pri2" : "pri",
 "no_vec": ["t", "b"],
 "m" : { "a" : "1",
         "b" : "2",
