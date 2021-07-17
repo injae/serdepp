@@ -29,6 +29,8 @@ namespace serde::attribute {
     };
     // deduce guide
     template<typename D> default_se(D&&) -> default_se<D>;
+
+    template<typename T> using default_ = default_se<T>;
 }
 
 
