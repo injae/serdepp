@@ -1,6 +1,7 @@
 # Serdepp   [![Linux](https://github.com/injae/serdepp/actions/workflows/linux.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/linux.yml) [![Windows](https://github.com/injae/serdepp/actions/workflows/window.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/window.yml) [![MacOS](https://github.com/injae/serdepp/actions/workflows/macos.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/macos.yml)
+Since my native language is not English, I translated the content through a translator.  
+If you find any incorrect grammar, please let me know.  
 c++17 low cost serialize deserialize adaptor library like rust serde.rs  
-Since the native language is not English, there may be incorrect vocabulary because the content was translated using a translator.  
 - [Features](#Features)
 - [Get Started](#Get-Started)
   - [Dependencies](#Dependencies)
@@ -499,6 +500,34 @@ struct attribute_example {
 ```
 
 ## [more attribute](./include/serdepp/attribute/)
+- `multi_key{...str}`
+   - description: multiple key
+   - args: initialize_list<std::string_view>
+   - example: `(&Self::test, "key", mutli_key{"key2", "key3"})`
+- `skip` 
+   - description: skip serialize, deserialize step
+   - example: `(&Self::test, "key", skip)`
+- `skip_de`
+   - description: skip deserialize step
+   - example: `(&Self::test, "key", skip_de)`
+- `skip_se`
+   - description: skip serialize step
+   - example: `(&Self::test, "key", skip_se)`
+- `to_upper`
+   - description: enum or string -> upper, upper string -> lower enum or string
+   - example: `(&Self::test, "key", to_upper)` Enum::test -> TEST -> Enum::test
+- `to_lower`
+   - description: enum or string -> lower, lower string -> upper enum or string
+   - example: `(&Self::test, "key", to_lower)` Enum::TEST -> test -> Enum::test
+- `under_to_dash`
+   - description: enum or string -> `_` -> `-` , `-` -> `_` enum or string
+   - example: `(&Self::test, "key", to_lower)` Enum::TEST_TEST -> TEST-TEST -> Enum::TEST_TEST
+- `defualt_`
+   - description: parse like optional value
+   - example: `(&Self::test, "key", default_{"default value"})` if null -> set default 
+- `value_or_struct`
+   - description: parse struct or single value, require other field default_ or optional
+   - example: `(&Self::test, "key", value_or_struct)` "T": "value" or "T" : { "key" : "value" }
 
 ## Custom Attribute
 ### 1. Normal Attribute
