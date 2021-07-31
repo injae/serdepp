@@ -23,7 +23,7 @@ namespace serde {
         }
 
         constexpr static void into(yaml& s, std::string_view key, const T& data) {
-            (key.empty() ? s : s[key.data()]) = data;
+            if(key.empty()) { s = data; } else { s[key.data()] = data; }
         }
     };
 
@@ -40,13 +40,20 @@ namespace serde {
     template<typename T>
     struct serde_adaptor<yaml, T, type::seq_t> {
        using E = type::seq_e<T>;
-       static void from(yaml& s, std::string_view key, T& arr) {
-            auto table = key.empty() ? s : s[std::string{key}];
-            if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
-            for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(std::move(serialize<E, yaml>(table[i]))); }
+       inline static void from(yaml& s, std::string_view key, T& arr) {
+           if(key.empty()) {
+               if constexpr(is_arrayable_v<T>) arr.reserve(s.size());
+               for(std::size_t i = 0 ; i < s.size(); ++i) { arr.push_back(serialize<E>(s[i])); }
+           } else {
+               auto table = s[std::string{key}];
+               if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
+               for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(serialize<E>(table[i])); }
+           }
+           //auto table = key.empty() ? s : s[std::string{key}];
+           //for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(serialize<E>(table[i])); }
        }
 
-       static void into(yaml& s, std::string_view key, const T& data) {
+       inline static void into(yaml& s, std::string_view key, const T& data) {
             yaml arr = (key.empty() ? s : s[std::string {key}]);
             int i = 0;
             for(auto& value: data) {

@@ -23,20 +23,20 @@ namespace serde {
     };
 
     template<typename T> struct serde_adaptor<toml_v, T, type::struct_t> {
-        static void from(toml_v& s, std::string_view key, T& data) {
+        inline static void from(toml_v& s, std::string_view key, T& data) {
             serialize_to<T>(toml::find(s, std::string{key}), data);
         }
-        static void into(toml_v &s, std::string_view key, const T& data) {
+        inline static void into(toml_v &s, std::string_view key, const T& data) {
             s[std::string{key}] = deserialize<toml_v>(data);
         } 
     };
 
     template<typename T> struct serde_adaptor<toml_v, T>  {
-        static void from(toml_v& s, std::string_view key, T& data) {
+        inline constexpr static void from(toml_v& s, std::string_view key, T& data) {
             data = key.empty() ? toml::get<T>(s) : toml::find<T>(s, std::string{key});
         }
-        static void into(toml_v& s, std::string_view key, const T& data) {
-            (key.empty() ? s : s[std::string{key}]) = data;
+        inline constexpr static void into(toml_v& s, std::string_view key, const T& data) {
+            if(key.empty()) { s = data; } else { s[key.data()] = data; }
         }
     };
 

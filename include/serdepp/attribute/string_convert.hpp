@@ -146,7 +146,7 @@ namespace serde::attribute {
             }
         };
 
-        
+
         inline int to_under(int _c){ return _c == '-' ? '_' : _c; };
         inline int to_dash(int _c) { return _c == '_' ? '-' : _c; };
 

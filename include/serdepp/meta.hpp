@@ -64,6 +64,11 @@ namespace serde::meta {
     template<typename T>  inline constexpr auto is_enumable_v = is_enumable<T>::value;
 
 
+    template<typename T, typename U = void> struct is_pointer : std::false_type {};
+    template<typename T>
+    struct is_pointer<T, std::void_t<decltype(*std::declval<T>())>> : std::true_type {};
+    template<typename T>  inline constexpr auto is_pointer_v = is_pointer<T>::value;
+
     template<class T>
     struct is_str_type {
         using type = T;
