@@ -31,7 +31,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 - [x] enum, enum_class support (with [magic_enum](https://github.com/Neargye/magic_enum))
 - [x] optional support 
 - [x] container support (sequence(like vector, list), map(map, unordered_map ...))
-- [x] [attributes](#Attributes) and custom attribute support (se_value_or_struct, se_default, ...)
+- [x] [attributes](#Attributes) and custom attribute support (value_or_struct, default, multi_key ...)
 
 ## Get Started
 ```cpp
@@ -607,3 +607,7 @@ yaml_set_tl_bench         2051 ns         2049 ns       339246
 yaml_get_se_bench        19469 ns        19454 ns        35734
 yaml_get_tl_bench        27871 ns        27844 ns        25389
 ```
+
+## Projects using this library
+- [cppm](https://github.com/injae/cppm): cross platform c++ package manager
+- [cpcli](https://github.com/injae/cpcli): c++ command line parser
