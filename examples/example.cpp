@@ -7,6 +7,7 @@
 
 #include <serdepp/attributes.hpp>
 #include <serdepp/utility.hpp>
+#include <memory>
 
 using namespace serde::ostream;
 
@@ -69,6 +70,13 @@ int main()
 
     test t = serde::serialize<test>(v);
     fmt::print("{}\n",serde::to_str(t.io));
+
+    YAML::Node y = serde::deserialize<YAML::Node>(10);
+    //YAML::Node y;
+    //y = 10;
+    std::cout << y << "\n";
+    serde::serialize<int>(y);
+
 
     auto v_to_json = serde::deserialize<nlohmann::json>(t);
     auto v_to_toml = serde::deserialize<serde::toml_v>(t);

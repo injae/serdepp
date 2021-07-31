@@ -19,11 +19,12 @@ public:
     template<class Context>
     constexpr static auto serde(Context& context, test& value) {
         using namespace serde::attribute;
+        using namespace std::literals;
         serde::serde_struct(context, value)
             (&test::str, "str")
             (&test::i,   "i")
             (&test::vec, "vec")
-            (&test::no_vec, "no_vec", make_optional)
+            (&test::no_vec, "no_vec", default_l({"a"s, "b"s}))
             (&test::io,  "io")
             (&test::pri, "pri", multi_key{"pri2"}, default_{"dd"})
             (&test::m ,  "m")
@@ -41,39 +42,38 @@ private:
 
 int main()
 {
-  nlohmann::json v = R"({
-"i": 10,
-"vec": [ "one", "two", "three" ],
-"io": "INPUT",
-"pri2" : "pri",
-"no_vec": ["t", "b"],
-"m" : { "a" : "1",
-        "b" : "2",
-        "c" : "3" }
-})"_json;
+    nlohmann::json v = R"({
+    "i": 10,
+    "vec": [ "one", "two", "three" ],
+    "io": "INPUT",
+    "pri2" : "pri",
+    "m" : { "a" : "1",
+            "b" : "2",
+            "c" : "3" }
+    })"_json;
 
-  try {
-    test t = serde::serialize<test>(v);
+    try {
+        test t = serde::serialize<test>(v);
 
-    auto v_to_json = serde::deserialize<nlohmann::json>(t);
-    auto v_to_toml = serde::deserialize<serde::toml_v>(t);
-    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
+        auto v_to_json = serde::deserialize<nlohmann::json>(t);
+        auto v_to_toml = serde::deserialize<serde::toml_v>(t);
+        auto v_to_yaml = serde::deserialize<serde::yaml>(t);
 
-    std::cout << "toml: " << v_to_toml << std::endl;
-    fmt::print("json: {}\n", v_to_json.dump());
-    std::cout << "yaml: " << v_to_yaml << std::endl;
+        std::cout << "toml: " << v_to_toml << std::endl;
+        fmt::print("json: {}\n", v_to_json.dump());
+        std::cout << "yaml: " << v_to_yaml << std::endl;
 
-    test t_from_toml = serde::serialize<test>(v_to_toml);
-    test t_from_yaml = serde::serialize<test>(v_to_yaml);
+        test t_from_toml = serde::serialize<test>(v_to_toml);
+        test t_from_yaml = serde::serialize<test>(v_to_yaml);
 
 
-    fmt::print("{}\n", t_from_toml);
-    fmt::print("{}\n", t_from_yaml);
-    std::cout << t << '\n';
+        fmt::print("{}\n", t_from_toml);
+        fmt::print("{}\n", t_from_yaml);
+        std::cout << t << '\n';
 
-  }catch(std::exception& e) {
-      fmt::print(stderr,"{}\n",e.what());
-  }
+    }catch(std::exception& e) {
+        fmt::print(stderr,"{}\n",e.what());
+    }
 
-  return 0;
+    return 0;
 }

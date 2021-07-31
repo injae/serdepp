@@ -4,6 +4,7 @@
 #define __SERDEPP_ATTRIABUTE_DEFAULT_HPP__
 
 #include "serdepp/serializer.hpp"
+#include <initializer_list>
 
 namespace serde::attribute {
     template<typename D>
@@ -31,10 +32,11 @@ namespace serde::attribute {
     // deduce guide
     template<typename D> default_se(D&&) -> default_se<D>;
 
-    template<typename D>
+    template<typename D=void>
     struct default_ {
         D&& default_value_;
         explicit default_(D&& default_value) noexcept : default_value_(std::move(default_value)) {}
+
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
                                    Next&& next_attr, Attributes&&... remains) {
@@ -54,6 +56,9 @@ namespace serde::attribute {
     };
     // deduce guide
     template<typename D> default_(D&&) -> default_<D>;
+
+    template<typename T=std::string>
+    static auto default_l(std::initializer_list<T>&& l) { return default_{std::move(l)}; }
 }
 
 

@@ -26,21 +26,21 @@ namespace serde {
     template<typename T>
     struct serde_adaptor<json, T>  {
         constexpr static void from(json& s, std::string_view key, T& data) {
-            key.empty() ? s.get_to<T>(data) : s[std::string{key}].get_to<T>(data);
+            key.empty() ? s.get_to<T>(data) : s[key.data()].get_to<T>(data);
         }
 
         constexpr static void into(json& s, std::string_view key, const T& data) {
-            (key.empty() ? s : s[std::string{key}]) = data;
+            (key.empty() ? s : s[key.data()]) = data;
         }
     };
 
     template<typename T>
     struct serde_adaptor<json, T, type::struct_t> {
         static void from(json& s, std::string_view key, T& data) {
-            serialize_to(s[std::string{key}], data);
+            serialize_to(s[key.data()], data);
         }
         static void into(json& s, std::string_view key, const T& data) {
-            s[std::string{key}] = deserialize<json>(data);
+            s[key.data()] = deserialize<json>(data);
         } 
     };
 
@@ -48,13 +48,13 @@ namespace serde {
     struct serde_adaptor<json, T, type::seq_t> {
        using E = type::seq_e<T>;
        static void from(json& s, std::string_view key, T& arr) {
-           auto& table = key.empty() ? s : s.at(std::string{key});
+           auto& table = key.empty() ? s : s.at(key.data());
            if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
            for(auto& value : table) { arr.push_back(std::move(serialize<E>(value))); }
        }
 
        static void into(json& s, std::string_view key, const T& data) {
-           json& arr = key.empty() ? s : s[std::string {key}];
+           json& arr = key.empty() ? s : s[key.data()];
            for(auto& value: data) { arr.push_back(std::move(deserialize<json>(value))); }
        }
     };
@@ -63,11 +63,11 @@ namespace serde {
     struct serde_adaptor<json, Map, type::map_t> {
         using E = type::map_e<Map>;
         inline static void from(json& s, std::string_view key, Map& map) {
-            auto& table = key.empty() ? s : s.at(std::string{key});
+            auto& table = key.empty() ? s : s.at(key.data());
             for(auto& [key_, value_] : table.items()) { serialize_to<E>(value_, map[key_]); }
         }
         inline static void into(json& s, std::string_view key, const Map& data) {
-            json& map = key.empty() ? s : s[std::string{key}];
+            json& map = key.empty() ? s : s[key.data()];
             for(auto& [key_, value] : data) { deserialize_from<json>(value, map[key_]); }
         }
     };

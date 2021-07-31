@@ -50,6 +50,11 @@ SOURCES
     benchmark/benchmark.cpp
 )
 
+cppm_target_define(data_type_benchmark BINARY
+SOURCES
+    benchmark/data_type_benchmark.cpp
+)
+
 endif()
 
 set(serdepp_global_deps PRIVATE benchmark
@@ -66,6 +71,14 @@ cppm_target_dependencies(serde_example
    serdepp)
 
 cppm_target_dependencies(simple_example
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(benchmark
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(data_type_benchmark
    ${serdepp_global_deps}
    serdepp)
 

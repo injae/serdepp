@@ -1,6 +1,5 @@
-# serdepp   [![Linux](https://github.com/injae/serdepp/actions/workflows/linux.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/linux.yml) [![Windows](https://github.com/injae/serdepp/actions/workflows/window.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/window.yml) [![MacOS](https://github.com/injae/serdepp/actions/workflows/macos.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/macos.yml)
-c++17 zero cost serialize deserialize adaptor library like rust serde.rs  
-
+# Serdepp   [![Linux](https://github.com/injae/serdepp/actions/workflows/linux.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/linux.yml) [![Windows](https://github.com/injae/serdepp/actions/workflows/window.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/window.yml) [![MacOS](https://github.com/injae/serdepp/actions/workflows/macos.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/macos.yml)
+c++17 low cost serialize deserialize adaptor library like rust serde.rs  
 - [Features](#Features)
 - [Get Started](#Get-Started)
   - [Dependencies](#Dependencies)
@@ -21,7 +20,7 @@ c++17 zero cost serialize deserialize adaptor library like rust serde.rs
 - [Benchmark](#Benchmark)
 
 ## Features
-- [x] zero cost serializer, deserializer adaptor
+- [x] low cost serializer, deserializer adaptor
 - [x] json serialize, deserialize (with [nlohmann_json](https://github.com/nlohmann/json))
 - [x] toml serialize, deserialize (with [toml11](https://github.com/ToruNiina/toml11))
 - [x] yaml serialize, deserialize (with [yaml-cpp](https://github.com/jbeder/yaml-cpp))
@@ -110,16 +109,38 @@ find_package(serdepp)
 target_link_libraries({target name} PUBLIC serdepp::serdepp)
 ```
 
-```
-```
-
 ## Compiler
-- minimum compiler version clang-8, gcc-10, 
-- gcc-8~9 version constexpr has complie error 
-
+- minimum compiler version clang-8, gcc-10
 
 # [Examples](./examples/)
 ## Basic Usage
+```cpp
+#include "serdepp/serde.hpp"
+#include "serdepp/adaptor/nlohmann_json.hpp"
+#include "serdepp/adaptor/yaml-cpp.hpp"
+#include "serdepp/adaptor/toml11.hpp"
+
+int main(int argc, char *argv[])
+{
+    int num = 1; 
+
+    auto json = serde::deserialize<nlohmann::json>(num);
+    auto yaml = serde::deserialize<YAML::Node>(num);
+    auto toml = serde::deserialize<toml::value>(num);
+
+    int from_json = serde::serialize<int>(json);
+    int from_toml = serde::serialize<int>(toml);
+    int from_yaml = serde::serialize<int>(yaml);
+
+    auto json_from_file = serde::parse_file<nlohmann::json>("json_file.json");
+    auto toml_from_file = serde::parse_file<toml::value>("toml_file.toml");
+    auto yaml_from_file = serde::parse_file<YAML::Node>("yaml_file.yaml");
+    
+    return 0;
+}
+```
+
+## Define Struct Serializer
 ```cpp
 #include <serdepp/serializer.hpp>
 class test {
@@ -144,7 +165,7 @@ private:
 #include <serdepp/serializer.hpp>
 class test {
 public:
-    DERIVE_SERDE(test,(&Self::str, "str")(&Self::i, "i")(&Self::vec, "vec"))
+    DERIVE_SERDE(test, (&Self::str, "str")(&Self::i, "i")(&Self::vec, "vec"))
 private:
     std::string str;
     int i;
@@ -201,8 +222,7 @@ public:
             .field(&Self::vec, "vec")
             .field(&Self::io,  "io")
             .field(&Self::pri, "pri")
-            .field(&Self::m ,  "m")
-            ;
+            .field(&Self::m ,  "m");
     }
     std::optional<std::string> str;
     int i;
@@ -367,7 +387,7 @@ int main()
 ```
 
 ## 3 Way make optional container field
-1. with default_se
+1. with default_
    - if empty in serialize step -> set `std::vector<std::string>{}`
    - if empty in deserialize step -> set null, ex json: "vec" : null
 2. with optional
@@ -394,11 +414,6 @@ struct attribute_example {
 ```
 
 # Attributes
-## Naming Rule
-- `*_se` serialize only     ex: `default_se` `value_or_struct_se`
-- `*_de` deserialize only   ex: not yet
-- `*` serialize deserialize ex: `enum_toupper`, `enum_tolower`
-
 ## `value_or_struct`
 ```cpp
 struct attribute_example {
@@ -412,11 +427,11 @@ struct attribute_example {
 };
 ```
 
-## `default_se`
+## `default_`
 ### support tree type default value serializer
-1. Type with Attribute default_se
+1. Type with Attribute default_
 2. std::optional Type with default
-3. std::optional Type with Attribute default_se
+3. std::optional Type with Attribute default_
 
 ```cpp
 struct attribute_example {
@@ -425,9 +440,9 @@ struct attribute_example {
         using namespace serde::attribute;
         using Self = attribute_example;
         serde::serde_struct(context, value)
-            .field(&Self::ver, "ver", default_se{"0.0.1"}) // 1.
+            .field(&Self::ver, "ver", default_{"0.0.1"}) // 1.
             .field(&Self::ver_opt, "ver_opt")               // 2.
-            .field(&Self::ver_opt_default, "ver_opt_default", default_se{"0.0.1"}); // 3.
+            .field(&Self::ver_opt_default, "ver_opt_default", default_{"0.0.1"}); // 3.
     }
     std::string version;
     std::optional<std::string> ver_opt = "-1.0.1";
@@ -519,9 +534,9 @@ namespace serde::attribute {
 // default_se code in serde/attribute/default.hpp
 namespace serde::attribute {
     template<typename D>
-    struct default_se {
+    struct default_ {
         D&& default_value_;
-        explicit default_se(D&& default_value) noexcept : default_value_(std::move(default_value)) {}
+        explicit default_(D&& default_value) noexcept : default_value_(std::move(default_value)) {}
         template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
         constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
                                    Next&& next_attr, Attributes&&... remains) {
@@ -540,35 +555,34 @@ namespace serde::attribute {
         }
     };
     // deduce guide
-    template<typename D> default_se(D&&) -> default_se<D>;
+    template<typename D> default_(D&&) -> default_<D>;
 }
 ```
 
+## Serdepp Type Declare Rule
 
+### Sequence Type<T>
+- like vector , list, 
+- require:
+  - T.begin()
+  - T.end()
+
+### Map Type<T>
+- like map, unordered_map
+- require:
+  - T::key_type
+  - T::mapped_type
+  - T.operator[](T::key_type&)
+  
+### Struct Type<T>
+- require:
+  - template<class Format> void serde(Format& formst, T& value);
+
+  
 ## Benchmark
-- serdepp serializer, deserializer  vs nlohmann_json's serializer, deserializer  
-- serdepp serializer, deserializer vs toml11 serializer, deserializer  
-### [Benchmark code](benchmark/benchmark.cpp)
-```cpp
-class test {
-    std::string str;
-    int i;
-    std::vector<std::string> vec;
-    std::map<std::string, std::string> sm;
-public:
-    template<class Context>
-    constexpr static auto serde(Context& context, test& value) {
-      serde::serde_struct(context, value)
-          .field(&test::str, "str")
-          .field(&test::i, "i")
-          .field(&test::vec, "vec")
-          .field(&test::sm, "sm");
-    }
-};
-```
-### Result
+### Benchmark [Benchmark code](benchmark/benchmark.cpp)
 ```console
-2021-06-27T23:58:10+09:00
+2021-07-30T20:36:11+09:00
 Running ./benchmark
 Run on (12 X 2600 MHz CPU s)
 CPU Caches:
@@ -576,22 +590,20 @@ CPU Caches:
   L1 Instruction 32 KiB (x6)
   L2 Unified 256 KiB (x6)
   L3 Unified 12288 KiB (x1)
-Load Average: 2.47, 2.43, 2.51
+Load Average: 2.00, 2.22, 2.18
 --------------------------------------------------------------
 Benchmark                    Time             CPU   Iterations
 --------------------------------------------------------------
-nljson_set_se_bench        425 ns          424 ns      1575076  // serde<nlohmann> serialize
-nljson_set_nl_bench        442 ns          442 ns      1617058  // nlohmann serialize
-nljson_get_se_bench       2277 ns         2274 ns       309051  // serde<nlohmann> struct deserialize
-nljson_get_nl_bench       2610 ns         2606 ns       264174  // nlohmann struct deserialize
-toml11_set_se_bench        466 ns          465 ns      1462581  // serde<toml11> struct serialize
-toml11_set_tl_bench        499 ns          498 ns      1425691  // toml11 struct serialize
-toml11_get_se_bench       3327 ns         3322 ns       208100  // serde<toml11> struct deserialize
-toml11_get_tl_bench       4048 ns         4043 ns       175482  // toml11 struct deserialize
-yaml_set_se_bench         1955 ns         1951 ns       355640  // serde<yaml-cpp> struct serialize
-yaml_set_tl_bench         2044 ns         2042 ns       341966  // yaml-cpp struct serialize
-yaml_get_se_bench        19619 ns        19592 ns        35286  // serde<yaml-cpp> struct deserialize
-yaml_get_tl_bench        28810 ns        28754 ns        25024  // yaml-cpp struct deserialize
+nljson_set_se_bench        459 ns          458 ns      1318888
+nljson_set_nl_bench        449 ns          449 ns      1568663
+nljson_get_se_bench       2328 ns         2325 ns       298510
+nljson_get_nl_bench       2661 ns         2657 ns       261593
+toml11_set_se_bench        445 ns          445 ns      1524158
+toml11_set_tl_bench        488 ns          488 ns      1420060
+toml11_get_se_bench       3285 ns         3282 ns       209395
+toml11_get_tl_bench       3952 ns         3946 ns       178205
+yaml_set_se_bench         1950 ns         1948 ns       365646
+yaml_set_tl_bench         2051 ns         2049 ns       339246
+yaml_get_se_bench        19469 ns        19454 ns        35734
+yaml_get_tl_bench        27871 ns        27844 ns        25389
 ```
-
-

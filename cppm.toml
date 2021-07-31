@@ -27,6 +27,11 @@
     name = "benchmark"
     source = ["benchmark/benchmark.cpp"]
 
+[[benchmark]]
+    name = "data_type_benchmark"
+    source = ["benchmark/data_type_benchmark.cpp"]
+
+
 [dependencies]
     fmt = {version="7.1.3", link="public"}
     nameof = { version="0.10.0", link="public"}

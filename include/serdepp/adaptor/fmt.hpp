@@ -41,7 +41,6 @@ namespace serde {
         static void into(string_converter& s, std::string_view key, const T& data) { s.add(key, data); }
     };
 
-
     template<typename T>
     inline std::string to_string(const T& type) { return deserialize<string_converter>(type).to_str(); }
     template<typename T>
