@@ -31,6 +31,9 @@ namespace serde::attribute {
     };
     // deduce guide
     template<typename D> default_(D&&) -> default_<D>;
+
+    template<typename T=std::string>
+    static auto default_l(std::initializer_list<T>&& l) { return default_{std::move(l)}; }
 }
 
 
