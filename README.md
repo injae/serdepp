@@ -521,7 +521,7 @@ struct attribute_example {
    - example: `(&Self::test, "key", to_lower)` Enum::TEST -> test -> Enum::test
 - `under_to_dash`
    - description: enum or string -> `_` -> `-` , `-` -> `_` enum or string
-   - example: `(&Self::test, "key", to_lower)` Enum::TEST_TEST -> TEST-TEST -> Enum::TEST_TEST
+   - example: `(&Self::test, "key", under_to_dash)` Enum::TEST_TEST -> TEST-TEST -> Enum::TEST_TEST
 - `defualt_`
    - description: parse like optional value
    - example: `(&Self::test, "key", default_{"default value"})` if null -> set default 
