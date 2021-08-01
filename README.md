@@ -1,7 +1,5 @@
 # Serdepp   [![Linux](https://github.com/injae/serdepp/actions/workflows/linux.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/linux.yml) [![Windows](https://github.com/injae/serdepp/actions/workflows/window.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/window.yml) [![MacOS](https://github.com/injae/serdepp/actions/workflows/macos.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/macos.yml)
 c++17 low cost serialize deserialize adaptor library like rust serde.rs  
-Since my native language is not English, I translated the content through a translator.  
-If you find any incorrect grammar, please let me know.  
 - [Features](#Features)
 - [Get Started](#Get-Started)
   - [Dependencies](#Dependencies)
