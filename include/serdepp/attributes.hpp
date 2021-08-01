@@ -11,6 +11,7 @@
 #include "serdepp/attribute/algorithm.hpp"
 #include "serdepp/attribute/make_optional.hpp"
 #include "serdepp/attribute/mutli_key.hpp"
+#include "serdepp/attribute/flatten.hpp"
 
 //namespace serde::attribute {}
 

@@ -16,6 +16,7 @@ struct example {
     t_enum tenum_;
 };  
 
+
 int main() {
     example ex;
     ex.number_ = 1024;
