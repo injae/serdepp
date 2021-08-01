@@ -526,7 +526,10 @@ struct attribute_example {
 - `value_or_struct`
    - description: parse struct or single value, require other field default_ or optional
    - example: `(&Self::test, "key", value_or_struct)` "T": "value" or "T" : { "key" : "value" }
-
+- `flatten`
+   - description: parse struct flatten
+   - example: `(&Self::test, "key", flatten)`  
+   - { "obj" : {"key" : "value", "key2" : "value"} } == { "key" : "value", "key2" : "value" }
 ## Custom Attribute
 ### 1. Normal Attribute
 ```cpp
