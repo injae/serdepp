@@ -1,5 +1,7 @@
 #include <serdepp/serde.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
+#include <serdepp/adaptor/toml11.hpp>
+#include <serdepp/adaptor/yaml-cpp.hpp>
 
 enum class T { A, B};
 
@@ -44,7 +46,7 @@ int main() {
     },
     {
        "type": "rectangle",
-       "object": {
+       "object": 
          "width": 6,
          "height": 5
         }
@@ -54,7 +56,26 @@ int main() {
     auto j_none = serde::deserialize<std::vector<Test>>(j);
 
     fmt::print("{}\n",serde::serialize<nlohmann::json>(j_flatten).dump(4));
+    fmt::print("------\n");
     fmt::print("{}\n",serde::serialize<nlohmann::json>(j_none).dump(4));
+    fmt::print("------\n");
+    auto tflat = serde::serialize<toml::value>(j_flatten, "arr");
+    auto t = serde::serialize<toml::value>(j_none, "arr");
+    std::cout << tflat << "\n";
+    std::cout << t << "\n";
+    fmt::print("------\n");
+    auto yflat = serde::serialize<YAML::Node>(j_flatten, "arr");
+    auto y = serde::serialize<YAML::Node>(j_none, "arr");
+    std::cout << yflat << "\n";
+    std::cout << y << "\n";
+    fmt::print("------\n");
+    fmt::print("{}\n", serde::deserialize<std::vector<Test>>(tflat, "arr"));
+    fmt::print("{}\n", serde::deserialize<std::vector<Test>>(t, "arr"));
+    fmt::print("------\n");
+    fmt::print("{}\n", serde::deserialize<std::vector<Test>>(yflat, "arr"));
+    fmt::print("{}\n",serde::deserialize<std::vector<Test>>(y, "arr"));
+    //serde::deserialize<std::variant<int, std::string>>(R"({"id": 10})"_json, "id");
+
 }
 
 //OUTPUT

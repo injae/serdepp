@@ -9,6 +9,19 @@
 namespace serde {
     using yaml = YAML::Node;
 
+    template<> struct serde_type_checker<YAML::Node> {
+        using Format = YAML::Node;
+        static bool is_integer(Format& format) { return format.IsScalar(); }
+        static bool is_sequence(Format& format) { return format.IsSequence(); }
+        static bool is_map(Format& format) { return format.IsMap(); }
+        static bool is_float(Format& format) { return format.IsMap(); }
+        static bool is_string(Format& format) { return format.IsScalar(); }
+        static bool is_bool(Format& format) { return format.IsScalar(); }
+        static bool is_null(Format& format) { return format.IsNull(); }
+        static bool is_struct(Format& format) { return format.IsMap(); }
+    };
+
+
     template<> struct serde_adaptor_helper<yaml> : derive_serde_adaptor_helper<yaml> {
         static yaml parse_file(const std::string& path) { return YAML::LoadFile(path); }
         inline static bool is_null(yaml& adaptor, std::string_view key) { return !adaptor[key.data()]; }
@@ -24,6 +37,21 @@ namespace serde {
 
         constexpr static void into(yaml& s, std::string_view key, const T& data) {
             if(key.empty()) { s = data; } else { s[key.data()] = data; }
+        }
+    };
+
+    template<typename... T>
+    struct serde_adaptor<yaml, std::variant<T...>>  {
+        static void from(yaml& s, std::string_view key, std::variant<T...>& data) {
+            if(key.empty()) {
+                serde_variant_iter<yaml, std::variant<T...>, T...>(s, data);
+            } else {
+                auto map = s[std::string{key}];
+                serde_variant_iter<yaml, std::variant<T...>, T...>(map, data);
+            }
+        }
+        constexpr static void into(yaml& s, std::string_view key, const std::variant<T...>& data) {
+            std::visit([&](auto& type){ serialize_to<yaml>(type, s, key); }, data);
         }
     };
 
@@ -49,8 +77,6 @@ namespace serde {
                if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
                for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(deserialize<E>(table[i])); }
            }
-           //auto table = key.empty() ? s : s[std::string{key}];
-           //for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(serialize<E>(table[i])); }
        }
 
        inline static void into(yaml& s, std::string_view key, const T& data) {

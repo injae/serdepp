@@ -41,6 +41,17 @@ namespace serde {
         static void into(string_converter& s, std::string_view key, const T& data) { s.add(key, data); }
     };
 
+    template<typename... T>
+    struct serde_adaptor<string_converter, std::variant<T...>>  {
+        constexpr static void from(string_converter& s, std::string_view key, std::variant<T...>& data) {
+            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::from(string_converter, key data)",
+                                                         nameof::nameof_short_type<string_converter>()));
+        }
+        constexpr static void into(string_converter& s, std::string_view key, const std::variant<T...>& data) {
+            std::visit([&](auto& type){ serialize_to<string_converter>(type, s, key); }, data);
+        }
+    };
+
     template<typename T>
     inline std::string to_string(const T& type) { return serialize<string_converter>(type).to_str(); }
     template<typename T>
