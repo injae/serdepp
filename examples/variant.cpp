@@ -50,11 +50,11 @@ int main() {
         }
     }])"_json;
 
-    auto j_flatten = serde::serialize<std::vector<Test>>(jflat);
-    auto j_none = serde::serialize<std::vector<Test>>(j);
+    auto j_flatten = serde::deserialize<std::vector<Test>>(jflat);
+    auto j_none = serde::deserialize<std::vector<Test>>(j);
 
-    fmt::print("{}\n",serde::deserialize<nlohmann::json>(j_flatten).dump(4));
-    fmt::print("{}\n",serde::deserialize<nlohmann::json>(j_none).dump(4));
+    fmt::print("{}\n",serde::serialize<nlohmann::json>(j_flatten).dump(4));
+    fmt::print("{}\n",serde::serialize<nlohmann::json>(j_none).dump(4));
 }
 
 //OUTPUT

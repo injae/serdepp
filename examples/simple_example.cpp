@@ -53,18 +53,18 @@ int main()
     })"_json;
 
     try {
-        test t = serde::serialize<test>(v);
+        test t = serde::deserialize<test>(v);
 
-        auto v_to_json = serde::deserialize<nlohmann::json>(t);
-        auto v_to_toml = serde::deserialize<serde::toml_v>(t);
-        auto v_to_yaml = serde::deserialize<serde::yaml>(t);
+        auto v_to_json = serde::serialize<nlohmann::json>(t);
+        auto v_to_toml = serde::serialize<serde::toml_v>(t);
+        auto v_to_yaml = serde::serialize<serde::yaml>(t);
 
         std::cout << "toml: " << v_to_toml << std::endl;
         fmt::print("json: {}\n", v_to_json.dump());
         std::cout << "yaml: " << v_to_yaml << std::endl;
 
-        test t_from_toml = serde::serialize<test>(v_to_toml);
-        test t_from_yaml = serde::serialize<test>(v_to_yaml);
+        test t_from_toml = serde::deserialize<test>(v_to_toml);
+        test t_from_yaml = serde::deserialize<test>(v_to_yaml);
 
 
         fmt::print("{}\n", t_from_toml);
