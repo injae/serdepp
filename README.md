@@ -46,7 +46,7 @@ struct example {
                  (&Self::vec_,     "vec") 
                  (&Self::opt_vec_, "opt_vec")
                  (&Self::tenum_,   "t_enum")
-                 //.no_remain() optional: if have unregiested data -> Exception
+                 //.no_remain() optional: if have unregisted data -> Exception
                  )
     int number_;
     std::vector<std::string> vec_;
