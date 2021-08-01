@@ -11,7 +11,6 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
   - [Nested Class](#Nested-Class-Example)
   - [Custom Serializer](#Custom-Serializer)
 - [Attributes](#Attributes)
-  - [Naming Rule](#Nameing-Rule)
   - [Value or Struct](#value_or_struct_se)
   - [Default Value](#default_se)
   - [Enum](#enum_toupper)
