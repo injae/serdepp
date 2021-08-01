@@ -53,3 +53,37 @@ int main() {
     fmt::print("{}\n",serde::deserialize<nlohmann::json>(j_flatten).dump(4));
     fmt::print("{}\n",serde::deserialize<nlohmann::json>(j_none).dump(4));
 }
+
+//OUTPUT
+/*
+[
+    {
+        "object": {
+            "radius": 5
+        },
+        "type": "circle"
+    },
+    {
+        "object": {
+            "height": 5,
+            "width": 6
+        },
+        "type": "rectangle"
+    }
+]
+[
+    {
+        "object": {
+            "radius": 5
+        },
+        "type": "circle"
+    },
+    {
+        "object": {
+            "height": 5,
+            "width": 6
+        },
+        "type": "rectangle"
+    }
+]
+*/
