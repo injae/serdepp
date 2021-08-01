@@ -27,6 +27,11 @@
     name = "flatten_example"
     source = ["examples/flatten.cpp"]
 
+
+[[example]]
+    name = "variant_example"
+    source = ["examples/variant.cpp"]
+
 [[benchmark]]
     name = "benchmark"
     source = ["benchmark/benchmark.cpp"]

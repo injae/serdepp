@@ -10,6 +10,18 @@
 #include <fstream>
 
 namespace serde {
+    template<> struct serde_variant<nlohmann::json> {
+        using Format = nlohmann::json;
+        static bool is_integer(Format& format) { return format.is_number(); }
+        static bool is_sequence(Format& format) { return format.is_array(); }
+        static bool is_map(Format& format) { return format.is_object(); }
+        static bool is_float(Format& format) { return format.is_number_float(); }
+        static bool is_string(Format& format) { return format.is_string(); }
+        static bool is_bool(Format& format) { return format.is_boolean(); }
+        static bool is_null(Format& format) { return format.is_null(); }
+        static bool is_struct(Format& format) { return format.is_object(); }
+    };
+
     using nlohmann::json;
     template<> struct serde_adaptor_helper<json> : derive_serde_adaptor_helper<json> {
         static json parse_file(const std::string& path) {
@@ -31,6 +43,21 @@ namespace serde {
 
         constexpr static void into(json& s, std::string_view key, const T& data) {
             (key.empty() ? s : s[key.data()]) = data;
+        }
+    };
+
+    template<typename... T>
+    struct serde_adaptor<json, std::variant<T...>>  {
+        constexpr static void from(json& s, std::string_view key, std::variant<T...>& data) {
+            if(key.empty()) {
+                serde_variant_iter<json, std::variant<T...>, T...>(s, data);
+            } else {
+                serde_variant_iter<json, std::variant<T...>, T...>(s[std::string{key}], data);
+            }
+        }
+
+        constexpr static void into(json& s, std::string_view key, const std::variant<T...>& data) {
+            std::visit([&](auto& type){ deserialize_from<json>(type, s, key); }, data);
         }
     };
 
@@ -71,21 +98,6 @@ namespace serde {
             for(auto& [key_, value] : data) { deserialize_from<json>(value, map[key_]); }
         }
     };
-
-    //template <typename K, typename E>
-    //struct serde_adaptor<json, std::unordered_map<K,E>, type::map_t> {
-    //    using Map = std::unordered_map<K,E>;
-    //    static void from(json& s, std::string_view key, Map& map) {
-    //        auto& table = key.empty() ? s : s[std::string{key}];
-    //        map.reserve(table.size());
-    //        for(auto& [key_, value_] : table.items()) { serialize_to<E>(value_, map[key_]); }
-    //    }
-    //    static void into(json& s, std::string_view key, const Map& data) {
-    //        json map;
-    //        for(auto& [key_, value] : data) { map[key_] = deserialize<json>(value); }
-    //        (key.empty() ? s : s[std::string{key}]) = std::move(map);
-    //    }
-    //};
 }
 
 #endif

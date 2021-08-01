@@ -46,6 +46,11 @@ SOURCES
     examples/flatten.cpp
 )
 
+cppm_target_define(variant_example BINARY
+SOURCES
+    examples/variant.cpp
+)
+
 endif()
 
 if(SERDEPP_BUILD_BENCHMARKS)
@@ -83,6 +88,10 @@ cppm_target_dependencies(flatten_example
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(variant_example
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
@@ -97,4 +106,5 @@ cppm_target_install(serde_example1)
 cppm_target_install(serde_example)
 cppm_target_install(simple_example)
 cppm_target_install(flatten_example)
+cppm_target_install(variant_example)
 

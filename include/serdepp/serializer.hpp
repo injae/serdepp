@@ -11,7 +11,7 @@
 #include <set>
 #include <list>
 #include <type_traits>
-
+#include <variant>
 #include <fmt/format.h>
 #include <string_view>
 #include "serdepp/meta.hpp"
@@ -415,5 +415,101 @@ namespace serde
             ctx.read();
         }
     };
+
+    enum class SERDE_TYPE {
+        NONE,
+        BOOL,
+        INTEGER,
+        STRING,
+        FLOAT,
+        SEQUENCE,
+        MAP,
+        STRUCT,
+        UNKNOWN,
+        ENUM
+    };
+
+    template<typename Format>
+    struct serde_variant {
+        static bool is_integer(Format& format);
+        static bool is_sequence(Format& format);
+        static bool is_map(Format& format);
+        static bool is_float(Format& format);
+        static bool is_string(Format& format);
+        static bool is_bool(Format& format);
+        static bool is_null(Format& format);
+        static bool is_struct(Format& format);
+    };
+
+    template<class T>
+    SERDE_TYPE serde_type_declare() {
+             if constexpr(meta::is_str_v<T>)          return SERDE_TYPE::STRING;
+        else if constexpr(meta::is_sequenceable_v<T>) return SERDE_TYPE::SEQUENCE;
+        else if constexpr(meta::is_mappable_v<T>)     return SERDE_TYPE::MAP;
+        else if constexpr(meta::is_enumable_v<T>)     return SERDE_TYPE::ENUM;
+        else if constexpr(type::is_struct_v<T>)       return SERDE_TYPE::STRUCT;
+        else if constexpr(std::is_same_v<int16_t, T>) return SERDE_TYPE::INTEGER;
+        else if constexpr(std::is_same_v<int8_t, T>)  return SERDE_TYPE::INTEGER;
+        else if constexpr(std::is_same_v<int32_t, T>) return SERDE_TYPE::INTEGER;
+        else if constexpr(std::is_same_v<int64_t, T>) return SERDE_TYPE::INTEGER;
+        else if constexpr(std::is_same_v<bool, T>)    return SERDE_TYPE::BOOL;
+        else if constexpr(std::is_same_v<float, T>)   return SERDE_TYPE::FLOAT;
+        else if constexpr(std::is_same_v<double, T>)  return SERDE_TYPE::FLOAT;
+        else                                          return SERDE_TYPE::UNKNOWN;
+    }
+
+    template<class Format, class T, class V>
+    bool serde_variant_setter(Format& format, V& data) {
+        switch(serde_type_declare<T>()) {
+        case SERDE_TYPE::STRING:
+            if(!serde_variant<Format>::is_string(format)) return true;
+            break;
+        case SERDE_TYPE::SEQUENCE:
+            if(!serde_variant<Format>::is_sequence(format)) return true;
+            break;
+        case SERDE_TYPE::MAP:
+            if(!serde_variant<Format>::is_map(format)) return true;
+            break;
+        case SERDE_TYPE::STRUCT:  
+            if(!serde_variant<Format>::is_struct(format)) return true;
+            break;
+        case SERDE_TYPE::INTEGER:
+            if(!serde_variant<Format>::is_integer(format)) return true;
+            break;
+        case SERDE_TYPE::BOOL:
+            if(!serde_variant<Format>::is_bool(format)) return true;
+            break;
+        case SERDE_TYPE::FLOAT:
+            if(!serde_variant<Format>::is_float(format)) return true;
+            break;
+        case SERDE_TYPE::ENUM:
+            if(!serde_variant<Format>::is_string(format)) return true;
+        default: return true;
+        //case SERDE_TYPE::UNKNOWN:  
+        }
+        try {
+            data = serialize<T>(format);
+            return false;
+        } catch(std::exception& ex) {
+            return true;
+        }
+    }
+
+    template<class Format, class V, class Cur, class ...T>
+    constexpr void serde_variant_iter(Format& format, V& data) {
+        if constexpr (sizeof...(T) != 0) {
+            bool is_find = serde_variant_setter<Format, Cur, V>(format, data);
+            if(!is_find) return;
+            serde_variant_iter<Format, V, T...>(format, data);
+        } else {
+            serde_variant_setter<Format, std::variant_alternative_t<std::variant_size_v<V> - 1, V>, V>
+                (format, data);
+        }
+    }
+
+    template<class Format, class V, class Cur>
+    constexpr void serde_variant_iter(Format& format, std::string_view key, V& data) {
+        serde_variant_setter<Format, V, Cur>(format, key, data);
+    }
 } // namespace serde
 #endif
