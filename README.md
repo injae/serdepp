@@ -59,8 +59,8 @@ int main() {
     ex.vec_ = {"a", "b", "c"};
     ex.tenum_ = t_enum::B;
 
-    nlohmann::json json_from_ex = serde::deserialize<nlohmann::json>(ex);
-    example ex_from_json = serde::serialize<example>(json_from_ex);
+    nlohmann::json json_from_ex = serde::serialize<nlohmann::json>(ex);
+    example ex_from_json = serde::deserialize<example>(json_from_ex);
 
     fmt::print("json:{}\n",json_from_ex.dump(4));
 
@@ -123,13 +123,13 @@ int main(int argc, char *argv[])
 {
     int num = 1; 
 
-    auto json = serde::deserialize<nlohmann::json>(num);
-    auto yaml = serde::deserialize<YAML::Node>(num);
-    auto toml = serde::deserialize<toml::value>(num);
+    auto json = serde::serialize<nlohmann::json>(num);
+    auto yaml = serde::serialize<YAML::Node>(num);
+    auto toml = serde::serialize<toml::value>(num);
 
-    int from_json = serde::serialize<int>(json);
-    int from_toml = serde::serialize<int>(toml);
-    int from_yaml = serde::serialize<int>(yaml);
+    int from_json = serde::deserialize<int>(json);
+    int from_toml = serde::deserialize<int>(toml);
+    int from_yaml = serde::deserialize<int>(yaml);
 
     auto json_from_file = serde::parse_file<nlohmann::json>("json_file.json");
     auto toml_from_file = serde::parse_file<toml::value>("toml_file.toml");
@@ -244,14 +244,14 @@ int main()
             "c" : "3" }
     })"_json;
 
-    test t = serde::serialize<test>(v);
+    test t = serde::deserialize<test>(v);
 
-    auto v_to_json = serde::deserialize<nlohmann::json>(t);
-    auto v_to_toml = serde::deserialize<serde::toml_v>(t);
-    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
+    auto v_to_json = serde::serialize<nlohmann::json>(t);
+    auto v_to_toml = serde::serialize<serde::toml_v>(t);
+    auto v_to_yaml = serde::serialize<serde::yaml>(t);
 
-    test t_from_toml = serde::serialize<test>(v_to_toml);
-    test t_from_yaml = serde::serialize<test>(v_to_yaml);
+    test t_from_toml = serde::deserialize<test>(v_to_toml);
+    test t_from_yaml = serde::deserialize<test>(v_to_yaml);
 
     fmt::print("{}\n", t);
     std::cout << t << '\n';
@@ -340,16 +340,16 @@ int main()
     })"_json;
 
     // nlohmann::json -> class(test)
-    test t = serde::serialize<test>(v);
+    test t = serde::deserialize<test>(v);
 
     // class(test) -> nlohmann::json 
-    auto v_to_json = serde::deserialize<nlohmann::json>(t);
+    auto v_to_json = serde::serialize<nlohmann::json>(t);
 
     // class(test) -> toml11 
-    auto v_to_toml = serde::deserialize<serde::toml_v>(t);
+    auto v_to_toml = serde::serialize<serde::toml_v>(t);
 
     // class(test) -> yaml-cpp
-    auto v_to_yaml = serde::deserialize<serde::yaml>(t);
+    auto v_to_yaml = serde::serialize<serde::yaml>(t);
 
     // nlohmann::json -> string
     fmt::print("json: {}\n", v_to_json.dump());
@@ -362,10 +362,10 @@ int main()
     std::cout << "yaml: " << v_to_yaml << std::endl;
 
     // toml11 -> class(test)
-    test t_from_toml = serde::serialize<test>(v_to_toml);
+    test t_from_toml = serde::deserialize<test>(v_to_toml);
 
     // yaml-cpp -> class(test)
-    test t_from_yaml = serde::serialize<test>(v_to_yaml);
+    test t_from_yaml = serde::deserialize<test>(v_to_yaml);
 
     // class(test) -> string
     fmt::print("{}\n", t);
@@ -525,7 +525,10 @@ struct attribute_example {
 - `value_or_struct`
    - description: parse struct or single value, require other field default_ or optional
    - example: `(&Self::test, "key", value_or_struct)` "T": "value" or "T" : { "key" : "value" }
-
+- `flatten`
+   - description: parse struct flatten
+   - example: `(&Self::test, "key", flatten)`  
+   - { "obj" : {"key" : "value", "key2" : "value"} } == { "key" : "value", "key2" : "value" }
 ## Custom Attribute
 ### 1. Normal Attribute
 ```cpp

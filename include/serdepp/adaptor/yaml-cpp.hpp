@@ -30,10 +30,10 @@ namespace serde {
     template<typename T>
     struct serde_adaptor<yaml, T, type::struct_t> {
         static void from(yaml& s, std::string_view key, T& data) {
-            serialize_to(s[std::string{key}], data);
+            deserialize_to(s[std::string{key}], data);
         }
         static void into(yaml& s, std::string_view key, const T& data) {
-            s[std::string{key}] = deserialize<yaml>(data);
+            s[std::string{key}] = serialize<yaml>(data);
         } 
     };
 
@@ -43,11 +43,11 @@ namespace serde {
        inline static void from(yaml& s, std::string_view key, T& arr) {
            if(key.empty()) {
                if constexpr(is_arrayable_v<T>) arr.reserve(s.size());
-               for(std::size_t i = 0 ; i < s.size(); ++i) { arr.push_back(serialize<E>(s[i])); }
+               for(std::size_t i = 0 ; i < s.size(); ++i) { arr.push_back(deserialize<E>(s[i])); }
            } else {
                auto table = s[std::string{key}];
                if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
-               for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(serialize<E>(table[i])); }
+               for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(deserialize<E>(table[i])); }
            }
            //auto table = key.empty() ? s : s[std::string{key}];
            //for(std::size_t i = 0 ; i < table.size(); ++i) { arr.push_back(serialize<E>(table[i])); }
@@ -58,7 +58,7 @@ namespace serde {
             int i = 0;
             for(auto& value: data) {
                 auto e = arr[i++];
-                deserialize_from<yaml>(value, e);
+                serialize_to<yaml>(value, e);
             }
        }
     };
@@ -71,14 +71,14 @@ namespace serde {
             auto table = key.empty() ? s : s[std::string{key}];
             for(yaml::const_iterator it = table.begin(); it!=table.end(); ++it) {
                 auto key_ = it->first, value_ = it->second;
-                serialize_to<E>(value_, map[key_.as<std::string>()]);
+                deserialize_to<E>(value_, map[key_.as<std::string>()]);
             }
         }
         inline static void into(yaml& s, std::string_view key, const Map& data) {
             yaml map = key.empty() ? s : s[std::string{key}];
             for(auto& [key_, value] : data) {
                 auto e = map[key_];
-                deserialize_from<yaml>(value, e);
+                serialize_to<yaml>(value, e);
             }
         }
     };

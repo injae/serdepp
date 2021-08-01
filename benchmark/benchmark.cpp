@@ -42,9 +42,9 @@ nlohmann::json json_v = R"({
 "sm": { "one" : "tone", "two" : "ttwo"}
 })"_json;
 
-test base_t = serde::serialize<test>(json_v);
+test base_t = serde::deserialize<test>(json_v);
 
-toml::value toml_v = serde::deserialize<toml::value>(base_t);
+toml::value toml_v = serde::serialize<toml::value>(base_t);
 
 //toml::value toml_v = R"(
 //vec = ["one", "two"]
@@ -55,11 +55,11 @@ toml::value toml_v = serde::deserialize<toml::value>(base_t);
 //two = "ttwo"
 //)"_toml;
 
-YAML::Node yaml_v = serde::deserialize<YAML::Node>(base_t);
+YAML::Node yaml_v = serde::serialize<YAML::Node>(base_t);
 
 static void nljson_set_se_bench(benchmark::State& state) {
     for(auto _ : state) {
-        serde::serialize<test>(json_v);
+        serde::deserialize<test>(json_v);
     }
 }
 
@@ -76,7 +76,7 @@ static void nljson_get_se_bench(benchmark::State& state) {
     t.vec = {"one", "two"};
     t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        serde::deserialize<nlohmann::json>(t);
+        serde::serialize<nlohmann::json>(t);
     }
 }
 
@@ -118,7 +118,7 @@ struct test
 
 static void toml11_set_se_bench(benchmark::State& state) {
     for(auto _ : state) {
-        serde::serialize<test>(toml_v);
+        serde::deserialize<test>(toml_v);
     }
 }
 
@@ -135,7 +135,7 @@ static void toml11_get_se_bench(benchmark::State& state) {
     t.vec = {"one", "two"};
     t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        serde::deserialize<serde::toml_v>(t);
+        serde::serialize<serde::toml_v>(t);
     }
 }
 
@@ -173,7 +173,7 @@ namespace YAML {
 
 static void yaml_set_se_bench(benchmark::State& state) {
     for(auto _ : state) {
-        serde::serialize<test>(yaml_v);
+        serde::deserialize<test>(yaml_v);
     }
 }
 
@@ -190,7 +190,7 @@ static void yaml_get_se_bench(benchmark::State& state) {
     t.vec = {"one", "two"};
     t.sm = {{"one", "town"}, {"two", "ttwo"}};
     for(auto _ : state) {
-        serde::deserialize<serde::yaml>(t);
+        serde::serialize<serde::yaml>(t);
     }
 }
 

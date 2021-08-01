@@ -42,9 +42,9 @@ namespace serde {
     };
 
     template<typename T>
-    inline std::string to_string(const T& type) { return deserialize<string_converter>(type).to_str(); }
+    inline std::string to_string(const T& type) { return serialize<string_converter>(type).to_str(); }
     template<typename T>
-    inline std::string to_str(const T& type) { return deserialize<string_converter>(type).to_str(); }
+    inline std::string to_str(const T& type) { return serialize<string_converter>(type).to_str(); }
 }
 
 template <typename T>
@@ -52,7 +52,7 @@ struct fmt::formatter<T, std::enable_if_t<serde::type::is_struct_v<T>, char>>
     : fmt::formatter<std::string> {
     template <typename format_ctx>
     auto format(const T& serde_type, format_ctx& ctx) {
-        return formatter<std::string>::format(serde::deserialize<serde::string_converter>(serde_type).to_str(), ctx);
+        return formatter<std::string>::format(serde::serialize<serde::string_converter>(serde_type).to_str(), ctx);
     }
 };
 

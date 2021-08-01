@@ -24,10 +24,10 @@ namespace serde {
 
     template<typename T> struct serde_adaptor<toml_v, T, type::struct_t> {
         inline static void from(toml_v& s, std::string_view key, T& data) {
-            serialize_to<T>(toml::find(s, std::string{key}), data);
+            deserialize_to<T>(toml::find(s, std::string{key}), data);
         }
         inline static void into(toml_v &s, std::string_view key, const T& data) {
-            s[std::string{key}] = deserialize<toml_v>(data);
+            s[std::string{key}] = serialize<toml_v>(data);
         } 
     };
 
@@ -45,15 +45,15 @@ namespace serde {
         static void from(toml_v& s, std::string_view key, T& arr) {
             auto& table = key.empty() ? s : s[std::string{key}];
             if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
-            for(auto& value : table.as_array()) { arr.push_back(serialize<E>(value)); }
+            for(auto& value : table.as_array()) { arr.push_back(deserialize<E>(value)); }
         }
         static void into(toml_v& s, std::string_view key, const T& data) {
             toml::array arr;
             arr.reserve(data.size());
             if constexpr(type::is_struct_v<E>) {
-                for(auto& value: data) { arr.push_back(std::move(deserialize<toml_v>(value).as_table())); }
+                for(auto& value: data) { arr.push_back(std::move(serialize<toml_v>(value).as_table())); }
             } else {
-                for(auto& value: data) { arr.push_back(std::move(deserialize<toml_v>(value)));  }
+                for(auto& value: data) { arr.push_back(std::move(serialize<toml_v>(value)));  }
             }
             (key.empty() ? s : s[std::string{key}]) = std::move(arr);
         }
@@ -63,11 +63,11 @@ namespace serde {
         using E = type::map_e<Map>;
         inline static void from(toml_v& s, std::string_view key, Map& map) {
             auto& table = key.empty() ? s : s[std::string{key}];
-            for(auto& [key_, value_] : table.as_table()) { serialize_to<E>(value_, map[key_]);}
+            for(auto& [key_, value_] : table.as_table()) { deserialize_to<E>(value_, map[key_]);}
         }
         inline static void into(toml_v& s, std::string_view key, const Map& data) {
             toml_v& map = key.empty() ? s : s[std::string{key}];
-            for(auto& [key_, value] : data) { deserialize_from<toml_v>(value, map[key_]); }
+            for(auto& [key_, value] : data) { serialize_to<toml_v>(value, map[key_]); }
         }
     };
 }
