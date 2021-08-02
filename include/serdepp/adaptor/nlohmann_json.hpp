@@ -10,7 +10,7 @@
 #include <fstream>
 
 namespace serde {
-    template<> struct serde_variant<nlohmann::json> {
+    template<> struct serde_type_checker<nlohmann::json> {
         using Format = nlohmann::json;
         static bool is_integer(Format& format) { return format.is_number(); }
         static bool is_sequence(Format& format) { return format.is_array(); }
@@ -55,7 +55,6 @@ namespace serde {
                 serde_variant_iter<json, std::variant<T...>, T...>(s[std::string{key}], data);
             }
         }
-
         constexpr static void into(json& s, std::string_view key, const std::variant<T...>& data) {
             std::visit([&](auto& type){ serialize_to<json>(type, s, key); }, data);
         }

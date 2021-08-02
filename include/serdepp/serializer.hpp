@@ -430,7 +430,7 @@ namespace serde
     };
 
     template<typename Format>
-    struct serde_variant {
+    struct serde_type_checker {
         static bool is_integer(Format& format);
         static bool is_sequence(Format& format);
         static bool is_map(Format& format);
@@ -462,28 +462,28 @@ namespace serde
     bool serde_variant_setter(Format& format, V& data) {
         switch(serde_type_declare<T>()) {
         case SERDE_TYPE::STRING:
-            if(!serde_variant<Format>::is_string(format)) return true;
+            if(!serde_type_checker<Format>::is_string(format)) return true;
             break;
         case SERDE_TYPE::SEQUENCE:
-            if(!serde_variant<Format>::is_sequence(format)) return true;
+            if(!serde_type_checker<Format>::is_sequence(format)) return true;
             break;
         case SERDE_TYPE::MAP:
-            if(!serde_variant<Format>::is_map(format)) return true;
+            if(!serde_type_checker<Format>::is_map(format)) return true;
             break;
         case SERDE_TYPE::STRUCT:  
-            if(!serde_variant<Format>::is_struct(format)) return true;
+            if(!serde_type_checker<Format>::is_struct(format)) return true;
             break;
         case SERDE_TYPE::INTEGER:
-            if(!serde_variant<Format>::is_integer(format)) return true;
+            if(!serde_type_checker<Format>::is_integer(format)) return true;
             break;
         case SERDE_TYPE::BOOL:
-            if(!serde_variant<Format>::is_bool(format)) return true;
+            if(!serde_type_checker<Format>::is_bool(format)) return true;
             break;
         case SERDE_TYPE::FLOAT:
-            if(!serde_variant<Format>::is_float(format)) return true;
+            if(!serde_type_checker<Format>::is_float(format)) return true;
             break;
         case SERDE_TYPE::ENUM:
-            if(!serde_variant<Format>::is_string(format)) return true;
+            if(!serde_type_checker<Format>::is_string(format)) return true;
         default: return true;
         //case SERDE_TYPE::UNKNOWN:  
         }
@@ -505,11 +505,6 @@ namespace serde
             serde_variant_setter<Format, std::variant_alternative_t<std::variant_size_v<V> - 1, V>, V>
                 (format, data);
         }
-    }
-
-    template<class Format, class V, class Cur>
-    constexpr void serde_variant_iter(Format& format, std::string_view key, V& data) {
-        serde_variant_setter<Format, V, Cur>(format, key, data);
     }
 } // namespace serde
 #endif
