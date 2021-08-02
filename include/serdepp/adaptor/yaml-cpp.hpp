@@ -80,12 +80,11 @@ namespace serde {
        }
 
        inline static void into(yaml& s, std::string_view key, const T& data) {
-            yaml arr = (key.empty() ? s : s[std::string {key}]);
-            int i = 0;
-            for(auto& value: data) {
-                auto e = arr[i++];
-                serialize_to<yaml>(value, e);
-            }
+           if(key.empty()) {
+                for(auto& value: data) { s.push_back(serialize<yaml>(value)); }
+           } else {
+                for(auto& value: data) { s[std::string{key}].push_back(serialize<yaml>(value)); }
+           }
        }
     };
 
@@ -94,17 +93,28 @@ namespace serde {
     struct serde_adaptor<yaml, Map, type::map_t> {
         using E = type::map_e<Map>;
         inline static void from(yaml& s, std::string_view key, Map& map) {
-            auto table = key.empty() ? s : s[std::string{key}];
-            for(yaml::const_iterator it = table.begin(); it!=table.end(); ++it) {
-                auto key_ = it->first, value_ = it->second;
-                deserialize_to<E>(value_, map[key_.as<std::string>()]);
+            if(key.empty()) {
+                for(yaml::const_iterator it = s.begin(); it!=s.end(); ++it) {
+                    auto key_ = it->first, value_ = it->second;
+                    deserialize_to<E>(value_, map[key_.as<std::string>()]);
+                }
+            } else {
+                for(yaml::const_iterator it = s[std::string{key}].begin(); it!=s[std::string{key}].end(); ++it) {
+                    auto key_ = it->first, value_ = it->second;
+                    deserialize_to<E>(value_, map[key_.as<std::string>()]);
+                }
             }
         }
         inline static void into(yaml& s, std::string_view key, const Map& data) {
-            yaml map = key.empty() ? s : s[std::string{key}];
-            for(auto& [key_, value] : data) {
-                auto e = map[key_];
-                serialize_to<yaml>(value, e);
+            if(key.empty()) {
+                for(auto& [key_, value] : data) {
+                    s[key_] = serialize<yaml>(value);
+                }
+            } else {
+                yaml map = s[std::string{key}];
+                for(auto& [key_, value] : data) {
+                    map[key_] = serialize<yaml>(value);
+                }
             }
         }
     };

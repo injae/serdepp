@@ -32,7 +32,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 - [x] optional support 
 - [x] container support (sequence(like vector, list), map(map, unordered_map ...))
 - [x] [attributes](#Attributes) and custom attribute support (value_or_struct, default, multi_key ...)
-
+- [x] variant support (BETA) (std::variant<int, std::vector<...>, UserType, ...>) [example](example/variant.cpp)
 ## Get Started
 ```cpp
 #include <serdepp/serde.hpp>
