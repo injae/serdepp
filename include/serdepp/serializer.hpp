@@ -442,7 +442,7 @@ namespace serde
     };
 
     template<class T>
-    SERDE_TYPE serde_type_declare() {
+    constexpr SERDE_TYPE serde_type_declare() {
              if constexpr(meta::is_str_v<T>)          return SERDE_TYPE::STRING;
         else if constexpr(meta::is_sequenceable_v<T>) return SERDE_TYPE::SEQUENCE;
         else if constexpr(meta::is_mappable_v<T>)     return SERDE_TYPE::MAP;
@@ -484,6 +484,7 @@ namespace serde
             break;
         case SERDE_TYPE::ENUM:
             if(!serde_type_checker<Format>::is_string(format)) return true;
+            break;
         default: return true;
         //case SERDE_TYPE::UNKNOWN:  
         }

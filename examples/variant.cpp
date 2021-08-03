@@ -3,7 +3,7 @@
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
 
-enum class T { A, B};
+enum class T { A, B };
 
 struct Rect {
     DERIVE_SERDE(Rect, (&Self::width, "width")(&Self::height, "height"))
@@ -75,9 +75,9 @@ int main() {
     fmt::print("{}\n", deserialize<std::vector<Test>>(yflat, "arr"));
     fmt::print("{}\n",deserialize<std::vector<Test>>(y, "arr"));
 
-    std::variant<int, std::string, double,
+    std::variant<int, std::string, double, T,
                  std::vector<std::string>,
-                 std::map<std::string, int>> var = std::map<std::string,int>{{"a", 1}, {"b",2}};
+                 std::map<std::string, int>> var = T::A;
     auto v_y = serialize<YAML::Node>(var);
     auto v_t = serialize<toml::value>(var);
     auto v_j = serialize<nlohmann::json>(var);
