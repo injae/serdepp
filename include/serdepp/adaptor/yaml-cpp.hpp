@@ -99,7 +99,8 @@ namespace serde {
                     deserialize_to<E>(value_, map[key_.as<std::string>()]);
                 }
             } else {
-                for(yaml::const_iterator it = s[std::string{key}].begin(); it!=s[std::string{key}].end(); ++it) {
+                auto table = s[std::string{key}];
+                for(yaml::const_iterator it = table.begin(); it!=table.end(); ++it) {
                     auto key_ = it->first, value_ = it->second;
                     deserialize_to<E>(value_, map[key_.as<std::string>()]);
                 }

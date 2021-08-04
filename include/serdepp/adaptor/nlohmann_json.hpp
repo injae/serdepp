@@ -85,9 +85,36 @@ namespace serde {
        }
     };
 
+    template<typename E>
+    struct serde_adaptor<json, std::vector<E>, type::seq_t> {
+        static void from(json& s, std::string_view key, std::vector<E>& arr) {
+           auto& table = key.empty() ? s : s.at(key.data());
+           arr.reserve(table.size());
+           for(auto& value : table) { arr.push_back(std::move(deserialize<E>(value))); }
+       }
+
+       static void into(json& s, std::string_view key, const std::vector<E>& data) {
+           json& arr = key.empty() ? s : s[key.data()];
+           for(auto& value: data) { arr.push_back(std::move(serialize<json>(value))); }
+       }
+    };
+
     template <typename Map>
     struct serde_adaptor<json, Map, type::map_t> {
         using E = type::map_e<Map>;
+        inline static void from(json& s, std::string_view key, Map& map) {
+            auto& table = key.empty() ? s : s.at(key.data());
+            for(auto& [key_, value_] : table.items()) { deserialize_to<E>(value_, map[key_]); }
+        }
+        inline static void into(json& s, std::string_view key, const Map& data) {
+            json& map = key.empty() ? s : s[key.data()];
+            for(auto& [key_, value] : data) { serialize_to<json>(value, map[key_]); }
+        }
+    };
+
+    template <typename K, typename E>
+    struct serde_adaptor<json, std::map<K,E>, type::map_t> {
+        using Map = std::map<K,E>;
         inline static void from(json& s, std::string_view key, Map& map) {
             auto& table = key.empty() ? s : s.at(key.data());
             for(auto& [key_, value_] : table.items()) { deserialize_to<E>(value_, map[key_]); }

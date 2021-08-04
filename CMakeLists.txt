@@ -9,6 +9,7 @@ cppm_setting()
 cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
+find_cppkg(RapidJSON git  MODULE rapidjson TYPE lib OPTIONAL OFF)
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
@@ -68,7 +69,7 @@ SOURCES
 endif()
 
 set(serdepp_global_deps PRIVATE benchmark
-PUBLIC nlohmann_json toml11 yaml-cpp nameof magic_enum fmt)
+PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp nameof magic_enum fmt)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 

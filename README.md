@@ -21,6 +21,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 ## Features
 - [x] low cost serializer, deserializer adaptor
 - [x] json serialize, deserialize (with [nlohmann_json](https://github.com/nlohmann/json))
+- [x] json serialize, deserialize (with [rapidjson](https://github.com/Tencent/rapidjson))
 - [x] toml serialize, deserialize (with [toml11](https://github.com/ToruNiina/toml11))
 - [x] yaml serialize, deserialize (with [yaml-cpp](https://github.com/jbeder/yaml-cpp))
 - [x] [fmt](https://github.com/fmtlib/fmt) support 
@@ -31,7 +32,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 - [x] optional support 
 - [x] container support (sequence(like vector, list), map(map, unordered_map ...))
 - [x] [attributes](#Attributes) and custom attribute support (value_or_struct, default, multi_key ...)
-- [x] variant support (BETA) (std::variant<int, std::vector<...>, UserType, ...>) [example](examples/variant.cpp)
+- [x] variant support (std::variant<int, std::vector<...>, UserType, EnumType...>) [example](examples/variant.cpp)
 ## Get Started
 ```cpp
 #include <serdepp/serde.hpp>
@@ -85,6 +86,7 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 - [nameof](https://github.com/Neargye/nameof) (Auto Install)
 - [magic_enum](https://github.com/Neargye/magic_enum)  (Auto Install)
 - [nlohmann_json](https://github.com/nlohmann/json) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
+- [rapidjson](https://github.com/Tencent/rapidjson) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_RAPIDJSON=ON)
 - [toml11](https://github.com/ToruNiina/toml11) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_YAML_CPP=ON)
 
@@ -612,7 +614,7 @@ namespace serde::attribute {
 ## Benchmark
 ### Benchmark [Benchmark code](benchmark/benchmark.cpp)
 ```console
-2021-07-30T20:36:11+09:00
+2021-08-04T21:50:49+09:00
 Running ./benchmark
 Run on (12 X 2600 MHz CPU s)
 CPU Caches:
@@ -620,22 +622,24 @@ CPU Caches:
   L1 Instruction 32 KiB (x6)
   L2 Unified 256 KiB (x6)
   L3 Unified 12288 KiB (x1)
-Load Average: 2.00, 2.22, 2.18
---------------------------------------------------------------
-Benchmark                    Time             CPU   Iterations
---------------------------------------------------------------
-nljson_set_se_bench        459 ns          458 ns      1318888
-nljson_set_nl_bench        449 ns          449 ns      1568663
-nljson_get_se_bench       2328 ns         2325 ns       298510
-nljson_get_nl_bench       2661 ns         2657 ns       261593
-toml11_set_se_bench        445 ns          445 ns      1524158
-toml11_set_tl_bench        488 ns          488 ns      1420060
-toml11_get_se_bench       3285 ns         3282 ns       209395
-toml11_get_tl_bench       3952 ns         3946 ns       178205
-yaml_set_se_bench         1950 ns         1948 ns       365646
-yaml_set_tl_bench         2051 ns         2049 ns       339246
-yaml_get_se_bench        19469 ns        19454 ns        35734
-yaml_get_tl_bench        27871 ns        27844 ns        25389
+Load Average: 1.97, 2.25, 2.42
+------------------------------------------------------------------
+Benchmark                        Time             CPU   Iterations
+------------------------------------------------------------------
+nljson_set_se_bench            491 ns          489 ns      1399412
+nljson_set_nl_bench            484 ns          483 ns      1369702
+nljson_get_se_bench           3005 ns         2999 ns       232484
+nljson_get_nl_bench           3207 ns         3203 ns       218454
+toml11_set_se_bench            482 ns          481 ns      1366840
+toml11_set_tl_bench            502 ns          501 ns      1445442
+toml11_get_se_bench           4264 ns         4254 ns       167404
+toml11_get_tl_bench           4760 ns         4752 ns       146516
+yaml_set_se_bench             2275 ns         2271 ns       301863
+yaml_set_tl_bench             2764 ns         2761 ns       252794
+yaml_get_se_bench            29787 ns        29745 ns        23153
+yaml_get_tl_bench            34683 ns        34637 ns        19869
+rapid_json_set_se_bench        423 ns          422 ns      1595100
+rapid_json_get_se_bench       2896 ns         2889 ns       236220
 ```
 
 ## Projects using this library

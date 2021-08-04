@@ -4,5 +4,5 @@ project(simdjson-0.9.7-install)
 
 set(CPPM_VERSION 0.0.13)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
-download_package(simdjson 0.9.7  URL https://github.com/simdjson/simdjson/archive/refs/tags/v0.9.7.zip  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DSIMD_DEVELOPER_MODE=OFF)
+download_package(simdjson 0.9.7  URL https://github.com/simdjson/simdjson/archive/refs/tags/v0.9.7.zip  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DSIMDJSON_JUST_LIBRARY=ON -DBUILD_SHARED_LIBS=OFF -DSIMDJSON_BUILD_STATIC=ON)
 

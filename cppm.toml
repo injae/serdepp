@@ -27,10 +27,13 @@
     name = "flatten_example"
     source = ["examples/flatten.cpp"]
 
-
 [[example]]
     name = "variant_example"
     source = ["examples/variant.cpp"]
+
+#[[example]]
+#    name = "simdjson_example"
+#    source = ["examples/simdjson.cpp"]
 
 [[benchmark]]
     name = "benchmark"
@@ -49,7 +52,8 @@
     toml11     = { version="3.7.0",  link="public", optional=true}
     nlohmann_json = { version="3.9.1", link="public", optional=true}
     benchmark = { version="1.5.2", optional=true}
-#    simdjson = {version="0.9.7", link="public"}
+    #simdjson = {version="0.9.7", link="public"}
+    RapidJSON = { version="git", link="public", optional=true}
 
 #[dev-dependencies]
 #    benchmark = {version="1.5.2", optional=true}

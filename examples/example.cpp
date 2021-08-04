@@ -3,6 +3,7 @@
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/fmt.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
+#include "serdepp/adaptor/rapidjson.hpp"
 #include <serdepp/ostream.hpp>
 
 #include <serdepp/attributes.hpp>
@@ -81,21 +82,29 @@ int main()
     auto v_to_json = serde::serialize<nlohmann::json>(t);
     auto v_to_toml = serde::serialize<serde::toml_v>(t);
     auto v_to_yaml = serde::serialize<serde::yaml>(t);
+    auto v_to_rjson = serde::serialize<rapidjson::Document>(t);
+    auto print = [](auto& doc) {
+        using namespace rapidjson;
+        StringBuffer buffer;
+        Writer<StringBuffer> writer(buffer);
+        doc.Accept(writer);
+        std::cout << "doc:" << buffer.GetString() << std::endl;
+    };
 
     std::cout << "toml: " << v_to_toml << std::endl;
     fmt::print("json: {}\n", v_to_json.dump());
     std::cout << "yaml: " << v_to_yaml << std::endl;
+    print(v_to_rjson);
 
     test t_from_toml = serde::deserialize<test>(v_to_toml);
     test t_from_yaml = serde::deserialize<test>(v_to_yaml);
+    test t_from_rjson = serde::deserialize<test>(v_to_rjson);
 
     fmt::print("{}\n", t_from_toml);
     fmt::print("{}\n", t_from_yaml);
+    fmt::print("{}\n", t_from_rjson);
     std::cout << t << '\n';
 
-    //}catch(std::exception& e) {
-    //    fmt::print(stderr,"{}\n",e.what());
-    //}
 
     return 0;
 }
