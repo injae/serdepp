@@ -1,0 +1,10 @@
+pri = "pri"
+io = "INPUT"
+vec = ["one", "two", "three"]
+no_vec = ["a", "b"]
+i = 10
+
+[m]
+b = "2"
+c = "3"
+a = "1"

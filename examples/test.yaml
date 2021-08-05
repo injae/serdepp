@@ -1,0 +1,14 @@
+i: 10
+vec:
+  - one
+  - two
+  - three
+no_vec:
+  - a
+  - b
+io: INPUT
+pri: pri
+m:
+  a: 1
+  b: 2
+  c: 3

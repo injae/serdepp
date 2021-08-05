@@ -52,6 +52,11 @@ SOURCES
     examples/variant.cpp
 )
 
+cppm_target_define(parse_file_example BINARY
+SOURCES
+    examples/parse_file.cpp
+)
+
 endif()
 
 if(SERDEPP_BUILD_BENCHMARKS)
@@ -93,6 +98,10 @@ cppm_target_dependencies(variant_example
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(parse_file_example
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
@@ -108,4 +117,5 @@ cppm_target_install(serde_example)
 cppm_target_install(simple_example)
 cppm_target_install(flatten_example)
 cppm_target_install(variant_example)
+cppm_target_install(parse_file_example)
 

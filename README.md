@@ -117,6 +117,7 @@ target_link_libraries({target name} PUBLIC serdepp::serdepp)
 ## Basic Usage
 ```cpp
 #include "serdepp/serde.hpp"
+#include "serdepp/adaptor/rapidjson.hpp"
 #include "serdepp/adaptor/nlohmann_json.hpp"
 #include "serdepp/adaptor/yaml-cpp.hpp"
 #include "serdepp/adaptor/toml11.hpp"
@@ -125,17 +126,20 @@ int main(int argc, char *argv[])
 {
     int num = 1; 
 
+    auto rjson = serde::serialize<rapidjson::Document>(num);
     auto json = serde::serialize<nlohmann::json>(num);
     auto yaml = serde::serialize<YAML::Node>(num);
     auto toml = serde::serialize<toml::value>(num);
 
-    int from_json = serde::deserialize<int>(json);
-    int from_toml = serde::deserialize<int>(toml);
-    int from_yaml = serde::deserialize<int>(yaml);
+    int from_rjson = serde::deserialize<int>(rjson);
+    int from_json  = serde::deserialize<int>(json);
+    int from_toml  = serde::deserialize<int>(toml);
+    int from_yaml  = serde::deserialize<int>(yaml);
 
-    auto json_from_file = serde::parse_file<nlohmann::json>("json_file.json");
-    auto toml_from_file = serde::parse_file<toml::value>("toml_file.toml");
-    auto yaml_from_file = serde::parse_file<YAML::Node>("yaml_file.yaml");
+    auto rjson_from_file = serde::parse_file<rapidjson::Document>("test.json");
+    auto json_from_file  = serde::parse_file<nlohmann::json>("test.json");
+    auto toml_from_file  = serde::parse_file<toml::value>("test.toml");
+    auto yaml_from_file  = serde::parse_file<YAML::Node>("test.yaml");
     
     return 0;
 }
