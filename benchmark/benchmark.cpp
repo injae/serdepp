@@ -44,7 +44,7 @@ using namespace toml::literals;
 nlohmann::json json_v = R"({
 "str" : "hello",
 "i": 10,
-"vec": [ "one", "two", "three", "four", "five", "six" ],
+"vec": [ "one", "two", "three"],
 "sm": { "one" : "tone", "two" : "ttwo"}
 })"_json;
 
@@ -202,6 +202,7 @@ static void rapid_json_set_se_bench(benchmark::State& state) {
     }
 }
 
+[[maybe_unused]]
 static void rapid_json_set_tl_bench(benchmark::State& state) {
     rapidjson::Document rapid_v = serde::serialize<rapidjson::Document>(base_t);
     for(auto _ : state) {
@@ -216,6 +217,7 @@ static void rapid_json_get_se_bench(benchmark::State& state) {
     }
 }
 
+[[maybe_unused]]
 static void rapid_json_get_tl_bench(benchmark::State& state) {
     auto test_data = base_t;
     for(auto _ : state) {

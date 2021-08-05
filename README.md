@@ -20,12 +20,12 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 
 ## Features
 - [x] low cost serializer, deserializer adaptor
-- [x] json serialize, deserialize (with [nlohmann_json](https://github.com/nlohmann/json))
 - [x] json serialize, deserialize (with [rapidjson](https://github.com/Tencent/rapidjson))
+- [x] json serialize, deserialize (with [nlohmann_json](https://github.com/nlohmann/json))
 - [x] toml serialize, deserialize (with [toml11](https://github.com/ToruNiina/toml11))
 - [x] yaml serialize, deserialize (with [yaml-cpp](https://github.com/jbeder/yaml-cpp))
 - [x] [fmt](https://github.com/fmtlib/fmt) support 
-- [x] std::cout(ostream) support (Beta)
+- [x] std::cout(ostream) support
 - [x] struct, class support
 - [x] nested struct, class support
 - [x] enum, enum_class support (with [magic_enum](https://github.com/Neargye/magic_enum))
@@ -618,7 +618,7 @@ namespace serde::attribute {
 ## Benchmark
 ### Benchmark [Benchmark code](benchmark/benchmark.cpp)
 ```console
-2021-08-04T21:50:49+09:00
+2021-08-05T21:32:23+09:00
 Running ./benchmark
 Run on (12 X 2600 MHz CPU s)
 CPU Caches:
@@ -626,24 +626,24 @@ CPU Caches:
   L1 Instruction 32 KiB (x6)
   L2 Unified 256 KiB (x6)
   L3 Unified 12288 KiB (x1)
-Load Average: 1.97, 2.25, 2.42
+Load Average: 2.52, 3.33, 3.15
 ------------------------------------------------------------------
 Benchmark                        Time             CPU   Iterations
 ------------------------------------------------------------------
-nljson_set_se_bench            491 ns          489 ns      1399412
-nljson_set_nl_bench            484 ns          483 ns      1369702
-nljson_get_se_bench           3005 ns         2999 ns       232484
-nljson_get_nl_bench           3207 ns         3203 ns       218454
-toml11_set_se_bench            482 ns          481 ns      1366840
-toml11_set_tl_bench            502 ns          501 ns      1445442
-toml11_get_se_bench           4264 ns         4254 ns       167404
-toml11_get_tl_bench           4760 ns         4752 ns       146516
-yaml_set_se_bench             2275 ns         2271 ns       301863
-yaml_set_tl_bench             2764 ns         2761 ns       252794
-yaml_get_se_bench            29787 ns        29745 ns        23153
-yaml_get_tl_bench            34683 ns        34637 ns        19869
-rapid_json_set_se_bench        423 ns          422 ns      1595100
-rapid_json_get_se_bench       2896 ns         2889 ns       236220
+nljson_set_se_bench            475 ns          474 ns      1306580
+nljson_set_nl_bench            475 ns          472 ns      1550961
+nljson_get_se_bench           2536 ns         2529 ns       275437
+nljson_get_nl_bench           2768 ns         2764 ns       255292
+toml11_set_se_bench            470 ns          469 ns      1496340
+toml11_set_tl_bench            486 ns          485 ns      1418454
+toml11_get_se_bench           3582 ns         3575 ns       195280
+toml11_get_tl_bench           4194 ns         4189 ns       166580
+yaml_set_se_bench             2091 ns         2088 ns       332965
+yaml_set_tl_bench             2439 ns         2435 ns       285903
+yaml_get_se_bench            25643 ns        25584 ns        26873
+yaml_get_tl_bench            30182 ns        30155 ns        23070
+rapid_json_set_se_bench        398 ns          397 ns      1743184
+rapid_json_get_se_bench       2099 ns         2096 ns       331971
 ```
 
 ## Projects using this library
