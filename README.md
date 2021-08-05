@@ -85,10 +85,10 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 - [fmt](https://github.com/fmtlib/fmt) (Auto Install)
 - [nameof](https://github.com/Neargye/nameof) (Auto Install)
 - [magic_enum](https://github.com/Neargye/magic_enum)  (Auto Install)
-- [nlohmann_json](https://github.com/nlohmann/json) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
-- [rapidjson](https://github.com/Tencent/rapidjson) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_RAPIDJSON=ON)
-- [toml11](https://github.com/ToruNiina/toml11) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
-- [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Auto Install CMAKE FLAG: -DSERDEPP_USE_YAML_CPP=ON)
+- [nlohmann_json](https://github.com/nlohmann/json) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
+- [rapidjson](https://github.com/Tencent/rapidjson) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_RAPIDJSON=ON)
+- [toml11](https://github.com/ToruNiina/toml11) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
+- [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_YAML_CPP=ON)
 
 
 ## Install
