@@ -10,6 +10,7 @@ cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
+find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
@@ -51,6 +52,11 @@ SOURCES
     examples/variant.cpp
 )
 
+cppm_target_define(parse_file_example BINARY
+SOURCES
+    examples/parse_file.cpp
+)
+
 endif()
 
 if(SERDEPP_BUILD_BENCHMARKS)
@@ -68,7 +74,7 @@ SOURCES
 endif()
 
 set(serdepp_global_deps PRIVATE benchmark
-PUBLIC nlohmann_json toml11 yaml-cpp nameof magic_enum fmt)
+PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp nameof magic_enum fmt)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 
@@ -92,6 +98,10 @@ cppm_target_dependencies(variant_example
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(parse_file_example
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
@@ -107,4 +117,5 @@ cppm_target_install(serde_example)
 cppm_target_install(simple_example)
 cppm_target_install(flatten_example)
 cppm_target_install(variant_example)
+cppm_target_install(parse_file_example)
 

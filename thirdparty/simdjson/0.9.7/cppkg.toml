@@ -4,6 +4,6 @@ type="lib" #lib(default) | bin | cmake
 description="Parsing gigabytes of JSON per second" #(require)
 module="simdjson::simdjson" #(require) if none_module=true -> no require
 url="https://github.com/simdjson/simdjson/archive/refs/tags/v0.9.7.zip" #(require)
-flags="-DSIMD_DEVELOPER_MODE=OFF"
+flags="-DSIMDJSON_JUST_LIBRARY=ON -DBUILD_SHARED_LIBS=OFF -DSIMDJSON_BUILD_STATIC=ON"
 #branch="" #(optional & require git)
 #link=private #default
