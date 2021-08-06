@@ -1,9 +1,0 @@
-[RapidJSON]
-version="1.1.0" #(require)
-type="lib" #lib(default) | bin | cmake
-description="A fast JSON parser/generator for C++ with both SAX/DOM style API" #(require)
-module="rapidjson" #(require) if none_module=true -> no require
-url="https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.zip" #(require)
-flags="-DRAPIDJSON_BUILD_DOC=OFF -DRAPIDJSON_BUILD_EXAMPLES=OFF -DRAPIDJSON_BUILD_TESTS=OFF -DRAPIDJSON_BUILD_THIRDPARTY_GTEST=OFF -DRAPIDJSON_BUILD_CXX11=OFF"
-#branch="" #(optional & require git)
-#link=private #default
