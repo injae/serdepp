@@ -55,9 +55,9 @@
     yaml-cpp   = { version="0.6.3",  link="public", optional=true}
     toml11     = { version="3.7.0",  link="public", optional=true}
     nlohmann_json = { version="3.9.1", link="public", optional=true}
+    RapidJSON = { version="git", link="public", optional=true}
     benchmark = { version="1.5.2", optional=true}
     #simdjson = {version="0.9.7", link="public"}
-    RapidJSON = { version="git", link="public", optional=true}
 
 #[dev-dependencies]
 #    benchmark = {version="1.5.2", optional=true}
