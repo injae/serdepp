@@ -12,21 +12,21 @@ jobs:
         build-type: ['Release', 'Debug']
         gcc-version: ['11']
     steps:
-    - name: Clone Repository
-      uses: actions/checkout@master
-      with:
-        submodules: true
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
     - name: C++ Setting
       run: |
         sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get install -yq g++-${{matrix.gcc-version}} gcc-11 libc++-dev libc++abi-dev build-essential libstdc++-${{matrix.gcc-version}}-dev
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
     - name: Compiler Setting
       run: |
         echo "CC=gcc-${{matrix.gcc-version}}" >> $GITHUB_ENV
         echo "CXX=g++-${{matrix.gcc-version}}" >> $GITHUB_ENV
+    - name: Clone Repository
+      uses: actions/checkout@master
+      with:
+        submodules: true
     - name: CMake build
       run: |
         cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
@@ -48,6 +48,8 @@ jobs:
         build-type: ['Release', 'Debug']
         clang-version: ['8']
     steps:
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
     - name: C++ Setting
       run: |
         sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -55,8 +57,6 @@ jobs:
         sudo add-apt-repository -y "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${{matrix.clang-version}} main"
         sudo apt-get update
         sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
     - name: Compiler Setting
       run: |
         echo "CC=clang-${{matrix.clang-version}}" >> $GITHUB_ENV
