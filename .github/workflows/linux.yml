@@ -18,7 +18,7 @@ jobs:
       run: |
         sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get update
-        sudo apt-get install -yq g++-${{matrix.gcc-version}} gcc-11 libc++-dev libc++abi-dev build-essential libstdc++-${{matrix.gcc-version}}-dev
+        sudo apt-get install -yq g++-${{matrix.gcc-version}} gcc-11 libc++-dev libc++abi-dev build-essential libstdc++-${{matrix.gcc-version}}-dev cmake
     - name: Compiler Setting
       run: |
         echo "CC=gcc-${{matrix.gcc-version}}" >> $GITHUB_ENV
@@ -56,7 +56,7 @@ jobs:
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
         sudo add-apt-repository -y "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${{matrix.clang-version}} main"
         sudo apt-get update
-        sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential
+        sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential cmake
     - name: Compiler Setting
       run: |
         echo "CC=clang-${{matrix.clang-version}}" >> $GITHUB_ENV
