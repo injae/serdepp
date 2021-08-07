@@ -346,6 +346,14 @@ namespace serde
         }
     };
 
+    template<typename serde_ctx>
+    struct serde_serializer<std::monostate, serde_ctx> {
+        constexpr inline static auto from(serde_ctx& ctx, std::monostate& data, std::string_view key) {
+        }
+        constexpr inline static auto into(serde_ctx& ctx, const std::monostate& data, std::string_view key) {
+        }
+    };
+
    template<typename T, typename serde_ctx>
    struct serde_serializer<T, serde_ctx, std::enable_if_t<is_serdeable_v<serde_ctx, T>>> {
        using Adaptor = typename serde_ctx::Adaptor;
@@ -503,8 +511,12 @@ namespace serde
             if(!is_find) return;
             serde_variant_iter<Format, V, T...>(format, data);
         } else {
-            serde_variant_setter<Format, std::variant_alternative_t<std::variant_size_v<V> - 1, V>, V>
-                (format, data);
+            if(serde_variant_setter<Format,
+               std::variant_alternative_t<std::variant_size_v<V>-1, V>, V>(format, data))  {
+                if(!std::is_same_v<std::variant_alternative_t<0, V>, std::monostate>) {
+                    throw serde::variant_error("empty variant: if you use optional variant, use std::monostate");
+                }
+            }
         }
     }
 } // namespace serde

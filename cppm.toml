@@ -58,6 +58,5 @@
     RapidJSON = { version="1.1.1", link="public", optional=true}
     benchmark = { version="1.5.2", optional=true}
     #simdjson = {version="0.9.7", link="public"}
-
 #[dev-dependencies]
 #    benchmark = {version="1.5.2", optional=true}
