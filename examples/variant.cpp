@@ -21,7 +21,7 @@ struct Test {
                  (&Self::type, "type")
                  (&Self::object, "object", flatten))
     std::string type;
-    std::variant<Circle, Rect> object;
+    std::variant<std::monostate, Circle, Rect> object;
 };
 
 int main() {
@@ -31,6 +31,10 @@ int main() {
     {
         "type": "circle",
         "radius": 5
+    },
+    {
+        "type": "circle",
+        "radi": 5
     },
     {
         "type": "rectangle",
