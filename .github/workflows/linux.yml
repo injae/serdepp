@@ -18,7 +18,7 @@ jobs:
       run: |
         sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get update
-        sudo apt-get install -yq g++-${{matrix.gcc-version}} gcc-11 libc++-dev libc++abi-dev build-essential libstdc++-${{matrix.gcc-version}}-dev cmake
+        sudo apt-get install -yq g++-${{matrix.gcc-version}} gcc-${{matrix.gcc-version}} libc++-dev libc++abi-dev build-essential libstdc++-${{matrix.gcc-version}}-dev cmake
     - name: Compiler Setting
       run: |
         echo "CC=gcc-${{matrix.gcc-version}}" >> $GITHUB_ENV
@@ -46,7 +46,7 @@ jobs:
     strategy:
       matrix:
         build-type: ['Release', 'Debug']
-        clang-version: ['10']
+        clang-version: ['11']
     steps:
     #- name: ccache
     #  uses: hendrikmuhs/ccache-action@v1
