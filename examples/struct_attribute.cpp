@@ -26,7 +26,7 @@ struct test_{
     constexpr static void serde(Context& context, test_& value) {
         using namespace serde::attribute;    
         using Self = test_;
-        serde::serde_struct(context, value)
+        serde::serde_struct{context, value}
             .attr(tttt, tttt)
             .field(&Self::test, "test");
     }                                        
