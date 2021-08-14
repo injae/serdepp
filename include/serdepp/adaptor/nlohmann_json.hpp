@@ -38,11 +38,11 @@ namespace serde {
     template<typename T>
     struct serde_adaptor<json, T>  {
         constexpr static void from(json& s, std::string_view key, T& data) {
-            key.empty() ? s.get_to<T>(data) : s[key.data()].get_to<T>(data);
+            key.empty() ? s.get_to<T>(data) : s[std::string{key}].get_to<T>(data);
         }
 
         constexpr static void into(json& s, std::string_view key, const T& data) {
-            (key.empty() ? s : s[key.data()]) = data;
+            (key.empty() ? s : s[std::string{key}]) = data;
         }
     };
 
@@ -63,10 +63,10 @@ namespace serde {
     template<typename T>
     struct serde_adaptor<json, T, type::struct_t> {
         static void from(json& s, std::string_view key, T& data) {
-            deserialize_to(s[key.data()], data);
+            deserialize_to(s[std::string{key}], data);
         }
         static void into(json& s, std::string_view key, const T& data) {
-            s[key.data()] = serialize<json>(data);
+            s[std::string{key}] = serialize<json>(data);
         } 
     };
 
@@ -74,13 +74,13 @@ namespace serde {
     struct serde_adaptor<json, T, type::seq_t> {
        using E = type::seq_e<T>;
        static void from(json& s, std::string_view key, T& arr) {
-           auto& table = key.empty() ? s : s.at(key.data());
+           auto& table = key.empty() ? s : s.at(std::string{key});
            if constexpr(is_arrayable_v<T>) arr.reserve(table.size());
            for(auto& value : table) { arr.push_back(std::move(deserialize<E>(value))); }
        }
 
        static void into(json& s, std::string_view key, const T& data) {
-           json& arr = key.empty() ? s : s[key.data()];
+           json& arr = key.empty() ? s : s[std::string{key}];
            for(auto& value: data) { arr.push_back(std::move(serialize<json>(value))); }
        }
     };
@@ -88,13 +88,13 @@ namespace serde {
     template<typename E>
     struct serde_adaptor<json, std::vector<E>, type::seq_t> {
         static void from(json& s, std::string_view key, std::vector<E>& arr) {
-           auto& table = key.empty() ? s : s.at(key.data());
+           auto& table = key.empty() ? s : s.at(std::string{key});
            arr.reserve(table.size());
            for(auto& value : table) { arr.push_back(std::move(deserialize<E>(value))); }
        }
 
        static void into(json& s, std::string_view key, const std::vector<E>& data) {
-           json& arr = key.empty() ? s : s[key.data()];
+           json& arr = key.empty() ? s : s[std::string{key}];
            for(auto& value: data) { arr.push_back(std::move(serialize<json>(value))); }
        }
     };
@@ -103,11 +103,11 @@ namespace serde {
     struct serde_adaptor<json, Map, type::map_t> {
         using E = type::map_e<Map>;
         inline static void from(json& s, std::string_view key, Map& map) {
-            auto& table = key.empty() ? s : s.at(key.data());
+            auto& table = key.empty() ? s : s.at(std::string{key});
             for(auto& [key_, value_] : table.items()) { deserialize_to<E>(value_, map[key_]); }
         }
         inline static void into(json& s, std::string_view key, const Map& data) {
-            json& map = key.empty() ? s : s[key.data()];
+            json& map = key.empty() ? s : s[std::string{key}];
             for(auto& [key_, value] : data) { serialize_to<json>(value, map[key_]); }
         }
     };
@@ -116,11 +116,11 @@ namespace serde {
     struct serde_adaptor<json, std::map<K,E>, type::map_t> {
         using Map = std::map<K,E>;
         inline static void from(json& s, std::string_view key, Map& map) {
-            auto& table = key.empty() ? s : s.at(key.data());
+            auto& table = key.empty() ? s : s.at(std::string{key});
             for(auto& [key_, value_] : table.items()) { deserialize_to<E>(value_, map[key_]); }
         }
         inline static void into(json& s, std::string_view key, const Map& data) {
-            json& map = key.empty() ? s : s[key.data()];
+            json& map = key.empty() ? s : s[std::string{key}];
             for(auto& [key_, value] : data) { serialize_to<json>(value, map[key_]); }
         }
     };
