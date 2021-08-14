@@ -20,7 +20,8 @@
     constexpr static void serde(Context& context, Type& value) {    \
         using namespace serde::attribute;    \
         using Self [[maybe_unused]] = Type; \
-        serde::serde_struct(context, value)  \
+        serde::serde_struct ss(context, value); \
+        ss \
             __VA_ARGS__;                     \
     }                                        \
 

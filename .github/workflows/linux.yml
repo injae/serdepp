@@ -46,7 +46,7 @@ jobs:
     strategy:
       matrix:
         build-type: ['Release', 'Debug']
-        clang-version: ['11']
+        clang-version: ['8']
     steps:
     #- name: ccache
     #  uses: hendrikmuhs/ccache-action@v1
