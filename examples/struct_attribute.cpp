@@ -6,23 +6,29 @@ namespace serde::attribute {
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
             constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
                                        Next&& next_attr, Attributes&& ...remains) const{
-                fmt::print("in\n");
+                fmt::print("from\n");
                 next_attr.from(ctx, data, key, remains...);
             }
 
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
             constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key,
                                        Next&& next_attr, Attributes&& ...remains) const{
-                fmt::print("in\n");
+                fmt::print("into\n");
                 next_attr.into(ctx, data, key, remains...);
             }
         };
     }
+    constexpr static auto tttt = detail::tttt{};
 }
 
 struct test_{
-    DERIVE_SERDE(test_, .attr(detail::tttt{}, detail::tttt{})
-                 (&Self::test, "test"))
+    template<class Context> \
+    constexpr static void serde(Context& context, test_& value) {
+        using namespace serde::attribute;    
+        using Self = test_;
+        serde::serde_struct(context, value).attr(tttt, tttt)
+            .field(&Self::test, "test");
+    }                                        
     int test;
 };
 
