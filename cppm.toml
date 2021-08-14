@@ -35,6 +35,11 @@
     name = "parse_file_example"
     source = ["examples/parse_file.cpp"]
 
+[[example]]
+    name = "struct_attribute_example"
+    source = ["examples/struct_attribute.cpp"]
+
+
 #[[example]]
 #    name = "simdjson_example"
 #    source = ["examples/simdjson.cpp"]

@@ -120,8 +120,31 @@ namespace serde
                     serde::serde_serializer<T, serde_ctx>::into(ctx, data, key);
                 }
             };
+
+            struct empty_attr {
+                template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+                constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                Next&& next_attr, Attributes&&... remains) const {
+                    next_attr.template from<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+                }
+
+                template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+                constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key,
+                                Next&& next_attr, Attributes&&... remains) const {
+                    next_attr.template into<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+                }
+
+                template<typename T, typename serde_ctx>
+                constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key) const { }
+
+                template<typename T, typename serde_ctx>
+                constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key) const { }
+            };
         }
         inline constexpr auto serializer_call = detail::serializer_call_attr{};
+        inline constexpr auto pass = detail::empty_attr{};
+
+
     }
 
     template<class T, bool is_serialize_=false>
@@ -297,6 +320,7 @@ namespace serde
             return *this;
         }
 
+
         template<class MEM_PTR>
         inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
@@ -310,7 +334,7 @@ namespace serde
 
         template<class MEM_PTR, typename Attribute, typename... Attributes>
         inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name,
-                                             Attribute&& attribute, Attributes&&... attributes) {
+                                                  Attribute&& attribute, Attributes&&... attributes) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
             if constexpr(!Context::is_serialize) {
                 attribute.template from<rtype, Context>(context_, value_.*ptr, name,
@@ -322,6 +346,22 @@ namespace serde
                                                         std::forward<meta::remove_cvref_t<Attributes>>
                                                         (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
                                                         attribute::serializer_call);
+            }
+            return *this;
+        }
+
+        template<typename Attribute, typename... Attributes>
+        inline constexpr serde_struct& attr(Attribute&& attribute, Attributes&&... attributes) {
+            if constexpr(!Context::is_serialize) {
+                attribute.template from<T, Context>(context_, value_, "",
+                                                    std::forward<meta::remove_cvref_t<Attributes>>
+                                                    (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                    attribute::pass);
+            } else {
+                attribute.template into<T, Context>(context_, value_, "",
+                                                    std::forward<meta::remove_cvref_t<Attributes>>
+                                                    (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                    attribute::pass);
             }
             return *this;
         }
