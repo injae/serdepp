@@ -1,6 +1,6 @@
 [package]
    name = "serdepp"
-   version = "0.1.0"
+   version = "0.1.1"
    description = "c++ universal serialize deserialize library like rust serde"
    #tool-version = "dev"
 
