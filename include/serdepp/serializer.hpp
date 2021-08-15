@@ -372,14 +372,12 @@ namespace serde
             ApplyAttribute(def& s, std::tuple<Attributes...>&& attr) : s(s), attributes(std::move(attr)) {}
             template<class MEM_PTR>
             inline constexpr def& operator()(MEM_PTR&& ptr, std::string_view name){
-                auto ptsr = [&](auto... v) {s(ptr, name, v...);};
-                std::apply(ptsr, attributes);
+                std::apply([&](Attributes&... args){ s(ptr, name, args...);}, attributes);
                 return s;
             }
             template <typename... Attributess>
             inline constexpr def& operator[](std::tuple<Attributess...>&& attr) {
-                auto ptsr = [&](auto... v) {s.attr(v...);};
-                std::apply(ptsr, attributes);
+                std::apply([&](Attributess&... args){ s.attributes(args...); }, attr);
                 return s;
             }
             def& s;
@@ -394,7 +392,9 @@ namespace serde
 
     namespace attribute {
         template<typename... Ty>
-        inline constexpr std::tuple<Ty...> attributes(Ty... arg) { return std::make_tuple(arg...);}
+        inline constexpr std::tuple<Ty...> attributes(Ty&&... arg) {
+            return std::make_tuple(std::forward<Ty>(arg)...);
+        }
 
         template<class Context, class T, typename... Ty>
         inline constexpr serde::serde_struct<Context, T> operator|(std::tuple<Ty...> attributes,
