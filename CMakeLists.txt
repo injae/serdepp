@@ -4,7 +4,7 @@ set(CPPM_VERSION 0.0.13)
 include(cmake/cppm_loader.cmake)
 cppm_project()
 
-project(serdepp VERSION 0.1.0 LANGUAGES C CXX)
+project(serdepp VERSION 0.1.1 LANGUAGES C CXX)
 cppm_setting()
 cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
@@ -57,6 +57,16 @@ SOURCES
     examples/parse_file.cpp
 )
 
+cppm_target_define(struct_attribute_example BINARY
+SOURCES
+    examples/struct_attribute.cpp
+)
+
+cppm_target_define(sugar BINARY
+SOURCES
+    examples/sugar.cpp
+)
+
 endif()
 
 if(SERDEPP_BUILD_BENCHMARKS)
@@ -69,6 +79,11 @@ SOURCES
 cppm_target_define(data_type_benchmark BINARY
 SOURCES
     benchmark/data_type_benchmark.cpp
+)
+
+cppm_target_define(syntax_sugar_benchmark BINARY
+SOURCES
+    benchmark/syntax_benchmark.cpp
 )
 
 endif()
@@ -102,11 +117,23 @@ cppm_target_dependencies(parse_file_example
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(struct_attribute_example
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(sugar
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
 
 cppm_target_dependencies(data_type_benchmark
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(syntax_sugar_benchmark
    ${serdepp_global_deps}
    serdepp)
 
@@ -118,4 +145,6 @@ cppm_target_install(simple_example)
 cppm_target_install(flatten_example)
 cppm_target_install(variant_example)
 cppm_target_install(parse_file_example)
+cppm_target_install(struct_attribute_example)
+cppm_target_install(sugar)
 

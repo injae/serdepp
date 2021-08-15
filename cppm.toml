@@ -1,6 +1,6 @@
 [package]
    name = "serdepp"
-   version = "0.1.0"
+   version = "0.1.1"
    description = "c++ universal serialize deserialize library like rust serde"
    #tool-version = "dev"
 
@@ -35,6 +35,14 @@
     name = "parse_file_example"
     source = ["examples/parse_file.cpp"]
 
+[[example]]
+    name = "struct_attribute_example"
+    source = ["examples/struct_attribute.cpp"]
+
+[[example]]
+    name = "sugar"
+    source = ["examples/sugar.cpp"]
+
 #[[example]]
 #    name = "simdjson_example"
 #    source = ["examples/simdjson.cpp"]
@@ -46,6 +54,10 @@
 [[benchmark]]
     name = "data_type_benchmark"
     source = ["benchmark/data_type_benchmark.cpp"]
+
+[[benchmark]]
+    name = "syntax_sugar_benchmark"
+    source = ["benchmark/syntax_benchmark.cpp"]
 
 
 [dependencies]

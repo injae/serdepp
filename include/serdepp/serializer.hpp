@@ -120,8 +120,31 @@ namespace serde
                     serde::serde_serializer<T, serde_ctx>::into(ctx, data, key);
                 }
             };
+
+            struct empty_attr {
+                template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+                constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                Next&& next_attr, Attributes&&... remains) const {
+                    next_attr.template from<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+                }
+
+                template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+                constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key,
+                                Next&& next_attr, Attributes&&... remains) const {
+                    next_attr.template into<T, serde_ctx>(ctx, data, key, std::forward<Attributes>(remains)...);
+                }
+
+                template<typename T, typename serde_ctx>
+                constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key) const { }
+
+                template<typename T, typename serde_ctx>
+                constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key) const { }
+            };
         }
         inline constexpr auto serializer_call = detail::serializer_call_attr{};
+        inline constexpr auto pass = detail::empty_attr{};
+
+
     }
 
     template<class T, bool is_serialize_=false>
@@ -297,6 +320,7 @@ namespace serde
             return *this;
         }
 
+
         template<class MEM_PTR>
         inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
@@ -310,7 +334,7 @@ namespace serde
 
         template<class MEM_PTR, typename Attribute, typename... Attributes>
         inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name,
-                                             Attribute&& attribute, Attributes&&... attributes) {
+                                                  Attribute&& attribute, Attributes&&... attributes) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
             if constexpr(!Context::is_serialize) {
                 attribute.template from<rtype, Context>(context_, value_.*ptr, name,
@@ -325,7 +349,61 @@ namespace serde
             }
             return *this;
         }
+
+        template<typename Attribute, typename... Attributes>
+        inline constexpr serde_struct& attributes(Attribute&& attribute, Attributes&&... attributes) {
+            if constexpr(!Context::is_serialize) {
+                attribute.template from<T, Context>(context_, value_, "",
+                                                    std::forward<meta::remove_cvref_t<Attributes>>
+                                                    (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                    attribute::pass);
+            } else {
+                attribute.template into<T, Context>(context_, value_, "",
+                                                    std::forward<meta::remove_cvref_t<Attributes>>
+                                                    (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                    attribute::pass);
+            }
+            return *this;
+        }
+
+        template <typename... Attributes>
+        struct ApplyAttribute{
+            using def = serde_struct<Context, T>;
+            ApplyAttribute(def& s, std::tuple<Attributes...>&& attr) : s(s), attributes(std::move(attr)) {}
+            template<class MEM_PTR>
+            inline constexpr def& operator()(MEM_PTR&& ptr, std::string_view name){
+                auto ptsr = [&](auto... v) {s(ptr, name, v...);};
+                std::apply(ptsr, attributes);
+                return s;
+            }
+            template <typename... Attributess>
+            inline constexpr def& operator[](std::tuple<Attributess...>&& attr) {
+                auto ptsr = [&](auto... v) {s.attr(v...);};
+                std::apply(ptsr, attributes);
+                return s;
+            }
+            def& s;
+            std::tuple<Attributes...> attributes;
+        };
+
+        template <typename... Attributes>
+        constexpr inline ApplyAttribute<Attributes...> operator[](std::tuple<Attributes...>&& attr) {
+            return ApplyAttribute<Attributes...>(*this, std::move(attr));
+        }
     };
+
+    namespace attribute {
+        template<typename... Ty>
+        inline constexpr std::tuple<Ty...> attributes(Ty... arg) { return std::make_tuple(arg...);}
+
+        template<class Context, class T, typename... Ty>
+        inline constexpr serde::serde_struct<Context, T> operator|(std::tuple<Ty...> attributes,
+                                                    serde::serde_struct<Context, T> serde_define) {
+            auto ptsr = [&](auto... v) {serde_define.attr(v...);};
+            std::apply(ptsr, std::move(attributes));
+            return std::move(serde_define);
+        }
+    }
     template<class Context, class T> serde_struct(Context&, T&) -> serde_struct<Context, T>;
 
     template<typename T, typename serde_ctx>

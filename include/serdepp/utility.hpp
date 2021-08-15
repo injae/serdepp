@@ -19,8 +19,9 @@
     template<class Context> \
     constexpr static void serde(Context& context, Type& value) {    \
         using namespace serde::attribute;    \
-        using Self = Type; \
-        serde::serde_struct(context, value)  \
+        using Self [[maybe_unused]] = Type; \
+        serde::serde_struct ss(context, value); \
+        ss \
             __VA_ARGS__;                     \
     }                                        \
 

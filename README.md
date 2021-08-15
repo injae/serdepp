@@ -42,7 +42,8 @@ enum class t_enum { A, B };
 
 struct example {
     DERIVE_SERDE(example, 
-                 (&Self::number_,  "number", skip) // attribute skip
+                 [attributes(skip)]
+                 (&Self::number_,  "number") // attribute skip
                  (&Self::vec_,     "vec") 
                  (&Self::opt_vec_, "opt_vec")
                  (&Self::tenum_,   "t_enum")
@@ -286,15 +287,13 @@ enum class tenum {
 };
 
 struct nested {
-    template<class Context>
-    constexpr static auto serde(Context& context, nested& value) {
-        using namespace serde::attribute;
-        serde::serde_struct(context, value)
-            .field(&nested::version, "version", value_or_struct) // value_or_struct attribute
-            .field(&nested::opt_desc ,"opt_desc")
-            .field(&nested::desc ,"desc", default_se("default value")) // serialize step set default value
-            .no_remain();
-    }
+    DERIVE_SERDE(nested,
+            [attributes(value_or_struct)]
+            (&nested::version, "version") // value_or_struct attribute
+            (&nested::opt_desc,"opt_desc")
+            [attributes(default_{"default value"})]
+            (&nested::desc ,"desc") // serialize step set default value
+            .no_remain())
     std::string version;
     std::string desc;
     std::optional<std::string> opt_desc = "set opt default";
@@ -403,15 +402,13 @@ int main()
    - if empty in deserialize step -> skip
 ```cpp
 struct attribute_example {
-    template<class Context>
-    constexpr static auto serde(Context& context, attribute_example& value) {
-        using namespace serde::attribute;
-        using Self = attribute_example;
-        serde::serde_struct(context, value)
-            .field(&Self::vec, "vec", default_se<std::vector<std::string>>{{}}) // 1.
-            .field(&Self::vec_opt, "vec_opt")       // 2.
-            .field(&Self::vec_attr_opt, "vec_attr_opt", make_optional);  // 3.
-    }
+    DERIVE_SERDE(attribute_example,
+                 [attributes(default_<std::vector<std::string>>{{}})] // 1
+                 (&Self::vec, "vec") .
+                 (&Self::vec_opt, "vec_opt")       // 2.
+                 [attributes(make_optional)] // 3.
+                 (&Self::vec_attr_opt, "vec_attr_opt")
+                 )
     std::vector<std::string> ver;
     std::optional<std::vector<std::string>> vec_opt;
     std::vector<std::string> ver_att_opt;
@@ -419,6 +416,27 @@ struct attribute_example {
 ```
 
 # Attributes
+## Two Way of Attributes add
+## normal
+```cpp
+struct attribute_example {
+    DERIVE_SERDE(attribute_example,
+                 (&nested::version, "version", value_or_struct, default_("0.0.1"))) 
+
+    std::string version;
+};
+```
+## with syntax suger (Recommanded)
+```cpp
+struct attribute_example {
+    DERIVE_SERDE(attribute_example,
+                 [attributes(value_or_struct, default_("0.0.1"))]
+                 (&nested::version, "version")) 
+
+    std::string version;
+};
+```
+
 ## `value_or_struct`
 ```cpp
 struct attribute_example {
