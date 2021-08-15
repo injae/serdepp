@@ -22,9 +22,10 @@ enum class tenum {
 
 struct nested {
     DERIVE_SERDE(nested,
-            (&Self::version, "version", value_or_struct)
-            (&Self::opt_desc ,"opt_desc")
-            (&Self::desc ,"desc", default_{"default value"})
+             (&Self::version, "version", value_or_struct)
+             (&Self::opt_desc ,"opt_desc")
+             [attributes(default_{"default value"})]
+             (&Self::desc ,"desc")
             .no_remain())
     std::string version;
     std::string desc;
@@ -37,7 +38,8 @@ public:
             (&Self::str, "str", default_{"hello"})
             (&Self::i,   "i")
             (&Self::vec, "vec")
-            (&Self::io,  "io", default_{tenum::OUTPUT}, to_lower, under_to_dash)
+            [attributes(default_{tenum::OUTPUT}, to_lower, under_to_dash)]
+            (&Self::io,  "io")
             (&Self::in,  "in", make_optional)
             (&Self::pri, "pri", to_upper, under_to_dash)
             (&Self::m ,  "m")

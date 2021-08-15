@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+
 #include <unordered_map>
 #include <typeinfo>
 #include <set>
@@ -21,6 +22,12 @@ namespace serde::meta {
         typedef std::remove_cv_t<std::remove_reference_t<T>> type;
     };
     template< class T > using remove_cvref_t = typename remove_cvref<T>::type;
+
+    template <class F, size_t... Is>
+    constexpr auto index_apply_impl(F f, std::index_sequence<Is...>) { return f(Is...); }
+
+    template <size_t N, class F>
+    constexpr auto index_apply(F f) { return index_apply_impl(f, std::make_index_sequence<N>{}); }
 
     template <typename T, typename = void> struct is_iterable : std::false_type {};
     template <typename T>
