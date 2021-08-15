@@ -365,7 +365,45 @@ namespace serde
             }
             return *this;
         }
+
+        template <typename... Attributes>
+        struct ApplyAttribute{
+            using def = serde_struct<Context, T>;
+            ApplyAttribute(def& s, std::tuple<Attributes...>&& attr) : s(s), attributes(std::move(attr)) {}
+            template<class MEM_PTR>
+            inline constexpr def& operator()(MEM_PTR&& ptr, std::string_view name){
+                auto ptsr = [&](auto... v) {s(ptr, name, v...);};
+                std::apply(ptsr, attributes);
+                return s;
+            }
+            template <typename... Attributess>
+            inline constexpr def& operator[](std::tuple<Attributess...>&& attr) {
+                auto ptsr = [&](auto... v) {s.attr(v...);};
+                std::apply(ptsr, attributes);
+                return s;
+            }
+            def& s;
+            std::tuple<Attributes...> attributes;
+        };
+
+        template <typename... Attributes>
+        constexpr inline ApplyAttribute<Attributes...> operator[](std::tuple<Attributes...>&& attr) {
+            return ApplyAttribute<Attributes...>(*this, std::move(attr));
+        }
     };
+
+    namespace attribute {
+        template<typename... Ty>
+        inline constexpr std::tuple<Ty...> attributes(Ty... arg) { return std::make_tuple(arg...);}
+
+        template<class Context, class T, typename... Ty>
+        inline constexpr serde::serde_struct<Context, T> operator|(std::tuple<Ty...> attributes,
+                                                    serde::serde_struct<Context, T> serde_define) {
+            auto ptsr = [&](auto... v) {serde_define.attr(v...);};
+            std::apply(ptsr, std::move(attributes));
+            return std::move(serde_define);
+        }
+    }
     template<class Context, class T> serde_struct(Context&, T&) -> serde_struct<Context, T>;
 
     template<typename T, typename serde_ctx>

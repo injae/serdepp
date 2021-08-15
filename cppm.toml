@@ -39,6 +39,9 @@
     name = "struct_attribute_example"
     source = ["examples/struct_attribute.cpp"]
 
+[[example]]
+    name = "sugar"
+    source = ["examples/sugar.cpp"]
 
 #[[example]]
 #    name = "simdjson_example"
@@ -51,6 +54,10 @@
 [[benchmark]]
     name = "data_type_benchmark"
     source = ["benchmark/data_type_benchmark.cpp"]
+
+[[benchmark]]
+    name = "syntax_sugar_benchmark"
+    source = ["benchmark/syntax_benchmark.cpp"]
 
 
 [dependencies]
