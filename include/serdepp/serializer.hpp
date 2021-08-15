@@ -351,7 +351,7 @@ namespace serde
         }
 
         template<typename Attribute, typename... Attributes>
-        inline constexpr serde_struct& attr(Attribute&& attribute, Attributes&&... attributes) {
+        inline constexpr serde_struct& attributes(Attribute&& attribute, Attributes&&... attributes) {
             if constexpr(!Context::is_serialize) {
                 attribute.template from<T, Context>(context_, value_, "",
                                                     std::forward<meta::remove_cvref_t<Attributes>>

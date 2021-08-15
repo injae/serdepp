@@ -22,7 +22,7 @@ namespace serde::attribute {
 }
 
 struct test_{
-    DERIVE_SERDE(test_, .attr(tttt,tttt)
+    DERIVE_SERDE(test_, .attributes(tttt,tttt)
                  (&Self::test, "test"))
     int test;
 };
