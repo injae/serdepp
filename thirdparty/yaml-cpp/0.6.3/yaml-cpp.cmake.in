@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(yaml-cpp-0.6.3-install)
 
-set(CPPM_VERSION 0.0.13)
+set(CPPM_VERSION ${CPPM_VERSION})
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
 download_package(yaml-cpp 0.6.3  URL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DYAML_CPP_BUILD_TESTS=OFF)
 

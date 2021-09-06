@@ -6,9 +6,9 @@
 
 [lib]
    name = "serdepp"
-   type = "static"
-   source= ["src/to_static.cpp"]
-   #type = "header-only"
+   #type = "static"
+   #source= ["src/to_static.cpp"]
+   type = "header-only"
 
 
 [[example]]
@@ -58,7 +58,6 @@
 [[benchmark]]
     name = "syntax_sugar_benchmark"
     source = ["benchmark/syntax_benchmark.cpp"]
-
 
 [dependencies]
     fmt = {version="7.1.3", link="public"}
