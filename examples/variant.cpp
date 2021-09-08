@@ -6,6 +6,7 @@
 
 enum class T { A, B };
 
+// Define 
 struct Rect {
     DERIVE_SERDE(Rect, (&Self::width, "width")(&Self::height, "height"))
     int width;
@@ -17,45 +18,25 @@ struct Circle {
     int radius;
 };
 struct Test {
-    DERIVE_SERDE(Test,
-                 (&Self::type, "type")
-                 (&Self::object, "object", flatten))
+    DERIVE_SERDE(Test, (&Self::type, "type")(&Self::object, "object", flatten))
     std::string type;
     std::variant<std::monostate, Circle, Rect> object;
 };
+// ---
 
 int main() {
     using namespace serde;
 
     nlohmann::json jflat = R"([
-    {
-        "type": "circle",
-        "radius": 5
-    },
-    {
-        "type": "circle",
-        "radi": 5
-    },
-    {
-        "type": "rectangle",
-        "width": 6,
-        "height": 5
-    }])"_json;
+    {"type": "circle", "radius": 5},
+    {"type": "circle", "radi": 5},
+    {"type": "rectangle", "width": 6, "height": 5}
+    ])"_json;
 
     nlohmann::json j = R"([
-    {
-       "type": "circle",
-       "object": { 
-          "radius" : 5
-       }
-    },
-    {
-       "type": "rectangle",
-       "object": {
-          "width": 6,
-          "height": 5
-        }
-    }])"_json;
+    {"type": "circle", "object": {"radius" : 5}},
+    {"type": "rectangle", "object": {"width": 6, "height": 5}}
+    ])"_json;
 
     fmt::print("------\n");
     auto j_flatten = deserialize<std::vector<Test>>(jflat);
@@ -94,7 +75,7 @@ int main() {
 
     fmt::print("------\n");
     fmt::print("{}\n", deserialize<std::vector<Test>>(yflat, "arr"));
-    fmt::print("{}\n",deserialize<std::vector<Test>>(y, "arr"));
+    fmt::print("{}\n", deserialize<std::vector<Test>>(y, "arr"));
 
     std::variant<int, std::string, double, T,
                  std::vector<std::string>,

@@ -5,11 +5,11 @@ enum class t_enum { A, B };
 
 struct example {
     DERIVE_SERDE(example,
-                 (&Self::number_,  "number", skip) //skip
+                 [attributes(skip)]
+                 (&Self::number_,  "number") //skip
                  (&Self::vec_,     "vec") 
                  (&Self::opt_vec_, "opt_vec")
                  (&Self::tenum_,   "t_enum"))
-
     int number_;
     std::vector<std::string> vec_;
     std::optional<std::vector<std::string>> opt_vec_;
