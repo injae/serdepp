@@ -12,21 +12,16 @@
 
 using namespace serde::ostream;
 
-enum class tenum {
-    INPUT    ,
-    OUTPUT   ,
-    INPUT_2  ,
-    OUTPUT_2 ,
-};
+enum class tenum {INPUT, OUTPUT, INPUT_2 , OUTPUT_2 };
 
 
 struct nested {
     DERIVE_SERDE(nested,
-             (&Self::version, "version", value_or_struct)
-             (&Self::opt_desc ,"opt_desc")
-             [attributes(default_{"default value"})]
-             (&Self::desc ,"desc")
-            .no_remain())
+                 (&Self::version, "version", value_or_struct)
+                 (&Self::opt_desc ,"opt_desc")
+                 [attributes(default_{"default value"})]
+                 (&Self::desc ,"desc")
+                 .no_remain())
     std::string version;
     std::string desc;
     std::optional<std::string> opt_desc;
@@ -35,15 +30,18 @@ struct nested {
 class test {
 public:
     DERIVE_SERDE(test,
-            (&Self::str, "str", default_{"hello"})
-            (&Self::i,   "i")
-            (&Self::vec, "vec")
-            [attributes(default_{tenum::OUTPUT}, to_lower, under_to_dash)]
-            (&Self::io,  "io")
-            (&Self::in,  "in", make_optional)
-            (&Self::pri, "pri", to_upper, under_to_dash)
-            (&Self::m ,  "m")
-            (&Self::nm , "nm"))
+                 [attributes( default_{"hello"})]
+                 (&Self::str, "str")
+                 (&Self::i,   "i")
+                 (&Self::vec, "vec")
+                 [attributes(default_{tenum::OUTPUT}, to_lower, under_to_dash)]
+                 (&Self::io,  "io")
+                 [attributes(make_optional)]
+                 (&Self::in,  "in")
+                 [attributes(to_upper, under_to_dash)]
+                 (&Self::pri, "pri")
+                 (&Self::m ,  "m")
+                 (&Self::nm , "nm"))
     std::optional<std::string> str;
     int i;
     std::optional<std::vector<std::string>> vec;
@@ -75,8 +73,6 @@ int main()
     fmt::print("{}\n",serde::to_str(t.io));
 
     YAML::Node y = serde::serialize<YAML::Node>(10);
-    //YAML::Node y;
-    //y = 10;
     std::cout << y << "\n";
     serde::deserialize<int>(y);
 

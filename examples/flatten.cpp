@@ -14,7 +14,8 @@ struct Object {
 struct Test {
     DERIVE_SERDE(Test,
                  (&Self::type, "type")
-                 (&Self::object, "object", flatten))
+                 [attributes(flatten)]
+                 (&Self::object, "object"))
     std::string type;
     Object object;
 };
@@ -22,39 +23,20 @@ struct Test {
 using namespace rapidjson;
 int main() {
     nlohmann::json jflat = R"([
-    {
-        "type": "circle",
-        "radius": 5
-    },
-    {
-        "type": "rectangle",
-        "width": 6,
-        "height": 5
-    }
+    {"type": "circle", "radius": 5},
+    {"type": "rectangle", "width": 6, "height": 5}
     ])"_json;
 
     nlohmann::json j = R"([
-    {
-       "type": "circle",
-       "object": { 
-          "radius" : 5
-       }
-    },
-    {
-       "type": "rectangle",
-       "object": {
-         "width": 6,
-         "height": 5
-        }
-    }])"_json;
+    {"type": "circle", "object": {"radius" : 5}},
+    {"type": "rectangle", "object": {"width": 6, "height": 5}}
+    ])"_json;
 
     auto j_flatten = serde::deserialize<std::vector<Test>>(jflat);
     auto j_none = serde::deserialize<std::vector<Test>>(j);
 
-    //fmt::print("{}\n",serde::serialize<nlohmann::json>(j_flatten).dump(4));
-    //fmt::print("{}\n",serde::serialize<nlohmann::json>(j_none).dump(4));
-
-    //auto doc_flat = serde::serialize<rapidjson::Document>(j_flatten[0]);
+    fmt::print("{}\n",serde::serialize<nlohmann::json>(j_flatten).dump());
+    fmt::print("{}\n",serde::serialize<nlohmann::json>(j_none).dump());
 
     auto print = [](auto& doc) {
         StringBuffer buffer;

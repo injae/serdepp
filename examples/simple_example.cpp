@@ -1,4 +1,5 @@
 #include <serdepp/serializer.hpp>
+#include <serdepp/adaptor/rapidjson.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
@@ -9,10 +10,15 @@
 
 using namespace serde::ostream;
 
-enum class tenum {
-    INPUT ,
-    OUTPUT,
+std::string to_str(rapidjson::Document& doc) {
+    using namespace rapidjson;
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    doc.Accept(writer);
+    return buffer.GetString();
 };
+
+enum class tenum {INPUT , OUTPUT};
 
 class test {
 public:
@@ -24,9 +30,11 @@ public:
             (&test::str, "str")
             (&test::i,   "i")
             (&test::vec, "vec")
-            (&test::no_vec, "no_vec", default_l({"a"s, "b"s}))
+            [attributes(default_l({"a"s, "b"s}))]
+            (&test::no_vec, "no_vec")
             (&test::io,  "io")
-            (&test::pri, "pri", multi_key{"pri2"}, default_{"dd"})
+            [attributes(multi_key{"pri2"}, default_{"dd"})]
+            (&test::pri, "pri")
             (&test::m ,  "m")
             ;
     }
@@ -55,18 +63,22 @@ int main()
     try {
         test t = serde::deserialize<test>(v);
 
-        auto v_to_json = serde::serialize<nlohmann::json>(t);
-        auto v_to_toml = serde::serialize<serde::toml_v>(t);
-        auto v_to_yaml = serde::serialize<serde::yaml>(t);
+        auto v_to_json  = serde::serialize<nlohmann::json>(t);
+        auto v_to_rjson = serde::serialize<rapidjson::Document>(t);
+        auto v_to_toml  = serde::serialize<toml::value>(t);
+        auto v_to_yaml  = serde::serialize<YAML::Node>(t);
 
         std::cout << "toml: " << v_to_toml << std::endl;
         fmt::print("json: {}\n", v_to_json.dump());
         std::cout << "yaml: " << v_to_yaml << std::endl;
+        fmt::print("rjson: {}\n", to_str(v_to_rjson));
 
         test t_from_toml = serde::deserialize<test>(v_to_toml);
         test t_from_yaml = serde::deserialize<test>(v_to_yaml);
+        test t_from_rjson = serde::deserialize<test>(v_to_rjson);
 
-
+        fmt::print("-----------\n");
+        fmt::print("{}\n", t_from_rjson);
         fmt::print("{}\n", t_from_toml);
         fmt::print("{}\n", t_from_yaml);
         std::cout << t << '\n';

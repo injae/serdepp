@@ -136,7 +136,7 @@ namespace serde {
         static void from(rapidjson_type& s, std::string_view key, T& data) {
             using namespace rapidjson;
             auto& obj = s[key.data()];
-            obj.GetObject();
+            if(!obj.IsObject()) obj.SetObject();
             deserialize_to(obj, data);
         }
         static void into(rapidjson_type& s, std::string_view key, const T& data) {
@@ -152,7 +152,7 @@ namespace serde {
         static void from(rapidjson::Value& s, std::string_view key, T& data) {
             using namespace rapidjson;
             auto& obj = s[key.data()];
-            obj.GetObject();
+            if(!obj.IsObject()) obj.SetObject();
             deserialize_to(obj, data);
         }
     };
@@ -184,6 +184,7 @@ namespace serde {
             if(key.empty()) {
                 s.CopyFrom(arr.Move(), alloc);
             }else {
+                if(!s.IsObject()) s.SetObject();
                 s.AddMember(StringRef(key.data()), arr.Move(), alloc);
             } 
         }
@@ -226,6 +227,7 @@ namespace serde {
             if(key.empty()) {
                 s.CopyFrom(map.Move(), s.GetAllocator());
             } else {
+                if(!s.IsObject()) s.SetObject();
                 s.AddMember(StringRef(key.data()), map.Move(), s.GetAllocator());
             }
         }
