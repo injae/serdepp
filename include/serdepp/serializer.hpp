@@ -13,10 +13,13 @@
 #include <type_traits>
 #include <variant>
 #include <string_view>
-#include "serdepp/meta.hpp"
 #include <nameof.hpp>
 #include <magic_enum.hpp>
+#include <functional>
+#include <algorithm>
+#include "serdepp/meta.hpp"
 #include "serdepp/exception.hpp"
+
 
 namespace serde
 {
