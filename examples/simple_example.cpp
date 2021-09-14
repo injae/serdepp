@@ -1,12 +1,9 @@
-#include <serdepp/serializer.hpp>
+#include <serdepp/serde.hpp>
 #include <serdepp/adaptor/rapidjson.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
 #include <serdepp/adaptor/fmt.hpp>
-#include <serdepp/ostream.hpp>
-
-#include <serdepp/attributes.hpp>
 
 using namespace serde::ostream;
 

@@ -4,6 +4,8 @@
 #include "serdepp/adaptor/rapidjson.hpp"
 #include "serdepp/adaptor/toml11.hpp"
 #include "serdepp/adaptor/yaml-cpp.hpp"
+#include "serdepp/adaptor/ryml.hpp"
+#include "serdepp/adaptor/fmt.hpp"
 
 enum class tenum { INPUT, OUTPUT, INPUT_2 , OUTPUT_2 };
 
@@ -45,16 +47,18 @@ int main(int argc, char *argv[])
     auto rpjson = serde::parse_file<rapidjson::Document>("../../examples/test.json");
     auto toml11 = serde::parse_file<toml::value>("../../examples/test.toml");
     auto yamlpp = serde::parse_file<YAML::Node>("../../examples/test.yaml");
+    auto rpyaml = serde::parse_file<ryml::Tree>("../../examples/test.yaml");
 
     auto from_nljson = serde::deserialize<test>(nljson);
     auto from_rpjson = serde::deserialize<test>(rpjson);
     auto from_toml11 = serde::deserialize<test>(toml11);
     auto from_yamlpp = serde::deserialize<test>(yamlpp);
+    auto from_rpyaml = serde::deserialize<test>(rpyaml.rootref());
 
     fmt::print("{}\n",from_nljson);
     fmt::print("{}\n",from_rpjson);
     fmt::print("{}\n",from_toml11);
     fmt::print("{}\n",from_yamlpp);
-    
+    fmt::print("{}\n",from_rpyaml);
     return 0;
 }

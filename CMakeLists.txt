@@ -12,11 +12,12 @@ cppm_compiler_option(DEFAULT)
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
 find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
+find_cppkg(ryml 0.2.0  MODULE ryml::ryml TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
-find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
+find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib OPTIONAL OFF)
 find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
-find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib)
+find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 
 
 cppm_target_define(serdepp INTERFACE)
@@ -64,6 +65,11 @@ SOURCES
     examples/sugar.cpp
 )
 
+cppm_target_define(print BINARY
+SOURCES
+    examples/print.cpp
+)
+
 endif()
 
 if(SERDEPP_BUILD_BENCHMARKS)
@@ -86,7 +92,7 @@ SOURCES
 endif()
 
 set(serdepp_global_deps PRIVATE benchmark
-PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp nameof magic_enum fmt)
+PUBLIC RapidJSON nlohmann_json ryml toml11 yaml-cpp fmt magic_enum nameof)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 
@@ -122,6 +128,10 @@ cppm_target_dependencies(sugar
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(print
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
@@ -144,4 +154,5 @@ cppm_target_install(variant_example)
 cppm_target_install(parse_file_example)
 cppm_target_install(struct_attribute_example)
 cppm_target_install(sugar)
+cppm_target_install(print)
 

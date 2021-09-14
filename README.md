@@ -87,9 +87,9 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 ```
 
 ## Dependencies
-- [fmt](https://github.com/fmtlib/fmt) (Auto Install)
 - [nameof](https://github.com/Neargye/nameof) (Auto Install)
 - [magic_enum](https://github.com/Neargye/magic_enum)  (Auto Install)
+- [fmt](https://github.com/fmtlib/fmt) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_FMT=ON)
 - [nlohmann_json](https://github.com/nlohmann/json) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
 - [rapidjson](https://github.com/Tencent/rapidjson) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_RAPIDJSON=ON)
 - [toml11](https://github.com/ToruNiina/toml11) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
@@ -212,7 +212,6 @@ template<typename serde_ctx>
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
 #include <serdepp/adaptor/fmt.hpp>
-#include <serdepp/ostream.hpp>
 
 using namespace serde::ostream;
 

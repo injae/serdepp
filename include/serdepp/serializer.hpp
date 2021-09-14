@@ -12,7 +12,6 @@
 #include <list>
 #include <type_traits>
 #include <variant>
-#include <fmt/format.h>
 #include <string_view>
 #include "serdepp/meta.hpp"
 #include <nameof.hpp>
@@ -37,26 +36,26 @@ namespace serde
     template <class Adaptor>
     struct derive_serde_adaptor_helper { // default serde adaptor helper
         inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key) {
-            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::is_null(adaptor, key)",
-                                                         nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<{}>::is_null(adaptor, key)"
+                                             + std::string(nameof::nameof_short_type<Adaptor>()));
             return adaptor.contains(key);
         }
 
         inline constexpr static size_t size(Adaptor& adaptor) {
-            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::size(adaptor, key)",
-                                                         nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<{}>::size(adaptor, key)" +
+                                             std::string(nameof::nameof_short_type<Adaptor>()));
             return adaptor.size();
         }
 
         inline constexpr static bool is_struct(Adaptor& adaptor) {
-            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::is_struct(adaptor, key)",
-                                                          nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<{}>::is_struct(adaptor, key)" +
+                                             std::string(nameof::nameof_short_type<Adaptor>()));
             return true;
         }
 
         inline constexpr static Adaptor parse_file(Adaptor& adaptor) {
-            throw serde::unimplemented_error(fmt::format("serde_adaptor<{}>::parse_file(path)",
-                                                          nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<{}>::parse_file(path)" +
+                                             std::string(nameof::nameof_short_type<Adaptor>()));
             return true;
         }
     };
@@ -172,7 +171,7 @@ namespace serde
         inline constexpr static Enum from_str(std::string_view str) {
             auto value = magic_enum::enum_cast<Enum>(str);
             if (!value.has_value()) {
-                throw enum_error(fmt::format("{}::{}", nameof::nameof_type<Enum>(), str));
+                throw enum_error(std::string{nameof::nameof_type<Enum>()} + "::" + std::string{str});
             }
             return *value;
         }
@@ -303,18 +302,18 @@ namespace serde
         }
         
         inline constexpr serde_struct& no_remain() {
+            using namespace std::literals;
             if constexpr (!Context::is_serialize) {
                 const auto adaptor_size = Context::Helper::is_struct(context_.adaptor)
                     ? Context::Helper::size(context_.adaptor)
                     : 1;
                 const auto serde_size   = context_.read_count_;
                 if(adaptor_size > serde_size) {
-                    throw unregisted_data_error(fmt::format(
-                                                    "serde[{}] read:{} != adaptor[{}] read:{}",
-                                                    type,
-                                                    serde_size,
-                                                    nameof::nameof_short_type<decltype(context_.adaptor)>(),
-                                                    adaptor_size));
+                    throw unregisted_data_error(
+                                                "serde["s + std::string{type} + "] read: " + std::to_string(serde_size)
+                                                + " != adaptor["
+                                                + std::string(nameof::nameof_short_type<decltype(context_.adaptor)>())
+                                                + "] read: " + std::to_string(adaptor_size));
                 }
             }
             return *this;
