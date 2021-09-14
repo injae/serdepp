@@ -39,26 +39,30 @@ namespace serde
     template <class Adaptor>
     struct derive_serde_adaptor_helper { // default serde adaptor helper
         inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key) {
-            throw serde::unimplemented_error("serde_adaptor<{}>::is_null(adaptor, key)"
-                                             + std::string(nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<" +
+                                             std::string(nameof::nameof_short_type<Adaptor>())
+                                             +">::is_null(adaptor, key)");
             return adaptor.contains(key);
         }
 
         inline constexpr static size_t size(Adaptor& adaptor) {
-            throw serde::unimplemented_error("serde_adaptor<{}>::size(adaptor, key)" +
-                                             std::string(nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<" +
+                                             std::string(nameof::nameof_short_type<Adaptor>())
+                                             +">::size(adaptor, key)");
             return adaptor.size();
         }
 
         inline constexpr static bool is_struct(Adaptor& adaptor) {
-            throw serde::unimplemented_error("serde_adaptor<{}>::is_struct(adaptor, key)" +
-                                             std::string(nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<" +
+                                             std::string(nameof::nameof_short_type<Adaptor>())
+                                             +">::is_struct(adaptor, key)");
             return true;
         }
 
         inline constexpr static Adaptor parse_file(Adaptor& adaptor) {
-            throw serde::unimplemented_error("serde_adaptor<{}>::parse_file(path)" +
-                                             std::string(nameof::nameof_short_type<Adaptor>()));
+            throw serde::unimplemented_error("serde_adaptor<" +
+                                             std::string(nameof::nameof_short_type<Adaptor>())
+                                             +">::parse_file(adaptor, key)");
             return true;
         }
     };
