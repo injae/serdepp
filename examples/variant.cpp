@@ -3,7 +3,6 @@
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
 #include <serdepp/adaptor/rapidjson.hpp>
-#include <serdepp/adaptor/ryml.hpp>
 #include <serdepp/adaptor/fmt.hpp>
 
 enum class T { A, B };
@@ -87,18 +86,15 @@ int main() {
     auto v_t = serialize<toml::value>(var);
     auto v_j = serialize<nlohmann::json>(var);
     auto v_r = serialize<rapidjson::Document>(var);
-    auto vry = serialize<ryml::NodeRef>(var);
     std::cout << v_y << "\n";
     std::cout << v_t << "\n";
     std::cout << v_j << "\n";
-    std::cout << vry << "\n";
     print(v_r);
 
     fmt::print("{}\n", serde::to_string(deserialize<decltype(var)>(v_y)));
     fmt::print("{}\n", serde::to_string(deserialize<decltype(var)>(v_t)));
     fmt::print("{}\n", serde::to_string(deserialize<decltype(var)>(v_j)));
     fmt::print("{}\n", serde::to_string(deserialize<decltype(var)>(v_r)));
-    fmt::print("{}\n", serde::to_string(deserialize<decltype(var)>(vry)));
 }
 
 //OUTPUT
