@@ -12,7 +12,7 @@ struct fmt::formatter<T, std::enable_if_t<serde::type::is_struct_v<T>, char>>
     : fmt::formatter<std::string> {
     template <typename format_ctx>
     auto format(const T& serde_type, format_ctx& ctx) {
-        return formatter<std::string>::format(to_string(serde_type), ctx);
+        return formatter<std::string>::format(serde::to_string(serde_type), ctx);
     }
 };
 
