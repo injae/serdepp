@@ -1,5 +1,6 @@
-#include <serdepp/utility.hpp>
+#include <serdepp/serde.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
+#include <serdepp/adaptor/fmt.hpp>
 
 enum class t_enum { A, B };
 

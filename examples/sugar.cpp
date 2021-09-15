@@ -1,4 +1,5 @@
 #include "serdepp/serde.hpp"
+#include "serdepp/adaptor/fmt.hpp"
 
 namespace serde::attribute {
     namespace detail {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "serdepp/serializer.hpp"
-#include "serdepp/adaptor/fmt.hpp"
 #include "serdepp/attributes.hpp"
 #include <cstdarg>
 

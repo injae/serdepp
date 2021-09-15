@@ -4,6 +4,7 @@
 #include "serdepp/adaptor/rapidjson.hpp"
 #include "serdepp/adaptor/toml11.hpp"
 #include "serdepp/adaptor/yaml-cpp.hpp"
+#include "serdepp/adaptor/fmt.hpp"
 
 enum class tenum { INPUT, OUTPUT, INPUT_2 , OUTPUT_2 };
 
@@ -55,6 +56,5 @@ int main(int argc, char *argv[])
     fmt::print("{}\n",from_rpjson);
     fmt::print("{}\n",from_toml11);
     fmt::print("{}\n",from_yamlpp);
-    
     return 0;
 }

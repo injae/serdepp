@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <fmt/format.h>
 
 #ifndef __SERDEPP_EXCEPTION_HPP__
 #define __SERDEPP_EXCEPTION_HPP__
@@ -14,7 +13,7 @@ namespace serde {
     };
 
     struct unimplemented_error :exception {
-        explicit unimplemented_error(std::string what) : what_(fmt::format("unimplemented function: {}\n", what)) {}
+        explicit unimplemented_error(std::string what) : what_("unimplemented function: " + what + '\n') {}
         virtual ~unimplemented_error() noexcept override = default;
         virtual const char* what() const noexcept override {return what_.c_str();}
     protected:
@@ -22,7 +21,7 @@ namespace serde {
     };
 
     struct variant_error :exception {
-        explicit variant_error(std::string what) : what_(fmt::format("varaint error: {}\n", what)) {}
+        explicit variant_error(std::string what) : what_("varaint error: " + what + '\n') {}
         virtual ~variant_error() noexcept override = default;
         virtual const char* what() const noexcept override {return what_.c_str();}
     protected:
@@ -31,7 +30,7 @@ namespace serde {
 
     struct enum_error : exception {
     public:
-        explicit enum_error(std::string what) : what_(fmt::format("unregisted enum value: {}\n", what)) {}
+        explicit enum_error(std::string what) : what_("unregisted enum value: " + what + '\n') {}
         virtual ~enum_error() noexcept override = default;
         virtual const char* what() const noexcept override {return what_.c_str();}
     protected:
@@ -40,7 +39,7 @@ namespace serde {
 
     struct unregisted_data_error : exception {
     public:
-        explicit unregisted_data_error(std::string what) : what_(fmt::format("unregisted data: {}\n", what)) {}
+        explicit unregisted_data_error(std::string what) : what_("unregisted data: " + what + '\n') {}
         virtual ~unregisted_data_error() noexcept override = default;
         virtual const char* what() const noexcept override {return what_.c_str();}
     protected:
@@ -49,13 +48,12 @@ namespace serde {
 
     struct attribute_error : exception {
     public:
-        explicit attribute_error(std::string what) : what_(fmt::format("attribute error: {}\n", what)) {}
+        explicit attribute_error(std::string what) : what_("attribute error: " + what + '\n') {}
         virtual ~attribute_error() noexcept override = default;
         virtual const char* what() const noexcept override {return what_.c_str();}
     protected:
         std::string what_;
     };
 }
-
 
 #endif

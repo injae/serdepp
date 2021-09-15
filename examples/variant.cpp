@@ -3,6 +3,7 @@
 #include <serdepp/adaptor/toml11.hpp>
 #include <serdepp/adaptor/yaml-cpp.hpp>
 #include <serdepp/adaptor/rapidjson.hpp>
+#include <serdepp/adaptor/fmt.hpp>
 
 enum class T { A, B };
 

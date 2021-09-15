@@ -3,7 +3,7 @@
 #ifndef __SERDEPP_OSTREAM_HPP__
 #define __SERDEPP_OSTREAM_HPP__
 
-#include "serdepp/adaptor/fmt.hpp"
+#include "serdepp/adaptor/sstream.hpp"
 
 namespace serde::ostream {
     //template<class Ostream, class T>
@@ -17,7 +17,7 @@ namespace serde::ostream {
     template< class CharT, class Traits, typename T>
     std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT,Traits>& os, const T& x) {
         if constexpr (type::is_struct_v<T>) {
-            return os << serde::serialize<serde::string_converter>(x).to_str();
+            return os << serde::to_string(x);
         } else {
             return os << x;
         }

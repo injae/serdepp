@@ -19,8 +19,9 @@ namespace serde::attribute {
                         next_attr.from(ctx, data, key, remains...);
                     }
                 } else {
-                    throw serde::attribute_error(fmt::format("this {} is not emptyable type",
-                                                             nameof::nameof_short_type<T>()));
+                    throw serde::attribute_error("this "
+                                                 + std::string(nameof::nameof_short_type<T>())
+                                                 + " is not emptyable type");
                 }
             }
 
