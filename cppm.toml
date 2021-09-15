@@ -1,14 +1,14 @@
 [package]
    name = "serdepp"
-   version = "0.1.1"
+   version = "0.1.2"
    description = "c++ universal serialize deserialize library like rust serde"
    #tool-version = "dev"
 
 [lib]
    name = "serdepp"
-   #type = "static"
-   #source= ["src/to_static.cpp"]
-   type = "header-only"
+   type = "static"
+   #type = "header-only"
+   source= ["src/to_static.cpp"]
 
 
 [[example]]

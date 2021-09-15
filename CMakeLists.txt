@@ -4,7 +4,7 @@ set(CPPM_VERSION 0.0.13)
 include(cmake/cppm_loader.cmake)
 cppm_project()
 
-project(serdepp VERSION 0.1.1 LANGUAGES C CXX)
+project(serdepp VERSION 0.1.2 LANGUAGES C CXX)
 cppm_setting()
 cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
@@ -20,7 +20,10 @@ find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 
 
-cppm_target_define(serdepp INTERFACE)
+cppm_target_define(serdepp STATIC
+SOURCES
+    src/to_static.cpp
+)
 
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)
