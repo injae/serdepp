@@ -12,7 +12,7 @@ namespace serde::attribute {
             constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
                                        Next&& next_attr, Attributes&& ...remains) const{
                 using Helper = serde_adaptor_helper<typename serde_ctx::Adaptor>;
-                if(Helper::is_null(ctx.adaptor,key)) {
+                if(Helper::is_null(ctx.adaptor, key)) {
                     next_attr.from(ctx, data, "", remains...);
                 }
                 else {

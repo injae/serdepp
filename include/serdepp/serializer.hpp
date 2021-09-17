@@ -84,20 +84,111 @@ namespace serde
         : derive_serde_adaptor_helper<detail::dummy_adaptor> {
     };
 
+    template<class T, bool is_serialize_=false>
+    struct serde_context {
+        using Adaptor = T;
+        using Helper = serde_adaptor_helper<Adaptor>;
+        constexpr static bool is_serialize = is_serialize_;
+        serde_context(T& format) : adaptor(format) {}
+        T& adaptor;
+        size_t read_count_ = 0;
+        constexpr void read() { read_count_++; }
+    };
+
+    namespace type {
+        struct seq_t {};
+        struct map_t {};
+        struct struct_t {};
+        struct enum_t {
+            template <class Enum>
+            inline constexpr static std::string_view to_str(Enum value) {
+                return magic_enum::enum_name(value);
+            }
+
+            template <class Enum>
+            inline constexpr static Enum from_str(std::string_view str) {
+                auto value = magic_enum::enum_cast<Enum>(str);
+                if (!value.has_value()) {
+                    throw enum_error(std::string{nameof::nameof_type<Enum>()} + "::" + std::string{str});
+                }
+                return *value;
+            }
+        };
+
+        template <typename T> using map_e = typename T::mapped_type;
+        template <typename T> using map_k = typename T::key_type;
+        template <typename T> using seq_e = typename T::value_type;
+        template <typename T> using opt_e = typename T::value_type;
+
+
+        template <typename T, typename = void> struct not_null;
+
+        template <typename T>
+        struct not_null<T, std::enable_if_t<is_emptyable_v<T>>> {
+            not_null(T &origin) : data(origin) {}
+            T &data;
+        };
+
+        template <class T> struct is_optional {
+            using type = T;
+            using element = T;
+            constexpr static bool value = false;
+        };
+
+        template <class T> struct is_optional<std::optional<T>> {
+            using type = std::optional<T>;
+            using element = T;
+            constexpr static bool value = true;
+        };
+
+        template <typename T> using optional_element = typename is_optional<T>::element;
+
+        template <class T> struct is_not_null {
+            using type = T;
+            using element = T;
+            constexpr static bool value = false;
+        };
+
+        template <class T> struct is_not_null<not_null<T>> {
+            using type = not_null<T>;
+            using element = T;
+            constexpr static bool value = true;
+        };
+
+        template <class T> using is_struct = is_serdeable<serde_context<detail::dummy_adaptor>, T>;
+        template <class T> inline constexpr auto is_struct_v = is_struct<T>::value;
+    }
+
     template<typename T, typename serde_ctx, typename = void>
     struct serde_serializer {
         using Adaptor = typename serde_ctx::Adaptor;
         constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
-            serde_adaptor<Adaptor, std::remove_reference_t<T>>::from(ctx.adaptor, key, data);
+            if constexpr(is_serdeable_v<serde_ctx, T>) {
+                if(key.empty()) {
+                    serde_context struct_ctx = serde_context<Adaptor>{ctx.adaptor};
+                    data.serde(struct_ctx, data);
+                } else {
+                    serde_adaptor<Adaptor, T, type::struct_t>::from(ctx.adaptor, key, data);
+                }
+            } else {
+                serde_adaptor<Adaptor, std::remove_reference_t<T>>::from(ctx.adaptor, key, data);
+            }
             ctx.read();
         }
         constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
-
-            serde_adaptor<Adaptor, std::remove_reference_t<T>>::into(ctx.adaptor, key, data);
+            if constexpr(is_serdeable_v<serde_ctx, T>) {
+                if(key.empty()) {
+                    auto struct_ctx = serde_context<Adaptor, true>(ctx.adaptor);
+                    data.serde(struct_ctx, const_cast<T&>(data));
+                } else {
+                    serde_adaptor<Adaptor, T, type::struct_t>::into(ctx.adaptor, key, data);
+                }
+            } else {
+                serde_adaptor<Adaptor, std::remove_reference_t<T>>::into(ctx.adaptor, key, data);
+            }
             ctx.read();
         }
     };
-
 
     namespace attribute {
         namespace detail {
@@ -151,84 +242,6 @@ namespace serde
         inline constexpr auto pass = detail::empty_attr{};
 
 
-    }
-
-    template<class T, bool is_serialize_=false>
-    struct serde_context {
-        using Adaptor = T;
-        using Helper = serde_adaptor_helper<Adaptor>;
-        constexpr static bool is_serialize = is_serialize_;
-        serde_context(T& format) : adaptor(format) {}
-        T& adaptor;
-        size_t read_count_ = 0;
-        constexpr void read() { read_count_++; }
-    };
-
-    namespace type {
-      struct seq_t {};
-      struct map_t {};
-      struct struct_t {};
-      struct enum_t {
-        template <class Enum>
-        inline constexpr static std::string_view to_str(Enum value) {
-            return magic_enum::enum_name(value);
-        }
-        template <class Enum>
-
-        inline constexpr static Enum from_str(std::string_view str) {
-            auto value = magic_enum::enum_cast<Enum>(str);
-            if (!value.has_value()) {
-                throw enum_error(std::string{nameof::nameof_type<Enum>()} + "::" + std::string{str});
-            }
-            return *value;
-        }
-      };
-
-      template <typename T> using map_e = typename T::mapped_type;
-      template <typename T> using map_k = typename T::key_type;
-      template <typename T> using seq_e = typename T::value_type;
-      template <typename T> using opt_e = typename T::value_type;
-
-
-      template <typename T, typename = void> struct not_null;
-
-      template <typename T>
-      struct not_null<T, std::enable_if_t<is_emptyable_v<T>>> {
-        not_null(T &origin) : data(origin) {}
-        T &data;
-      };
-
-      template <class T> struct is_optional {
-        using type = T;
-        using element = T;
-        constexpr static bool value = false;
-      };
-
-      template <class T> struct is_optional<std::optional<T>> {
-        using type = std::optional<T>;
-        using element = T;
-        constexpr static bool value = true;
-      };
-
-      template <typename T>
-      using optional_element = typename is_optional<T>::element;
-
-      template <class T> struct is_not_null {
-        using type = T;
-        using element = T;
-        constexpr static bool value = false;
-      };
-
-      template <class T> struct is_not_null<not_null<T>> {
-        using type = not_null<T>;
-        using element = T;
-        constexpr static bool value = true;
-      };
-
-      template <class T>
-      using is_struct = is_serdeable<serde_context<detail::dummy_adaptor>, T>;
-      template <class T>
-      inline constexpr auto is_struct_v = is_struct<T>::value;
     }
 
     using namespace std::string_view_literals;
@@ -316,8 +329,7 @@ namespace serde
                     : 1;
                 const auto serde_size   = context_.read_count_;
                 if(adaptor_size > serde_size) {
-                    throw unregisted_data_error(
-                                                "serde["s + std::string{type} + "] read: " + std::to_string(serde_size)
+                    throw unregisted_data_error("serde["s + std::string{type} + "] read: " + std::to_string(serde_size)
                                                 + " != adaptor["
                                                 + std::string(nameof::nameof_short_type<decltype(context_.adaptor)>())
                                                 + "] read: " + std::to_string(adaptor_size));
@@ -432,37 +444,9 @@ namespace serde
 
     template<typename serde_ctx>
     struct serde_serializer<std::monostate, serde_ctx> {
-        constexpr inline static auto from(serde_ctx& ctx, std::monostate& data, std::string_view key) {
-        }
-        constexpr inline static auto into(serde_ctx& ctx, const std::monostate& data, std::string_view key) {
-        }
+        constexpr inline static auto from(serde_ctx& ctx, std::monostate& data, std::string_view key) {}
+        constexpr inline static auto into(serde_ctx& ctx, const std::monostate& data, std::string_view key) {}
     };
-
-   template<typename T, typename serde_ctx>
-   struct serde_serializer<T, serde_ctx, std::enable_if_t<is_serdeable_v<serde_ctx, T>>> {
-       using Adaptor = typename serde_ctx::Adaptor;
-       constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
-           if(key.empty()) {
-               serde_context struct_ctx = serde_context<Adaptor>{ctx.adaptor};
-               data.serde(struct_ctx, data);
-               ctx.read();
-           } else {
-               serde_adaptor<Adaptor, T, type::struct_t>::from(ctx.adaptor, key, data);
-               ctx.read();
-           }
-       }
-
-       constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
-           if(key.empty()) {
-               auto struct_ctx = serde_context<Adaptor, true>(ctx.adaptor);
-               data.serde(struct_ctx, const_cast<T&>(data));
-               ctx.read();
-           } else {
-               serde_adaptor<Adaptor, T, type::struct_t>::into(ctx.adaptor, key, data);
-               ctx.read();
-           }
-       }
-   };
 
     template<typename T, typename serde_ctx>
     struct serde_serializer<T, serde_ctx, std::enable_if_t<is_mappable_v<T> &&
