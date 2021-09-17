@@ -13,8 +13,7 @@ namespace serde {
         bool is_struct;
         serde_sstream(char begin = '{', char end = '}') : members(), begin_(begin), end_(end), is_struct(false) {}
         void set_wrapper(char begin, char end) { begin_ = begin; end_ = end; }
-        serde_sstream &add(const std::string &data,
-                            std::string_view key = "") {
+        serde_sstream &add(const std::string &data, std::string_view key = "") {
             members.push_back(key.empty() ? data : "\"" + std::string{key} + "\": " + data);
             return *this;
         }
