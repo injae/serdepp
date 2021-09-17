@@ -17,7 +17,7 @@ namespace serde::ostream {
     template< class CharT, class Traits, typename T>
     std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT,Traits>& os, const T& x) {
         if constexpr (type::is_struct_v<T>) {
-            return os << serde::to_string(x);
+            return os << serialize<serde_sstream>(x).str();
         } else {
             return os << x;
         }
