@@ -7,12 +7,11 @@
 #include <sstream>
 
 namespace serde {
-    struct serde_sstream {
-        std::vector<std::string> members;
-        char begin_, end_;
-        bool is_struct;
-        serde_sstream(char begin = '{', char end = '}') : members(), begin_(begin), end_(end), is_struct(false) {}
+    class serde_sstream {
+    public:
+        serde_sstream(char begin = '{', char end = '}') : members(), begin_(begin), end_(end) {}
         void set_wrapper(char begin, char end) { begin_ = begin; end_ = end; }
+
         serde_sstream &add(const std::string &data, std::string_view key = "") {
             members.push_back(key.empty() ? data : "\"" + std::string{key} + "\": " + data);
             return *this;
@@ -20,7 +19,7 @@ namespace serde {
 
         inline std::string str() const {
             std::string str;
-            if (!is_struct && members.size() == 1) {
+            if (members.size() == 1) {
                 str = members.front();
             } else {
                 str = begin_ + str;
@@ -30,6 +29,9 @@ namespace serde {
             }
             return str;
         }
+    private:
+        std::vector<std::string> members;
+        char begin_, end_;
     };
 
     template<>
