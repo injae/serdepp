@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(fmt-8.0.1-install)
 
-set(CPPM_VERSION 0.0.13)
+set(CPPM_VERSION ${CPPM_VERSION})
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
-download_package(fmt 8.0.1  URL https://github.com/fmtlib/fmt/releases/download/8.0.1/fmt-8.0.1.zip  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DFMT_DOC=OFF -DFMT_TEST=OFF -DFMT_FUZZ=OFF)
+download_package(fmt 8.0.1  URL https://github.com/fmtlib/fmt/releases/download/8.0.1/fmt-8.0.1.zip  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DFMT_DOC=OFF -DFMT_TEST=OFF)
 

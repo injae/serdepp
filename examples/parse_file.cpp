@@ -1,5 +1,4 @@
 #include "serdepp/serde.hpp"
-
 #include "serdepp/adaptor/nlohmann_json.hpp"
 #include "serdepp/adaptor/rapidjson.hpp"
 #include "serdepp/adaptor/toml11.hpp"

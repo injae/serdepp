@@ -15,7 +15,7 @@ find_cppkg(nlohmann_json 3.9.1  MODULE nlohmann_json::nlohmann_json TYPE lib OPT
 find_cppkg(ryml 0.2.0  MODULE ryml::ryml TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
-find_cppkg(fmt 7.1.3  MODULE fmt::fmt TYPE lib OPTIONAL OFF)
+find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib OPTIONAL OFF)
 find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 
