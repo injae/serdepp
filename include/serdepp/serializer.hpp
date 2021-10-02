@@ -246,15 +246,26 @@ namespace serde
 
     using namespace std::string_view_literals;
 
+    /*
+      Adaptor = [nlohmann::json serde_sstream, toml11::value ...]
+      Adaptor(key) -> T or Adaptor -> T
+      T t = deserialize<T>(Adaptor, key)
+     */
     template <typename T, class Adaptor>
     constexpr inline T deserialize(Adaptor&& adaptor, std::string_view key="") {
         using origin = meta::remove_cvref_t<Adaptor>;
         T target;
+        if constexpr(std::is_pointer_v<T>) { target = nullptr; }
         serde_context<origin> ctx(adaptor);
         serde_serializer<T, serde_context<origin>>::from(ctx, target, key);
         return target;
     }
 
+    /*
+      Adaptor = [nlohmann::json serde_sstream, toml11::value ...]
+      Adaptor[key] -> T or Adaptor -> T
+      deserialize_to(Adaptor, T, key)
+     */
     template<typename T, class Adaptor>
     constexpr inline void deserialize_to(Adaptor&& adaptor, T& target, std::string_view key="") {
         using origin = meta::remove_cvref_t<Adaptor>;
@@ -262,6 +273,11 @@ namespace serde
         serde_serializer<T, serde_context<origin>>::from(ctx, target, key);
     }
 
+    /*
+      Adaptor = [nlohmann::json serde_sstream, toml11::value ...]
+      T -> Adaptor[key] or T -> Adaptor
+      Adaptor adaptor = serialize<Adaptor>(T, key)
+     */
     template<class Adaptor, typename T>
     constexpr inline Adaptor serialize(T&& target, std::string_view key="") {
         using origin = meta::remove_cvref_t<T>;
@@ -271,6 +287,11 @@ namespace serde
         return adaptor;
     }
 
+    /*
+      Adaptor = [nlohmann::json serde_sstream, toml11::value ...]
+      T -> Adaptor[key] or T -> Adaptor
+      serialize_to(T, Adaptor, key)
+     */
     template<class Adaptor, typename T, typename U = meta::remove_cvref_t<T>>
     constexpr inline void serialize_to(T&& target, Adaptor& adaptor, std::string_view key="") {
         using origin = meta::remove_cvref_t<T>;
@@ -424,23 +445,8 @@ namespace serde
     }
     template<class Context, class T> serde_struct(Context&, T&) -> serde_struct<Context, T>;
 
-    template<typename T, typename serde_ctx>
-    struct serde_serializer<T, serde_ctx, std::enable_if_t<is_optional_v<T>>> {
-        using value_type = type::opt_e<std::remove_reference_t<T>>;
-        using Adaptor = typename serde_ctx::Adaptor;
-        using Helper = serde_adaptor_helper<Adaptor>;
-        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
-            if(Helper::is_null(ctx.adaptor, key)) {
-                if(!data) data = std::nullopt;
-            } else {
-                if(!data) data.emplace();
-                serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
-            }
-        }
-        constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
-            if(data) { serde_serializer<value_type, serde_ctx>::into(ctx, *data, key); }
-        }
-    };
+
+    
 
     template<typename serde_ctx>
     struct serde_serializer<std::monostate, serde_ctx> {
@@ -587,5 +593,47 @@ namespace serde
             }
         }
     }
+
+    template<typename T, typename serde_ctx>
+    struct serde_serializer<T, serde_ctx, std::enable_if_t<is_optional_v<T>>> {
+        using value_type = type::opt_e<std::remove_reference_t<T>>;
+        using Adaptor = typename serde_ctx::Adaptor;
+        using Helper = serde_adaptor_helper<Adaptor>;
+        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
+            if(key.empty() && serde_type_checker<Adaptor>::is_null(ctx.adaptor)) {
+                if(!data) data = std::nullopt;
+            } else if (!key.empty() && Helper::is_null(ctx.adaptor, key)) {
+                if(!data) data = std::nullopt;
+            } else {
+                if(!data) data.emplace();
+                serde_serializer<value_type, serde_ctx>::from(ctx, *data, key);
+          }
+        }
+        constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
+            if(data) { serde_serializer<value_type, serde_ctx>::into(ctx, *data, key); }
+        }
+    };
+
+    template<typename T, typename serde_ctx>
+    struct serde_serializer<T, serde_ctx, std::enable_if_t<is_pointer_v<T>>> {
+        using Adaptor = typename serde_ctx::Adaptor;
+        using Helper = serde_adaptor_helper<Adaptor>;
+        using ptr_helper = is_pointer<T>;
+        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
+            if(key.empty() && serde_type_checker<Adaptor>::is_null(ctx.adaptor)) {
+                if(!data) data = ptr_helper::null_type;
+            }
+            else if(!key.empty() && Helper::is_null(ctx.adaptor, key)) {
+                if(!data) data = ptr_helper::null_type;
+            } else {
+                if(!data) data = ptr_helper::init();
+                serde_serializer<typename ptr_helper::type, serde_ctx>::from(ctx, *data, key);
+            }
+        }
+        constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
+            if(data) { serde_serializer<typename ptr_helper::type, serde_ctx>::into(ctx, *data, key); }
+        }
+    };
+
 } // namespace serde
 #endif
