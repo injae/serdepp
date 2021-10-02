@@ -12,6 +12,7 @@
 #include <utility>
 #include <string_view>
 #include <magic_enum.hpp>
+#include <memory>
 
 #ifndef __SERDEPP_META_HPP__
 #define __SERDEPP_META_HPP__
