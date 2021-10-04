@@ -12,6 +12,7 @@
 #include <utility>
 #include <string_view>
 #include <magic_enum.hpp>
+#include <memory>
 
 #ifndef __SERDEPP_META_HPP__
 #define __SERDEPP_META_HPP__
@@ -71,10 +72,55 @@ namespace serde::meta {
     template<typename T>  inline constexpr auto is_enumable_v = is_enumable<T>::value;
 
 
-    template<typename T, typename U = void> struct is_pointer : std::false_type {};
+    //template<typename T, typename U = void> struct is_pointer : std::false_type {};
+    //template<typename T>
+    //struct is_pointer<T, std::enable_if_t<std::is_pointer_v<T>>> : std::true_type {};
+    //template<typename T, typename E>
+    //struct is_pointer<T, std::enable_if_t<std::is_same_v<T, std::unique_ptr<E>>>> : std::true_type {};
+    //template<typename T>  inline constexpr auto is_pointer_v = is_pointer<T>::value;
+
+    template<typename T, typename = void>
+    struct is_pointer {
+        using type = T;
+        using null_type = void;
+        constexpr static bool value = false;
+    };
+
     template<typename T>
-    struct is_pointer<T, std::void_t<decltype(*std::declval<T>())>> : std::true_type {};
+    struct is_pointer<T, std::enable_if_t<std::is_pointer_v<T>>> {
+        using type = std::remove_pointer_t<T>;
+        constexpr static std::nullptr_t null_type = nullptr;
+        inline static constexpr auto init() { return new type(); }
+        constexpr static bool value = true;
+    };
+
+    template<typename T>
+    struct is_pointer<std::unique_ptr<T>> {
+        using type = T;
+        constexpr static std::nullptr_t null_type = nullptr;
+        inline static constexpr auto init() { return std::make_unique<T>(); }
+        constexpr static bool value = true;
+    };
+
+    template<typename T>
+    struct is_pointer<std::shared_ptr<T>> {
+        using type = T;
+        constexpr static std::nullptr_t  null_type = nullptr;
+        inline static constexpr auto init() { return std::make_shared<T>(); }
+        constexpr static bool value = true;
+    };
+
+    //template<typename T>
+    //struct is_pointer<std::weak_ptr<T>> {
+    //    using type = T;
+    //    constexpr static std::nullptr_t null_type = nullptr;
+    //    inline constexpr auto init() { throw serde::unimplemented_error("weakptr not suppport"); }
+    //    constexpr static bool value = true;
+    //};
+    
     template<typename T>  inline constexpr auto is_pointer_v = is_pointer<T>::value;
+    template<typename T>  inline constexpr auto is_pointer_t = is_pointer<T>::type;
+
 
     template<class T>
     struct is_str_type {
@@ -102,8 +148,7 @@ namespace serde::meta {
 
     template<typename T, typename = void> struct is_optional : std::false_type {};
     template<typename T> struct is_optional<T,std::void_t<decltype(std::declval<T>().has_value()),
-                                                          decltype(std::declval<T>().value()),
-                                                          decltype(*(std::declval<T>()))
+                                                          decltype(std::declval<T>().value())
                                                           >> : std::true_type {};
     template<typename T> inline constexpr auto is_optional_v = is_optional<T>::value;
 

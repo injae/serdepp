@@ -1,8 +1,10 @@
 [package]
    name = "serdepp"
-   version = "0.1.2"
+   version = "0.1.3"
    description = "c++ universal serialize deserialize library like rust serde"
    #tool-version = "dev"
+#[cmake]
+#    include=["cmake/Lua.cmake"]
 
 [lib]
    name = "serdepp"
@@ -47,6 +49,14 @@
     name = "print"
     source = ["examples/print.cpp"]
 
+[[example]]
+    name = "pointer"
+    source = ["examples/pointer.cpp"]
+
+#[[example]]
+#    name = "sol2_example"
+#    source = ["examples/sol2.cpp"]
+
 #[[example]]
 #    name = "simdjson_example"
 #    source = ["examples/simdjson.cpp"]
@@ -69,10 +79,11 @@
     fmt = {version="8.0.1", link="public", optional=true}
     yaml-cpp   = { version="0.6.3",  link="public", optional=true}
     toml11     = { version="3.7.0",  link="public", optional=true}
-    ryml       = { version= "0.2.0", link="public", optional=true}
     nlohmann_json = { version="3.9.1", link="public", optional=true}
     RapidJSON = { version="1.1.1", link="public", optional=true}
     benchmark = { version="1.5.2", optional=true}
     #simdjson = {version="0.9.7", link="public"}
+    #ryml     = { version= "0.2.0", link="public", optional=true}
+    #sol2 = { version="3.2.2"}
 #[dev-dependencies]
 #    benchmark = {version="1.5.2", optional=true}
