@@ -511,7 +511,7 @@ namespace serde
         ENUM
     };
 
-    template<typename Format>
+    template<typename Format, typename=void>
     struct serde_type_checker {
         static bool is_integer(Format& format);
         static bool is_sequence(Format& format);
