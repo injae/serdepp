@@ -69,8 +69,8 @@ namespace serde
 
     template<typename S, typename T, typename = void>
     struct serde_adaptor {
-        static void from(S& s, std::string_view key, T& data);
-        static void into(S& s, std::string_view key, const T& data);
+        static void from(S& s, std::string_view key, T& data){}
+        static void into(S& s, std::string_view key, const T& data){}
     };
 
     namespace detail {
