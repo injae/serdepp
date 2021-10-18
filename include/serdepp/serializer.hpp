@@ -25,7 +25,7 @@ namespace serde
 {
     using namespace serde::meta;
 
-    template <class Adaptor> struct serde_adaptor_helper {
+    template <class Adaptor, typename=void> struct serde_adaptor_helper {
         // for support optional type parse
         inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key);
         // for support no_remain function
