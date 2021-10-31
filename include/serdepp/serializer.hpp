@@ -25,7 +25,7 @@ namespace serde
 {
     using namespace serde::meta;
 
-    template <class Adaptor> struct serde_adaptor_helper {
+    template <class Adaptor, typename=void> struct serde_adaptor_helper {
         // for support optional type parse
         inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key);
         // for support no_remain function
@@ -69,8 +69,8 @@ namespace serde
 
     template<typename S, typename T, typename = void>
     struct serde_adaptor {
-        static void from(S& s, std::string_view key, T& data);
-        static void into(S& s, std::string_view key, const T& data);
+        static void from(S& s, std::string_view key, T& data){}
+        static void into(S& s, std::string_view key, const T& data){}
     };
 
     namespace detail {
@@ -511,7 +511,7 @@ namespace serde
         ENUM
     };
 
-    template<typename Format>
+    template<typename Format, typename=void>
     struct serde_type_checker {
         static bool is_integer(Format& format);
         static bool is_sequence(Format& format);

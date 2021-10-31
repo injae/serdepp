@@ -19,7 +19,7 @@ namespace serde::attribute {
             }
         };
     }
-    constexpr static auto tttt = detail::tttt{};
+    [[maybe_unused]] constexpr static auto tttt = detail::tttt{};
 }
 
 struct test_{
