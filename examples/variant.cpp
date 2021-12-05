@@ -41,6 +41,7 @@ int main() {
 
     fmt::print("------\n");
     auto j_flatten = deserialize<std::vector<Test>>(jflat);
+    fmt::print("------\n");
     auto j_none    = deserialize<std::vector<Test>>(j);
     fmt::print("{}\n",serialize<nlohmann::json>(j_flatten).dump(4));
     fmt::print("{}\n",serialize<nlohmann::json>(j_none).dump(4));

@@ -54,6 +54,10 @@
     source = ["examples/pointer.cpp"]
 
 #[[example]]
+#    name = "tuple_sort"
+#    source = ["examples/tuple_sort.cpp"]
+
+#[[example]]
 #    name = "sol2_example"
 #    source = ["examples/sol2.cpp"]
 
