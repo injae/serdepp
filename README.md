@@ -69,8 +69,7 @@ int main() {
     nlohmann::json json_from_ex = serde::serialize<nlohmann::json>(ex);
     example ex_from_json = serde::deserialize<example>(json_from_ex);
 
-    fmt::print("json:{}\n",json_from_ex.dump(4));
-
+    std::cout << "json: " << json_from_ex.dump(4) << "\n";
     fmt::print("fmt:{}\n",ex_from_json);
 }
 

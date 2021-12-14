@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     auto j_flatten = serde::deserialize<std::vector<Test>>(jflat);
 
-    std::cout << serde::serialize<serde::serde_sstream>(j_flatten).str();
+    std::cout << serde::to_string(j_flatten) << "\n";
     
     return 0;
 }

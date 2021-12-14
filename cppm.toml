@@ -46,6 +46,10 @@
     source = ["examples/sugar.cpp"]
 
 [[example]]
+    name = "reflection"
+    source = ["examples/reflection.cpp"]
+
+[[example]]
     name = "print"
     source = ["examples/print.cpp"]
 

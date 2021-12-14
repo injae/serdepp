@@ -19,13 +19,13 @@ namespace serde::attribute {
             }
         };
     }
-    constexpr static auto tttt = detail::tttt{};
+    [[maybe_unused]] constexpr static auto tttt = detail::tttt{};
 }
 
 
 struct Test {
     DERIVE_SERDE(Test,
-            [attributes(flatten, default_(""))]
+            [attributes(flatten)]
             (&Self::test, "test")
             [attributes(flatten, default_(""))]
             (&Self::str, "str"))
@@ -35,7 +35,7 @@ struct Test {
 
 int main(int argc, char *argv[])
 {
-    fmt::print("{}\n",Test{1});
+    std::cout << Test{1} << "\n";
     
     return 0;
 }
