@@ -513,14 +513,14 @@ namespace serde
 
     template<typename Format, typename=void>
     struct serde_type_checker {
-        static bool is_integer(Format& format);
-        static bool is_sequence(Format& format);
-        static bool is_map(Format& format);
-        static bool is_float(Format& format);
-        static bool is_string(Format& format);
-        static bool is_bool(Format& format);
-        static bool is_null(Format& format);
-        static bool is_struct(Format& format);
+        static bool is_integer(Format& format)  { return true; }
+        static bool is_sequence(Format& format) { return true; }
+        static bool is_map(Format& format)      { return true; }
+        static bool is_float(Format& format)    { return true; }
+        static bool is_string(Format& format)   { return true; }
+        static bool is_bool(Format& format)     { return true; }
+        static bool is_null(Format& format)     { return true; }
+        static bool is_struct(Format& format)   { return true; }
     };
 
     template<class T>
@@ -574,6 +574,7 @@ namespace serde
             data = deserialize<T>(format);
             return false;
         } catch(std::exception& ex) {
+            std::cout << "error \n";
             return true;
         }
     }
@@ -581,8 +582,8 @@ namespace serde
     template<class Format, class V, class Cur, class ...T>
     constexpr void serde_variant_iter(Format& format, V& data) {
         if constexpr (sizeof...(T) != 0) {
-            bool is_find = serde_variant_setter<Format, Cur, V>(format, data);
-            if(!is_find) return;
+            bool is_not_find = serde_variant_setter<Format, Cur, V>(format, data);
+            if(!is_not_find) return;
             serde_variant_iter<Format, V, T...>(format, data);
         } else {
             if(serde_variant_setter<Format,

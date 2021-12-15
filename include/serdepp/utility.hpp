@@ -24,4 +24,6 @@
             __VA_ARGS__;                     \
     }                                        \
 
+#define _SF_(name) (&Self::name, #name)
+
 #endif

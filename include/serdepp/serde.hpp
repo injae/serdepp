@@ -6,5 +6,6 @@
 #include <serdepp/utility.hpp>
 #include <serdepp/adaptor/sstream.hpp>
 #include <serdepp/ostream.hpp>
+using namespace serde::ostream;
 
 #endif

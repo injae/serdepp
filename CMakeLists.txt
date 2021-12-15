@@ -67,6 +67,11 @@ SOURCES
     examples/sugar.cpp
 )
 
+cppm_target_define(reflection BINARY
+SOURCES
+    examples/reflection.cpp
+)
+
 cppm_target_define(print BINARY
 SOURCES
     examples/print.cpp
@@ -135,6 +140,10 @@ cppm_target_dependencies(sugar
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(reflection
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(print
    ${serdepp_global_deps}
    serdepp)
@@ -165,6 +174,7 @@ cppm_target_install(variant_example)
 cppm_target_install(parse_file_example)
 cppm_target_install(struct_attribute_example)
 cppm_target_install(sugar)
+cppm_target_install(reflection)
 cppm_target_install(print)
 cppm_target_install(pointer)
 

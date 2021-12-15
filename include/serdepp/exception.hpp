@@ -37,6 +37,15 @@ namespace serde {
         std::string what_;
     };
 
+    struct type_error : exception {
+    public:
+        explicit type_error(std::string what) : what_("type error: " + what + '\n') {}
+        virtual ~type_error() noexcept override = default;
+        virtual const char* what() const noexcept override {return what_.c_str();}
+    protected:
+        std::string what_;
+    };
+
     struct unregisted_data_error : exception {
     public:
         explicit unregisted_data_error(std::string what) : what_("unregisted data: " + what + '\n') {}

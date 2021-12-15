@@ -6,8 +6,6 @@
 #include "serdepp/adaptor/rapidjson.hpp"
 #include <memory>
 
-using namespace serde::ostream;
-
 enum class tenum {INPUT, OUTPUT, INPUT_2 , OUTPUT_2 };
 
 
@@ -16,6 +14,7 @@ struct nested {
                  (&Self::version, "version", value_or_struct)
                  (&Self::opt_desc ,"opt_desc")
                  [attributes(default_{"default value"})]
+
                  (&Self::desc ,"desc")
                  .no_remain())
     std::string version;
