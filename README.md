@@ -34,6 +34,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 - [x] [attributes](#Attributes) and custom attribute support (value_or_struct, default, multi_key ...)
 - [x] variant support (std::variant<int, std::vector<...>, UserType, EnumType...>) [example](examples/variant.cpp)
 - [x] pointer support (T*, std::shared_ptr<T>, std::unique_ptr<T>)
+- [x] reflection support (BETA) (mem_get(member_name) or mem_get<index>())
 
 ## Serdepp Strcuture
 ![Serdepp structure](Serdepp_Structure.png)
@@ -65,6 +66,7 @@ int main() {
     ex.number_ = 1024;
     ex.vec_ = {"a", "b", "c"};
     ex.tenum_ = t_enum::B;
+    //std::cout << ex << "\n";
 
     nlohmann::json json_from_ex = serde::serialize<nlohmann::json>(ex);
     example ex_from_json = serde::deserialize<example>(json_from_ex);
