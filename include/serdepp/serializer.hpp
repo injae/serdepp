@@ -574,7 +574,6 @@ namespace serde
             data = deserialize<T>(format);
             return false;
         } catch(std::exception& ex) {
-            std::cout << "error \n";
             return true;
         }
     }

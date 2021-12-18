@@ -8,13 +8,11 @@
 
 enum class tenum {INPUT, OUTPUT, INPUT_2 , OUTPUT_2 };
 
-
 struct nested {
     DERIVE_SERDE(nested,
                  (&Self::version, "version", value_or_struct)
                  (&Self::opt_desc ,"opt_desc")
                  [attributes(default_{"default value"})]
-
                  (&Self::desc ,"desc")
                  .no_remain())
     std::string version;
@@ -25,7 +23,7 @@ struct nested {
 class test {
 public:
     DERIVE_SERDE(test,
-                 [attributes( default_{"hello"})]
+                 [attributes(default_{"hello"})]
                  (&Self::str, "str")
                  (&Self::i,   "i")
                  (&Self::vec, "vec")
@@ -97,7 +95,6 @@ int main()
     fmt::print("{}\n", t_from_yaml);
     fmt::print("{}\n", t_from_rjson);
     std::cout << t << '\n';
-
 
     return 0;
 }
