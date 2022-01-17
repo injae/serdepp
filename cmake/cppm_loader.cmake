@@ -28,3 +28,12 @@ execute_process(COMMAND cmake . WORKING_DIRECTORY ${_install_script} OUTPUT_QUIE
 execute_process(COMMAND cmake  --build . WORKING_DIRECTORY ${_install_script} OUTPUT_QUIET)
 endif()
 include(${CPPM_LOADER_PATH}/load.cmake)
+
+#include(FetchContent)
+#FetchContent_Declare(
+#    cppm_loader_toolchains
+#    GIT_REPOSITORY https://github.com/injae/cppm-loader.git
+#)
+#
+#FetchContent_MakeAvailable(cppm_loader_toolchains)
+#include(${CMAKE_CURRENT_BINARY_DIR}/_deps/cppm_loader_toolchains-src/load.cmake)

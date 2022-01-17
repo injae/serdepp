@@ -14,7 +14,11 @@ namespace serde::attribute {
                 using Helper = serde_adaptor_helper<typename serde_ctx::Adaptor>;
                 if constexpr (meta::is_emptyable_v<T>) {
                     if (Helper::is_null(ctx.adaptor, key)) {
-                        if (data.empty()) data = std::move(T{});
+                        if constexpr(std::is_same_v<T, bool>) {
+                            data = false;
+                        } else {
+                            if (data.empty()) data = std::move(T{});
+                        }
                     } else {
                         next_attr.from(ctx, data, key, remains...);
                     }
@@ -28,7 +32,11 @@ namespace serde::attribute {
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
             constexpr inline void into(serde_ctx& ctx, T& data, std::string_view key,
                                        Next&& next_attr, Attributes&& ...remains) const{
-                if (!data.empty()) { next_attr.into(ctx, data, key, remains...); }
+                if constexpr (std::is_same_v<T, bool>) {
+                    if(data == true)   { next_attr.into(ctx, data, key, remains...); }
+                } else {
+                    if (!data.empty()) { next_attr.into(ctx, data, key, remains...); }
+                }
             }
         };
     }

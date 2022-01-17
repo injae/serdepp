@@ -46,6 +46,8 @@ namespace serde::meta {
 
     template <typename T, typename = void> struct is_emptyable : std::false_type {};
 
+    template <> struct is_emptyable<bool> : std::true_type {};
+
     template <typename T>
     struct is_emptyable<T, std::void_t<decltype(std::declval<T>().empty())>> : std::true_type {};
     template<class T> constexpr auto is_emptyable_v = is_emptyable<T>::value;

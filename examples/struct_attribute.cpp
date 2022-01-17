@@ -24,13 +24,17 @@ namespace serde::attribute {
 
 struct test_{
     DERIVE_SERDE(test_, .attributes(tttt,tttt)
-                 (&Self::test, "test"))
+                 (&Self::test, "test")
+                 [attributes(make_optional)]
+                 (&Self::a, "a")
+                 )
     int test;
+    bool a;
 };
 
 int main(int argc, char *argv[])
 {
-    fmt::print("{}\n",test_{1});
+    fmt::print("{}\n",test_{1, false});
     
     return 0;
 }
