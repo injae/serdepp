@@ -165,7 +165,7 @@ namespace serde {
             auto& table = key.empty() ? s : s[key.data()];
             if(!table.IsArray()) { table.SetArray(); }
             if constexpr(is_arrayable_v<T>) arr.reserve(table.Size());
-            for(auto i = 0; i < table.Size(); ++i) {
+            for(unsigned int i = 0; i < table.Size(); ++i) {
                 arr.push_back(std::move(deserialize<E>(table[i])));
             }
         }
@@ -198,7 +198,7 @@ namespace serde {
             auto& table = key.empty() ? s : s[key.data()];
             if(!table.IsArray()) { table.SetArray(); }
             if constexpr(is_arrayable_v<T>) arr.reserve(table.Size());
-            for(auto i = 0; i < table.Size(); ++i) {
+            for(unsigned int i = 0; i < table.Size(); ++i) {
                 arr.push_back(std::move(deserialize<E>(table[i])));
             }
         }

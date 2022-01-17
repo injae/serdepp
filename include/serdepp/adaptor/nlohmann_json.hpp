@@ -29,8 +29,9 @@ namespace serde {
             std::ifstream i(path);
             i >> table;
             return table;
+
         }
-        inline static bool is_null(json& adaptor, std::string_view key) { return !adaptor.contains(key); }
+        inline static bool is_null(json& adaptor, std::string_view key) { return !adaptor.contains(std::string{key}); }
         inline static size_t size(json& adaptor)    { return adaptor.size(); }
         inline static bool is_struct(json& adaptor) { return adaptor.is_object(); }
     };
