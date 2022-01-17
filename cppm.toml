@@ -87,7 +87,7 @@
     fmt = {version="8.0.1", link="public", optional=true}
     yaml-cpp   = { version="0.6.3",  link="public", optional=true}
     toml11     = { version="3.7.0",  link="public", optional=true}
-    nlohmann_json = { version="3.9.1", link="public", optional=true}
+    nlohmann_json = { version="3.10.5", link="public", optional=true}
     RapidJSON = { version="1.1.1", link="public", optional=true}
     benchmark = { version="1.5.2", optional=true}
     #hiredis = "git"
