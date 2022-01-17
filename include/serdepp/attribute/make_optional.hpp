@@ -15,7 +15,7 @@ namespace serde::attribute {
                 if constexpr (meta::is_emptyable_v<T>) {
                     if (Helper::is_null(ctx.adaptor, key)) {
                         if constexpr(std::is_same_v<T, bool>) {
-                            data = false;
+
                         } else {
                             if (data.empty()) data = std::move(T{});
                         }
