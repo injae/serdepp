@@ -6,7 +6,7 @@ cppm_project()
 
 project(serdepp VERSION 0.1.3 LANGUAGES C CXX)
 cppm_setting()
-cppm_cxx_standard(20)
+cppm_cxx_standard(17)
 cppm_compiler_option(DEFAULT)
 
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)

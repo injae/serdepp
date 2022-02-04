@@ -2,7 +2,7 @@
    name = "serdepp"
    version = "0.1.3"
    description = "c++ universal serialize deserialize library like rust serde"
-   standard="20"
+   standard="17"
    #tool-version = "dev"
 #[cmake]
 #    include=["cmake/Lua.cmake"]
