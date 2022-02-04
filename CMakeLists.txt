@@ -6,7 +6,7 @@ cppm_project()
 
 project(serdepp VERSION 0.1.3 LANGUAGES C CXX)
 cppm_setting()
-cppm_cxx_standard(17)
+cppm_cxx_standard(20)
 cppm_compiler_option(DEFAULT)
 
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
@@ -14,6 +14,7 @@ find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
 find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
+find_cppkg(pybind11 2.9.0  MODULE pybind11::headers TYPE lib)
 find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib OPTIONAL OFF)
 find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
@@ -82,6 +83,11 @@ SOURCES
     examples/pointer.cpp
 )
 
+cppm_target_define(util BINARY
+SOURCES
+    examples/util.cpp
+)
+
 endif()
 
 if(SERDEPP_BUILD_BENCHMARKS)
@@ -103,7 +109,7 @@ SOURCES
 
 endif()
 
-set(serdepp_global_deps PRIVATE benchmark
+set(serdepp_global_deps PRIVATE benchmark pybind11
 PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp fmt magic_enum nameof)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
@@ -152,6 +158,10 @@ cppm_target_dependencies(pointer
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(util
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(benchmark
    ${serdepp_global_deps}
    serdepp)
@@ -177,4 +187,5 @@ cppm_target_install(sugar)
 cppm_target_install(reflection)
 cppm_target_install(print)
 cppm_target_install(pointer)
+cppm_target_install(util)
 

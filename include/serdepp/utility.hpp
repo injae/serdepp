@@ -16,7 +16,7 @@
 
 #define DERIVE_SERDE(Type, ...) \
     template<class Context> \
-    constexpr static void serde(Context& context, Type& value) {    \
+    constexpr static void serde(Context& context, Type& value) {\
         using namespace serde::attribute;    \
         using Self [[maybe_unused]] = Type; \
         serde::serde_struct ss(context, value); \

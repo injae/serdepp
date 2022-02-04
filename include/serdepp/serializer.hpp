@@ -89,9 +89,10 @@ namespace serde
         using Adaptor = T;
         using Helper = serde_adaptor_helper<Adaptor>;
         constexpr static bool is_serialize = is_serialize_;
-        serde_context(T& format) : adaptor(format) {}
+        constexpr serde_context(T& format) : adaptor(format) {}
         T& adaptor;
         size_t read_count_ = 0;
+        bool skip_all_ = false; 
         constexpr void read() { read_count_++; }
     };
 
@@ -317,6 +318,7 @@ namespace serde
         inline constexpr serde_struct& field(MEM_PTR&& ptr, std::string_view name,
                                              Attribute&& attribute, Attributes&&... attributes) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
+            if(context_.skip_all_) return *this;
             if constexpr(!Context::is_serialize) {
                 attribute.template from<rtype, Context>(context_, value_.*ptr, name,
                                                         std::forward<meta::remove_cvref_t<Attributes>>
@@ -334,6 +336,7 @@ namespace serde
         template<class MEM_PTR>
         inline constexpr serde_struct& field(MEM_PTR&& ptr, std::string_view name) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
+            if(context_.skip_all_) return *this;
             if constexpr(!Context::is_serialize) {
                 serde::serde_serializer<rtype, Context>::from(context_, value_.*ptr, name);
             } else {
@@ -344,6 +347,7 @@ namespace serde
         
         inline constexpr serde_struct& no_remain() {
             using namespace std::literals;
+            if(context_.skip_all_) return *this;
             if constexpr (!Context::is_serialize) {
                 const auto adaptor_size = Context::Helper::is_struct(context_.adaptor)
                     ? Context::Helper::size(context_.adaptor)
@@ -363,6 +367,7 @@ namespace serde
         template<class MEM_PTR>
         inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
+            if(context_.skip_all_) return *this;
             if constexpr(!Context::is_serialize) {
                 serde::serde_serializer<rtype, Context>::from(context_, value_.*ptr, name);
             } else {
@@ -375,6 +380,7 @@ namespace serde
         inline constexpr serde_struct& operator()(MEM_PTR&& ptr, std::string_view name,
                                                   Attribute&& attribute, Attributes&&... attributes) {
             using rtype = std::remove_reference_t<decltype(std::invoke(ptr, value_))>;
+            if(context_.skip_all_) return *this;
             if constexpr(!Context::is_serialize) {
                 attribute.template from<rtype, Context>(context_, value_.*ptr, name,
                                                         std::forward<meta::remove_cvref_t<Attributes>>
@@ -391,6 +397,7 @@ namespace serde
 
         template<typename Attribute, typename... Attributes>
         inline constexpr serde_struct& attributes(Attribute&& attribute, Attributes&&... attributes) {
+            if(context_.skip_all_) return *this;
             if constexpr(!Context::is_serialize) {
                 attribute.template from<T, Context>(context_, value_, "",
                                                     std::forward<meta::remove_cvref_t<Attributes>>
@@ -444,9 +451,6 @@ namespace serde
         }
     }
     template<class Context, class T> serde_struct(Context&, T&) -> serde_struct<Context, T>;
-
-
-    
 
     template<typename serde_ctx>
     struct serde_serializer<std::monostate, serde_ctx> {
