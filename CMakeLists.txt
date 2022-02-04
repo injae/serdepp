@@ -14,7 +14,6 @@ find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
 find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
-find_cppkg(pybind11 2.9.0  MODULE pybind11::headers TYPE lib)
 find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib OPTIONAL OFF)
 find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
@@ -109,7 +108,7 @@ SOURCES
 
 endif()
 
-set(serdepp_global_deps PRIVATE benchmark pybind11
+set(serdepp_global_deps PRIVATE benchmark
 PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp fmt magic_enum nameof)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
