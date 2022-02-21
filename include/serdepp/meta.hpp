@@ -30,6 +30,23 @@ namespace serde::meta {
     template <size_t N, class F>
     constexpr auto index_apply(F f) { return index_apply_impl(f, std::make_index_sequence<N>{}); }
 
+    template<class,class>
+    struct tuple_extend;
+
+    template<class Input>
+    struct tuple_extend<Input, void> {
+        using type = std::tuple<Input>;
+    };
+    
+    template<class Input, class... Args>
+    struct tuple_extend<Input, std::tuple<Args...>> {
+        using type =  std::tuple<Args..., Input>;
+    };
+
+    template<class Input, class... Args>
+    using tuple_extend_t = typename tuple_extend<Input, Args...>::type;
+
+
     template <typename T, typename = void> struct is_iterable : std::false_type {};
     template <typename T>
     struct is_iterable<T, std::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())>>
@@ -160,11 +177,11 @@ namespace serde::meta {
     template<typename T> inline constexpr auto is_default_v = is_default<T>::value;
 
 
-    template<class Format, typename T, typename = void> struct is_serdeable : std::false_type {};
-    template<class Format, typename T>
-    struct is_serdeable<Format, T, std::void_t<decltype(std::declval<T>().template
-                                    /*auto*/ serde<Format>(/*Format& ctx)*/
-                                        std::add_lvalue_reference_t<Format>(std::declval<Format>()), /*format& */
+    template<class Context, typename T, typename = void> struct is_serdeable : std::false_type {};
+    template<class Context, typename T>
+    struct is_serdeable<Context, T, std::void_t<decltype(std::declval<T>().template
+                                    /*auto*/ serde<Context>(/*Context& ctx)*/
+                                        std::add_lvalue_reference_t<Context>(std::declval<Context>()), /*format& */
                                         std::add_lvalue_reference_t<T>(std::declval<T>()) /*value& */))>
                                      > : std::true_type {};
     template<class CTX, typename T> inline constexpr auto is_serdeable_v = is_serdeable<CTX, T>::value;
@@ -172,6 +189,7 @@ namespace serde::meta {
 
     template<typename Attribute, typename T>
     using attr = typename Attribute::template serde_attribute<T>;
+
 }
 
 #endif

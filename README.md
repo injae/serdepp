@@ -10,6 +10,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
   - [Macro Version](#Macro-Version)
   - [Nested Class](#Nested-Class-Example)
   - [Custom Serializer](#Custom-Serializer)
+  - [Reflection](#Reflection)
 - [Attributes](#Attributes)
   - [Value or Struct](#value_or_struct_se)
   - [Default Value](#default_se)
@@ -34,7 +35,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 - [x] [attributes](#Attributes) and custom attribute support (value_or_struct, default, multi_key ...)
 - [x] variant support (std::variant<int, std::vector<...>, UserType, EnumType...>) [example](examples/variant.cpp)
 - [x] pointer support (T*, std::shared_ptr<T>, std::unique_ptr<T>)
-- [x] reflection support (BETA) (mem_get(member_name) or mem_get<index>())
+- [x] [reflection](#Reflection) support 
 
 ## Serdepp Strcuture
 ![Serdepp structure](Serdepp_Structure.png)
@@ -95,7 +96,7 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 - [nlohmann_json](https://github.com/nlohmann/json) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
 - [rapidjson](https://github.com/Tencent/rapidjson) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_RAPIDJSON=ON)
 - [toml11](https://github.com/ToruNiina/toml11) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
-- [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_YAML_CPP=ON)
+- [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_YAML-CPP=ON)
 
 
 ## Install
@@ -205,6 +206,57 @@ template<typename serde_ctx>
         serde_adaptor<typename serde_ctx::Adaptor, int>::into(ctx.adaptor, key, data.i);
     }
 };
+```
+
+## [Reflection](./example/reflection.cpp)
+```cpp
+
+#include <serdepp/adaptor/reflection.hpp>
+#include <serdepp/serde.hpp>
+#include <serdepp/adaptor/reflection.hpp>
+
+struct A {
+    DERIVE_SERDE(A, (&Self::a, "a")
+                    (&Self::b, "b")
+                    (&Self::c, "c")
+                    (&Self::d, "d")
+                    (&Self::e, "e"))
+    int a;
+    std::string b;
+    double c;
+    std::vector<int> d;
+    int e;
+};
+
+int main(int argc, char* argv[]) {
+    constexpr auto info = serde::type_info<A>;
+    static_assert(serde::type_info<A>.size == 5);
+    static_assert(serde::tuple_size_v<A> == 5);
+    static_assert(std::is_same_v<serde::to_tuple_t<A>, std::tuple<int, std::string, double, std::vector<int>, int>>);
+    static_assert(std::is_same_v<int, std::tuple_element_t<0, serde::to_tuple_t<A>>>);
+    constexpr std::string_view a_name = info.name;
+
+    auto a = A{1, "hello", 3.};
+
+    auto to_tuple = serde::make_tuple(a);
+
+    std::string& member_a = info.member<1>(a);
+    member_a = "why";
+
+    double& member_b_info = info.member<double>(a, "c");
+    member_b_info = 3.14;
+
+    auto member_d_info = info.member_info<3>(a);
+    std::string_view member_d_name = member_d_info.name();
+    std::vector<int>& member_d = member_d_info.value();
+
+    auto names = info.member_names();
+    for(auto& name : names.members()) {
+        std::cout << name << "\n";
+    }
+
+    return 0;
+}
 ```
 
 ## [Simple Example](./examples/simple_example.cpp)
@@ -637,8 +689,7 @@ namespace serde::attribute {
 - require:
   - template<class Format> void serde(Format& formst, T& value);
 
-  
-## Benchmark
+ ## Benchmark
 ### Benchmark [Benchmark code](benchmark/benchmark.cpp)
 ```console
 2021-08-05T21:32:23+09:00
