@@ -6,7 +6,7 @@
 struct Object {
     DERIVE_SERDE(Object,
                  (&Self::radius, "radius")
-                 (&Self::width, "width")
+                 (&Self::width,  "width")
                  (&Self::height, "height"))
     std::optional<int> radius;
     std::optional<int> width;

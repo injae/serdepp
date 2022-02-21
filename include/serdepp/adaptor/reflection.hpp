@@ -111,9 +111,12 @@ namespace serde {
         DERIVE_SERDE(serde_struct_info)
         using Type= meta::remove_cvref_t<T>;
         constexpr static size_t size = tuple_size_v<Type>;
-        constexpr static std::string_view name = nameof::nameof_type<Type>;
+        constexpr static std::string_view name = nameof::nameof_type<Type>();
 
         constexpr serde_struct_info() = default;
+
+        //constexpr std::string_view name() { return nameof::nameof_type<Type>();}
+
         template<size_t index>
         constexpr typename info::MemberFromIndex<Type, index>::M& member(Type& type) const {
             auto info = info::MemberFromIndex<Type, index>();
