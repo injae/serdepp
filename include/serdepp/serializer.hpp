@@ -420,7 +420,7 @@ namespace serde
 
         template <typename... Attributes>
         struct ApplyAttribute{
-            using def = serde_struct<Context, T>;
+            using def = serde_struct<Context, T, Tuple>;
             ApplyAttribute(def& s, std::tuple<Attributes...>&& attr) : s(s), attributes(std::move(attr)) {}
             template<class MEM_PTR>
             inline constexpr def& operator()(MEM_PTR&& ptr, std::string_view name){

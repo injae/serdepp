@@ -96,7 +96,7 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 - [nlohmann_json](https://github.com/nlohmann/json) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
 - [rapidjson](https://github.com/Tencent/rapidjson) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_RAPIDJSON=ON)
 - [toml11](https://github.com/ToruNiina/toml11) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
-- [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_YAML_CPP=ON)
+- [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_YAML-CPP=ON)
 
 
 ## Install
@@ -249,7 +249,6 @@ int main(int argc, char* argv[]) {
     auto member_d_info = info.member_info<3>(a);
     std::string_view member_d_name = member_d_info.name();
     std::vector<int>& member_d = member_d_info.value();
-
 
     auto names = info.member_names();
     for(auto& name : names.members()) {
