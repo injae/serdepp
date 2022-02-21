@@ -234,6 +234,7 @@ int main(int argc, char* argv[]) {
     static_assert(serde::tuple_size_v<A> == 5);
     static_assert(std::is_same_v<serde::to_tuple_t<A>, std::tuple<int, std::string, double, std::vector<int>, int>>);
     static_assert(std::is_same_v<int, std::tuple_element_t<0, serde::to_tuple_t<A>>>);
+    constexpr std::string_view a_name = info.name;
 
     auto a = A{1, "hello", 3.};
 
@@ -689,8 +690,7 @@ namespace serde::attribute {
 - require:
   - template<class Format> void serde(Format& formst, T& value);
 
-  
-## Benchmark
+ ## Benchmark
 ### Benchmark [Benchmark code](benchmark/benchmark.cpp)
 ```console
 2021-08-05T21:32:23+09:00
