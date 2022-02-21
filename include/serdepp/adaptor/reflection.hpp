@@ -4,46 +4,17 @@
 #define __SERDEPP_ADAPTOR_RFLECTION_HPP__
 
 #include <serdepp/serde.hpp>
-#include <string_view>
 
 namespace serde {
-    struct serde_struct_size {
-        DERIVE_SERDE(serde_struct_size, _SF_(size))
-        constexpr serde_struct_size() = default;
-        constexpr void visit() { size++; }
-        size_t size=0;
-        template<typename T>
-        inline constexpr size_t type_size() {
-            return serde::serialize<serde_struct_size>(T{}).size;
-        }
-    };
-    
-    template<>
-    struct serde_adaptor_helper<serde_struct_size> : derive_serde_adaptor_helper<serde_struct_size> {
-        inline constexpr static bool is_null(serde_struct_size &adaptor, std::string_view key) { return false; }
-        inline constexpr static size_t size(serde_struct_size &adaptor) { return adaptor.size; }
-        inline constexpr static bool is_struct(serde_struct_size &adaptor) { return true; }
-    };
-
-
-    template<typename T> struct serde_adaptor<serde_struct_size, T> {
-        inline constexpr static void from(serde_struct_size& s, std::string_view key, T& data) {}
-        inline constexpr static void into(serde_struct_size &s, std::string_view key, const T& data) { s.visit(); } 
-    };
-
-    template<typename T>
-    inline constexpr size_t type_size() {
-        return serde::serialize<serde_struct_size>(T{}).size;
-    }
-
     namespace info {
         struct serde_struct_info_hook {
             template<typename T> void func(T& type, std::string_view key) {}
         };
 
-        template<typename Hook=serde_struct_info_hook>
+        template<typename H=serde_struct_info_hook>
         class type_info_adaptor {
         public:
+            using Hook = H;
             constexpr type_info_adaptor(Hook& hook): hook_(hook) {}
             template<typename T>
             inline constexpr void hook(T& type, std::string_view key) {
@@ -53,26 +24,17 @@ namespace serde {
             Hook& hook_;
         };
 
-
-        struct serde_struct_size {
-            DERIVE_SERDE(serde_struct_size, _SF_(size))
-            constexpr serde_struct_size() = default;
-            template<typename T>
-            constexpr void func(T &data, std::string_view key) { size++; }
-            size_t size=0;
-        };
-
         template<typename M>
         class MemberFromKey {
         public:
             friend type_info_adaptor<MemberFromKey<M>>;
-            DERIVE_SERDE(MemberFromKey, _SF_(key_)_SF_(member_))
+            DERIVE_SERDE(MemberFromKey, _SF_(member_)_SF_(key_))
             constexpr MemberFromKey(std::string_view key) : key_(key) {}
             M& value() { return *member_; }
         private:
-            template<typename T>
-            inline constexpr void func(T &data, std::string_view key) {
-                if constexpr(std::is_same_v<serde::remove_cvref_t<T>, M>) {
+            template<typename U>
+            inline constexpr void func(U& data, std::string_view key) {
+                if constexpr(std::is_same_v<serde::remove_cvref_t<U>, M>) {
                     if(key == key_) { member_ = &data; }
                 }
             }
@@ -80,103 +42,136 @@ namespace serde {
             std::string_view key_;
         };
 
-        template<typename M>
+        template<typename T, size_t Index>
         class MemberFromIndex {
         public:
-            friend type_info_adaptor<MemberFromIndex<M>>;
-            DERIVE_SERDE(MemberFromIndex, _SF_(index_)_SF_(name_)_SF_(member_))
-            constexpr MemberFromIndex(size_t index) : index_(index), visit_(0) {}
-            constexpr M& value() { return *member_; }
-            constexpr std::string_view key() const { return name_; }
+            DERIVE_SERDE(MemberFromIndex,(&Self::member_, "member"))
+            friend type_info_adaptor<MemberFromIndex<T, Index>>;
+            using M = std::tuple_element_t<Index, serde::to_tuple_t<T>>;
+            constexpr static size_t index = Index;
+            constexpr MemberFromIndex() : visit_(0) {}
+            constexpr inline M& value() { return *member_; }
         private:
-            template<typename T>
-            inline constexpr void func(T &data, std::string_view key) {
-                if constexpr(std::is_same_v<serde::remove_cvref_t<T>, M>) {
-                    if(index_ == visit_) {
+            template<typename U>
+            inline constexpr void func(U& data, std::string_view key) {
+                if constexpr(std::is_same_v<serde::remove_cvref_t<U>, M>) {
+                    if(index == visit_) { member_ = &data; }
+                }
+                visit_++;
+            }
+            size_t visit_;
+            M* member_;
+        };
+
+        template<typename T, size_t Index>
+        class MemberFromIndexWithKey {
+        public:
+            DERIVE_SERDE(MemberFromIndexWithKey, (&Self::name_, "name")(&Self::member_, "member"))
+            friend type_info_adaptor<MemberFromIndexWithKey<T, Index>>;
+            using M = std::tuple_element_t<Index, serde::to_tuple_t<T>>;
+            constexpr static size_t index = Index;
+            constexpr MemberFromIndexWithKey() : visit_(0) {}
+            constexpr inline M& value() { return *member_; }
+            constexpr inline std::string_view name() const { return name_; }
+        private:
+            template<typename U>
+            inline constexpr void func(U& data, std::string_view key) {
+                if constexpr(std::is_same_v<serde::remove_cvref_t<U>, M>) {
+                    if(index == visit_) {
                         member_ = &data;
                         name_ = key;
                     }
                 }
                 visit_++;
             }
-            size_t index_;
             size_t visit_;
             std::string_view name_;
             M* member_;
         };
 
+        template<class T>
         class MemberNames {
         public:
-            friend type_info_adaptor<MemberNames>;
             DERIVE_SERDE(MemberNames, _SF_(members_))
-            MemberNames(size_t size)  { members_.reserve(size); }
-            inline constexpr const std::vector<std::string_view>& names() const { return members_; }
+            friend type_info_adaptor<MemberNames>;
+            constexpr MemberNames() = default;
+            inline constexpr const auto& members() const { return members_; }
           private:
-            template <typename T>
-            inline constexpr void func(T &data, std::string_view key) {
-                members_.push_back(key);
+            template<typename U>
+            inline constexpr void func(U& data, std::string_view key) {
+                members_[index_++]=key;
             }
-            std::vector<std::string_view> members_;
+            std::array<std::string_view, tuple_size_v<T>> members_;
+            size_t index_;
         };
-
     };
     
-    template<typename T>
-    class serde_struct_info {
-    public:
-        using Type=T;
-        DERIVE_SERDE(serde_struct_info, _SF_(size)_SF_(name))
-        constexpr serde_struct_info(size_t size_, std::string_view name_) : size(size_), name(name_) {}
+    template<class T>
+    struct serde_struct_info {
+        DERIVE_SERDE(serde_struct_info)
+        using Type= meta::remove_cvref_t<T>;
+        constexpr static size_t size = tuple_size_v<Type>;
+        constexpr static std::string_view name = nameof::nameof_type<Type>;
+
+        constexpr serde_struct_info() = default;
+        template<size_t index>
+        constexpr typename info::MemberFromIndex<Type, index>::M& member(Type& type) const {
+            auto info = info::MemberFromIndex<Type, index>();
+            static_assert(index < size);
+            serde::deserialize_to(info::type_info_adaptor(info), type);
+            return info.value();
+        }
+
+        template<size_t index>
+        constexpr info::MemberFromIndexWithKey<Type, index> member_info(Type& type) const {
+            auto info = info::MemberFromIndexWithKey<Type, index>();
+            static_assert(index < size);
+            serde::deserialize_to(info::type_info_adaptor(info), type);
+            return info;
+        }
 
         template<typename M>
-        constexpr info::MemberFromKey<M> member(T& type, std::string_view key) const {
+        constexpr M& member(Type& type, std::string_view key) const {
             auto info = info::MemberFromKey<M>(key);
             serde::deserialize_to(info::type_info_adaptor(info), type);
-            return info;
+            return info.value();
         }
 
-        template<typename M>
-        constexpr info::MemberFromIndex<M> member(Type& type, size_t index) const {
-            auto info = info::MemberFromIndex<M>(index);
-            if(index > size) {
-                throw serde::type_error("struct size overflow["+ to_string(index) + "]:" + to_string(*this) );
-            }
-            serde::deserialize_to(info::type_info_adaptor(info), type);
-            return info;
-        }
-
-         info::MemberNames member_names() const {
-            auto info = info::MemberNames(size);
+         constexpr info::MemberNames<Type> member_names() const {
+            auto info = info::MemberNames<Type>();
             serde::deserialize<Type>(info::type_info_adaptor(info));
             return info;
         }
-
-        size_t size;
-        std::string_view name;
     };
 
     template<typename T> struct serde_adaptor_helper<info::type_info_adaptor<T>>
         : derive_serde_adaptor_helper<info::type_info_adaptor<T>> {
-        inline constexpr static bool is_null(info::type_info_adaptor<T> &adaptor, std::string_view key) {
-            return false;
-        }
-        inline constexpr static size_t size(info::type_info_adaptor<T> &adaptor) { return 1; }
-        inline constexpr static bool is_struct(info::type_info_adaptor<T> &adaptor) { return true; }
+        using Adaptor = info::type_info_adaptor<T>;
+        inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key) { return false; }
+        inline constexpr static size_t size(Adaptor& adaptor) { return 1; }
+        inline constexpr static bool is_struct(Adaptor& adaptor) { return true; }
     };
 
-
-    template<typename T, typename Hook> struct serde_adaptor<info::type_info_adaptor<Hook>, T> {
-        inline constexpr static void from(info::type_info_adaptor<Hook>& s, std::string_view key, T& data) {
-            s.hook(data, key);
-        }
-        inline constexpr static void into(info::type_info_adaptor<Hook> &s, std::string_view key, const T& data) {
-            s.hook(data, key);
-        } 
+    template<typename T, typename F, typename Hook> struct serde_adaptor<info::type_info_adaptor<Hook>, T, F> {
+        using Adaptor = info::type_info_adaptor<Hook>;
+        inline constexpr static void from(Adaptor& s, std::string_view key, T& data) { s.hook(data, key); }
+        inline constexpr static void into(Adaptor& s, std::string_view key, const T& data) { s.hook(data, key); } 
     };
 
     template<typename T>
-    inline constexpr serde_struct_info<T> type_info() {
-        return serde_struct_info<T>(type_size<T>(), nameof::nameof_type<T>());
+    [[maybe_unused]] constexpr static auto type_info = serde_struct_info<T>();
+
+    namespace detail {
+        template<class T, std::size_t... idx>
+        auto make_tuple_impl(T& value, std::index_sequence<idx...>) {
+            return std::make_tuple(type_info<T>.template member<idx>(value)...);
+        }
+    }
+
+    template<class T>
+    to_tuple_t<T> make_tuple(T& value) {
+        using rtype = meta::remove_cvref_t<T>;
+        return detail::make_tuple_impl(value, std::make_index_sequence<tuple_size_v<rtype>>());  
     }
 }
 

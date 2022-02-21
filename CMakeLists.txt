@@ -24,6 +24,11 @@ SOURCES
     src/to_static.cpp
 )
 
+cppm_target_define(reflection BINARY
+SOURCES
+    examples/reflection.cpp
+)
+
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)
 
@@ -67,11 +72,6 @@ SOURCES
     examples/sugar.cpp
 )
 
-cppm_target_define(reflection BINARY
-SOURCES
-    examples/reflection.cpp
-)
-
 cppm_target_define(print BINARY
 SOURCES
     examples/print.cpp
@@ -80,11 +80,6 @@ SOURCES
 cppm_target_define(pointer BINARY
 SOURCES
     examples/pointer.cpp
-)
-
-cppm_target_define(util BINARY
-SOURCES
-    examples/util.cpp
 )
 
 endif()
@@ -112,6 +107,10 @@ set(serdepp_global_deps PRIVATE benchmark
 PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp fmt magic_enum nameof)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
+
+cppm_target_dependencies(reflection
+   ${serdepp_global_deps}
+   serdepp)
 
 cppm_target_dependencies(serde_example1
    ${serdepp_global_deps}
@@ -145,19 +144,11 @@ cppm_target_dependencies(sugar
    ${serdepp_global_deps}
    serdepp)
 
-cppm_target_dependencies(reflection
-   ${serdepp_global_deps}
-   serdepp)
-
 cppm_target_dependencies(print
    ${serdepp_global_deps}
    serdepp)
 
 cppm_target_dependencies(pointer
-   ${serdepp_global_deps}
-   serdepp)
-
-cppm_target_dependencies(util
    ${serdepp_global_deps}
    serdepp)
 
@@ -175,6 +166,7 @@ cppm_target_dependencies(syntax_sugar_benchmark
 
 
 cppm_target_install(serdepp)
+cppm_target_install(reflection)
 cppm_target_install(serde_example1)
 cppm_target_install(serde_example)
 cppm_target_install(simple_example)
@@ -183,8 +175,6 @@ cppm_target_install(variant_example)
 cppm_target_install(parse_file_example)
 cppm_target_install(struct_attribute_example)
 cppm_target_install(sugar)
-cppm_target_install(reflection)
 cppm_target_install(print)
 cppm_target_install(pointer)
-cppm_target_install(util)
 

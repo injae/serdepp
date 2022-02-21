@@ -58,10 +58,6 @@
     name = "pointer"
     source = ["examples/pointer.cpp"]
 
-[[example]]
-    name = "util"
-    source = ["examples/util.cpp"]
-
 #[[example]]
 #    name = "tuple_sort"
 #    source = ["examples/tuple_sort.cpp"]
