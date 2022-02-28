@@ -82,11 +82,15 @@
     name = "syntax_sugar_benchmark"
     source = ["benchmark/syntax_benchmark.cpp"]
 
+[[tests]]
+name   = "unittest"
+source = ["tests/.*"]
+
 [dependencies]
     nameof = { version="0.10.0", link="public"}
     magic_enum = { version= "0.7.3", link="public"}
     fmt = {version="8.0.1", link="public", optional=true}
-    yaml-cpp   = { version="0.6.3",  link="public", optional=true}
+    yaml-cpp   = { version="0.7.0",  link="public", optional=true}
     toml11     = { version="3.7.0",  link="public", optional=true}
     nlohmann_json = { version="3.10.5", link="public", optional=true}
     RapidJSON = { version="1.1.1", link="public", optional=true}
@@ -97,5 +101,6 @@
     #simdjson = {version="0.9.7", link="public"}
     #ryml     = { version= "0.2.0", link="public", optional=true}
     #sol2 = { version="3.2.2"}
-#[dev-dependencies]
-#    benchmark = {version="1.5.2", optional=true}
+[dev-dependencies]
+    benchmark = {version="1.5.2", optional=true}
+    Catch2 = "2.9.1"

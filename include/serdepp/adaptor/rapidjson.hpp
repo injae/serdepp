@@ -3,6 +3,8 @@
 #ifndef __SERDEPP_ADAPTOR_RAPID_JSON_HPP__
 #define __SERDEPP_ADAPTOR_RAPID_JSON_HPP__
 
+#define RAPIDJSON_HAS_STDSTRING 1
+
 #include "serdepp/serializer.hpp"
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -221,8 +223,9 @@ namespace serde {
             map.SetObject();
             for(auto& [key_, value_] : data) {
                 Value val;
+                Value skey(key_.c_str(), key_.length(), s.GetAllocator());
                 val.CopyFrom(serialize<rapidjson_type>(value_), s.GetAllocator());
-                map.AddMember(StringRef(key_.c_str(), key_.length()), val.Move(), s.GetAllocator());
+                map.AddMember(skey, val.Move(), s.GetAllocator());
             }
             if(key.empty()) {
                 s.CopyFrom(map.Move(), s.GetAllocator());
