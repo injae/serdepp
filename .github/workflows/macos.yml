@@ -31,6 +31,6 @@ jobs:
         cmake --build . --config ${{matrix.build-type}}
     - name: Run Test Script
       run: |
-        cd build/${{matrix.build-type}}
+        cd build
         ctest .
 
