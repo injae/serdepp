@@ -15,7 +15,7 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm-version.cmake AND (ENABLE_INLIN
     set(CPPM_TOOL "cppm-tools-${CPPM_TOOLS_VERSION}")
     set(CPPM_CORE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CPPM_TOOL})
     list(APPEND CMAKE_MODULE_PATH "${CPPM_CORE}")
-    include(${CPPM_TOOL}/core_load)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CPPM_TOOL}/core_load.cmake)
 else()
     if(NOT DEFINED IS_CPPM_LOADER_LOADED)
         set(_install_script "${CPPM_LOADER_CACHE}/install-script")
