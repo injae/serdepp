@@ -6,7 +6,7 @@ jobs:
   ubuntu-bionic-gcc:
     runs-on: ubuntu-18.04
     env:
-      CMAKE_FLAGS: '-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON'
+      CMAKE_FLAGS: '-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON -DSERDEPP_BUILD_TESTING=ON -DSERDEPP_USE_CATCH2=ON'
     strategy:
       matrix:
         build-type: ['Release', 'Debug']
@@ -34,15 +34,13 @@ jobs:
         cmake --build . --config ${{matrix.build-type}}
     - name: Run Test Script
       run: |
-        cd build/${{matrix.build-type}}
-        ./serde_example
-        ./serde_example1
-        ./simple_example
+        cd build
+        ctest .
 
   ubuntu-bionic-llvm:
     runs-on: ubuntu-18.04
     env:
-      CMAKE_FLAGS: '-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON'
+      CMAKE_FLAGS: '-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON -DSERDEPP_BUILD_TESTING=ON -DSERDEPP_USE_CATCH2=ON'
     strategy:
       matrix:
         build-type: ['Release', 'Debug']
@@ -72,8 +70,6 @@ jobs:
         cmake --build . --config ${{matrix.build-type}}
     - name: Run Test Script
       run: |
-        cd build/${{matrix.build-type}}
-        ./serde_example
-        ./serde_example1
-        ./simple_example
+        cd build
+        ctest .
 

@@ -57,7 +57,7 @@ int main()
             "b" : "2",
             "c" : "3" },
     "nm" : { "a" : {"version" : "hello" },
-            "b" : "hello2" }
+             "b" : "hello2" }
     })"_json;
 
     // try {
