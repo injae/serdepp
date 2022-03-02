@@ -38,8 +38,8 @@ jobs:
     - name: Generate Coverage Report
       run: |
         cd build/${{matrix.build-type}}
-        llvm${{matrix.clang-version}}-profdata merge -sparse default.profraw -o default.profdata
-        llvm${{matrix.clang-version}}-cov export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
+        llvm-profdata-${{matrix.clang-version}} merge -sparse default.profraw -o default.profdata
+        llvm-cov-${{matrix.clang-version}} export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
