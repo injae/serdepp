@@ -7,7 +7,10 @@ cppm_project()
 project(serdepp VERSION 0.1.4 LANGUAGES C CXX)
 cppm_setting()
 cppm_cxx_standard(17)
-cppm_compiler_option(DEFAULT)
+cppm_compiler_option(
+   DEBUG
+      CLANG "-fprofile-instr-generate -fcoverage-mapping"
+)
 
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
