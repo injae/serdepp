@@ -7,6 +7,9 @@
 #[cmake]
 #    include=["cmake/Lua.cmake"]
 
+[profile.dev.compiler]
+    clang = "-fprofile-instr-generate -fcoverage-mapping"
+
 [lib]
    name = "serdepp"
    type = "static"

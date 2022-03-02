@@ -1,4 +1,4 @@
-# Serdepp   [![Linux](https://github.com/injae/serdepp/actions/workflows/linux.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/linux.yml) [![Windows](https://github.com/injae/serdepp/actions/workflows/window.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/window.yml) [![MacOS](https://github.com/injae/serdepp/actions/workflows/macos.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/macos.yml)
+# Serdepp   [![Linux](https://github.com/injae/serdepp/actions/workflows/linux.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/linux.yml) [![Windows](https://github.com/injae/serdepp/actions/workflows/window.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/window.yml) [![MacOS](https://github.com/injae/serdepp/actions/workflows/macos.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/macos.yml)[![codecov](https://codecov.io/gh/injae/serdepp/branch/main/graph/badge.svg?token=2L217GF77B)](https://codecov.io/gh/injae/serdepp)
 c++17 low cost serialize deserialize adaptor library like rust serde.rs  
 - [Features](#Features)
 - [Get Started](#Get-Started)
