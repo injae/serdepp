@@ -41,7 +41,7 @@ jobs:
         llvm-cov export ./unittest --instr-profile serdepp.profdata -format=text >> code-cov.text
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
-      directory: ./build/${{matrix.build-type}}
-      files: ./code-cov.text
+      directory: "./build/${{matrix.build-type}}"
+      files: "./code-cov.text"
       fail_ci_if_error: true
       flags: unittests
