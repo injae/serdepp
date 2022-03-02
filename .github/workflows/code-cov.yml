@@ -38,10 +38,12 @@ jobs:
       run: |
         cd build/${{matrix.build-type}}
         llvm-profdata merge -sparse default.profraw -o default.profdata
-        llvm-cov export ./unittest --instr-profile serdepp.profdata -format=text >> code-cov.text
+        llvm-cov export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
-      directory: "./build/${{matrix.build-type}}"
-      files: "./code-cov.text"
-      fail_ci_if_error: true
-      flags: unittests
+      with:
+        directory: ./build/${{matrix.build-type}}
+        files: lcov.info
+        flags: unittest
+        fail_ci_if_error: true
+        verbose: true
