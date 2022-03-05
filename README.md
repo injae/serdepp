@@ -3,6 +3,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 - [Features](#Features)
 - [Get Started](#Get-Started)
   - [Dependencies](#Dependencies)
+  - [Install With Vcpkg](#Install-With-Vcpkg)
   - [Install](#Install)
   - [CMake](#CMake)
 - [Examples](#Examples)
@@ -65,7 +66,8 @@ struct example {
 int main() {
     example ex;
     ex.number_ = 1024;
-    ex.vec_ = {"a", "b", "c"};
+   
+ ex.vec_ = {"a", "b", "c"};
     ex.tenum_ = t_enum::B;
     //std::cout << ex << "\n";
 
@@ -98,6 +100,23 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 - [toml11](https://github.com/ToruNiina/toml11) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_YAML-CPP=ON)
 
+## Install With Vcpkg
+```console
+vcpkg install serdepp
+# with other adaptors <nlohmann-json|toml11|yaml-cpp|fmt|rapidjson>
+vcpkg install ${adaptor}
+```
+
+## CMake With Vcpkg
+```cmake
+find_package(serdepp CONFIG)
+target_link_libraries(${target name} PRIVATE serdepp::serdepp)
+# with adaptors
+# names   (nlohmann_json,                yaml-cpp, toml11,         RapidJson, fmt)
+# targets (nlohmann_json::nlohmann_json, yaml-cpp, toml11::toml11, rapidjson, fmt::fmt-header-only)
+find_package(${adaptor name} CONFIG)
+target_link_libraries(${target name} PRIVATE ${adaptor cmake target})
+```
 
 ## Install
 ```console
