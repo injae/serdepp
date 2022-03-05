@@ -10,6 +10,7 @@ function(cppm_write_target_dependency_file)
         endforeach()
     endif()
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+        "\n"
         "get_filename_component(CPPM_CURRENT_MODULE_DIR ../ ABSOLUTE)\n"
         "list(APPEND CMAKE_PREFIX_PATH \"$\{CPPM_CURRENT_MODULE_DIR}\")\n"
         "list(APPEND CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})\n"
