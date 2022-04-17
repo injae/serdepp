@@ -6,20 +6,7 @@ using namespace serde;
 
 using namespace toml::literals;
 
-toml::value toml_vl = R"(
-str = "hello"
-i = 10
-vec = [ "one", "two", "three" ]
-opt = "hello"
-
-[sm]
-one = "tone"
-two = "ttwo"
-
-[sub]
-str = "hello"
-)"_toml;
-
 TEST_CASE("4: toml11 struct (pass)", "[multi-file:4]") {
+    auto toml_vl = serde::parse_file<toml::value>("../../tests/test.toml");
     REQUIRE(toml_vl == serialize<toml::value>(deserialize<test>(toml_vl)));
 }

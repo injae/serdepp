@@ -13,16 +13,7 @@ std::string str(rapidjson::Document& doc) {
 using namespace serde;
 
 TEST_CASE("5: toml11 struct (pass)", "[multi-file:5]") {
-    rapidjson::Document json_v;
-    json_v.Parse(R"({
-"str" : "hello",
-"i": 10,
-"vec": [ "one", "two", "three"],
-"opt": "hello",
-"sm": { "one" : "tone", "two" : "ttwo"},
-"sub" : { "str": "hello" }
-})");
+    auto json_v = serde::parse_file<rapidjson::Document>("../../tests/test.json");
     rapidjson::Document json_c = serialize<rapidjson::Document>(deserialize<test>(json_v));
-
     REQUIRE(str(json_v) == str(json_c));
 }
