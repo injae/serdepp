@@ -44,7 +44,7 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
-        directory: ./build/${{matrix.build-type}}
+        directory: ./build
         files: lcov.info
         flags: unittest
         fail_ci_if_error: true
