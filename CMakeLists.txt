@@ -12,18 +12,21 @@ cppm_compiler_option(
       CLANG "-fprofile-instr-generate -fcoverage-mapping"
 )
 
-find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
-find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
-find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(Catch2 2.9.1  MODULE Catch2::Catch2 TYPE lib OPTIONAL OFF)
-find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
-find_cppkg(yaml-cpp 0.7.0  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
-find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib OPTIONAL OFF)
+find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib)
+find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib)
+find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib)
+find_cppkg(yaml-cpp 0.7.0  MODULE yaml-cpp TYPE lib)
+find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib)
+endif()
 
-cppm_target_define(serdepp STATIC
+
+cppm_target_define(serdepp INTERFACE
 SOURCES
     src/to_static.cpp
 )
@@ -95,10 +98,13 @@ cppm_target_define(unittest BINARY
 SOURCES
     tests/rapid_json.cpp
     tests/catch_main.cpp
+    tests/test.yaml
+    tests/test.json
     tests/yaml_cpp.cpp
     tests/toml11.cpp
     tests/reflection.cpp
     tests/nlohmann_json.cpp
+    tests/test.toml
     tests/test_struct.hpp
 )
 
@@ -124,8 +130,11 @@ SOURCES
 
 endif()
 
-set(serdepp_global_deps PRIVATE benchmark Catch2
-PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp fmt magic_enum nameof)
+set(serdepp_global_deps PRIVATE Catch2 benchmark
+PUBLIC magic_enum nameof)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+   list(APPEND serdepp_global_deps PRIVATE RapidJSON nlohmann_json toml11 yaml-cpp fmt)
+endif()
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 

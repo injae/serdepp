@@ -22,11 +22,10 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 
 ## Features
 - [x] low cost serializer, deserializer adaptor
-- [x] json serialize, deserialize (with [rapidjson](https://github.com/Tencent/rapidjson))
-- [x] json serialize, deserialize (with [nlohmann_json](https://github.com/nlohmann/json))
+- [x] json serialize, deserialize (with [rapidjson](https://github.com/Tencent/rapidjson), with [nlohmann_json](https://github.com/nlohmann/json))
 - [x] toml serialize, deserialize (with [toml11](https://github.com/ToruNiina/toml11))
 - [x] yaml serialize, deserialize (with [yaml-cpp](https://github.com/jbeder/yaml-cpp))
-- [x] [fmt](https://github.com/fmtlib/fmt) support 
+- [x] string formatter [fmt](https://github.com/fmtlib/fmt) support 
 - [x] std::cout(ostream) support
 - [x] struct, class support
 - [x] nested struct, class support
@@ -66,8 +65,7 @@ struct example {
 int main() {
     example ex;
     ex.number_ = 1024;
-   
- ex.vec_ = {"a", "b", "c"};
+    ex.vec_ = {"a", "b", "c"};
     ex.tenum_ = t_enum::B;
     //std::cout << ex << "\n";
 
@@ -94,30 +92,36 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 ## Dependencies
 - [nameof](https://github.com/Neargye/nameof) (Auto Install)
 - [magic_enum](https://github.com/Neargye/magic_enum)  (Auto Install)
-- [fmt](https://github.com/fmtlib/fmt) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_FMT=ON)
-- [nlohmann_json](https://github.com/nlohmann/json) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_NLOHMANN_JSON=ON)
-- [rapidjson](https://github.com/Tencent/rapidjson) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_RAPIDJSON=ON)
-- [toml11](https://github.com/ToruNiina/toml11) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_TOML11=ON)
-- [yaml-cpp](https://github.com/jbeder/yaml-cpp) (optional) (Install CMAKE FLAG: -DSERDEPP_USE_YAML-CPP=ON)
+
+
+## Adaptor Libraries
+- [fmt](https://github.com/fmtlib/fmt) with [fmt.hpp](./include/serdepp/adaptor/fmt.hpp)
+- [nlohmann_json](https://github.com/nlohmann/json) with [nlohmann_json.hpp](./include/serdepp/adaptor/nlohmann_json.hpp)
+- [rapidjson](https://github.com/Tencent/rapidjson) with [rapidjson.hpp](./include/serdepp/adaptor/rapidjson.hpp)
+- [toml11](https://github.com/ToruNiina/toml11) with [toml11.hpp](./include/serdepp/adaptor/toml11.hpp)
+- [yaml-cpp](https://github.com/jbeder/yaml-cpp) with [yaml-cpp.hpp](./include/serdepp/adaptor/yaml-cpp.hpp)
 
 ## Install With Vcpkg
 ```console
 vcpkg install serdepp
 # with other adaptors <nlohmann-json|toml11|yaml-cpp|fmt|rapidjson>
 vcpkg install ${adaptor}
-```
 
-## CMake With Vcpkg
-```cmake
-find_package(serdepp CONFIG)
-target_link_libraries(${target name} PRIVATE serdepp::serdepp)
-# with adaptors
-# names   (nlohmann_json,                yaml-cpp, toml11,         RapidJson, fmt)
-# targets (nlohmann_json::nlohmann_json, yaml-cpp, toml11::toml11, rapidjson, fmt::fmt-header-only)
-find_package(${adaptor name} CONFIG)
-target_link_libraries(${target name} PRIVATE ${adaptor cmake target})
-```
+# with nlohmann-json adaptor
+vcpkg install nlohmann-json
 
+# with toml11 adaptor
+vcpkg install toml11
+
+# with yaml-cpp adaptor
+vcpkg install yaml-cpp
+
+# with fmt adaptor
+vcpkg install fmt
+
+# with rapidjson adaptor
+vcpkg install rapidjson
+```
 ## Install
 ```console
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Release .
