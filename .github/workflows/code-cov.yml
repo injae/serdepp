@@ -37,8 +37,9 @@ jobs:
         cmake --build . --config ${{matrix.build-type}}
     - name: Generate Coverage Report
       run: |
+        cd build
+        ctest .
         cd build/${{matrix.build-type}}
-        ./unittest
         llvm-profdata-${{matrix.clang-version}} merge -sparse default.profraw -o default.profdata
         llvm-cov-${{matrix.clang-version}} export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
     - name: Upload coverage to Codecov
