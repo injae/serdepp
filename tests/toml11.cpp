@@ -7,6 +7,6 @@ using namespace serde;
 using namespace toml::literals;
 
 TEST_CASE("4: toml11 struct (pass)", "[multi-file:4]") {
-    auto toml_vl = serde::parse_file<toml::value>("../../tests/test.toml");
+    auto toml_vl = serde::parse_file<toml::value>("../tests/test.toml");
     REQUIRE(toml_vl == serialize<toml::value>(deserialize<test>(toml_vl)));
 }
