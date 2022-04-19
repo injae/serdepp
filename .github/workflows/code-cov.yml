@@ -39,7 +39,7 @@ jobs:
       run: |
         cd build
         ctest .
-        cd build/${{matrix.build-type}}
+        cd ${{matrix.build-type}}
         llvm-profdata-${{matrix.clang-version}} merge -sparse default.profraw -o default.profdata
         llvm-cov-${{matrix.clang-version}} export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
     - name: Upload coverage to Codecov
