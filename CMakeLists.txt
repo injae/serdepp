@@ -17,7 +17,7 @@ find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(magic_enum 0.7.3  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" or (SERDEPP_BUILD_EXAMPLES or (SERDEPP_BUILD_TESTING)))
 find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib)
 find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib)
@@ -132,7 +132,7 @@ endif()
 
 set(serdepp_global_deps PRIVATE Catch2 benchmark
 PUBLIC magic_enum nameof)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" or (SERDEPP_BUILD_EXAMPLES or (SERDEPP_BUILD_TESTING)))
    list(APPEND serdepp_global_deps PRIVATE RapidJSON nlohmann_json toml11 yaml-cpp fmt)
 endif()
 cppm_target_dependencies(serdepp
