@@ -22,7 +22,7 @@ find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib)
 find_cppkg(cli11 2.2.0  MODULE CLI11::CLI11 TYPE lib)
 find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib)
-find_cppkg(yaml-cpp 0.7.0  MODULE yaml-cpp TYPE lib)
+find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib)
 find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib)
 endif()
 

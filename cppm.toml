@@ -107,7 +107,7 @@ source = ["tests/.*"]
 #  example, benchmark, debug dependencies
 [dev-dependencies]
     fmt = "8.0.1"
-    yaml-cpp  ="0.7.0"
+    yaml-cpp  ="0.6.3"
     toml11    ="3.7.0"
     nlohmann_json = "3.10.5"
     RapidJSON = "1.1.1"
