@@ -1,8 +1,0 @@
-# Cppkg Base Dependency Downloader
-cmake_minimum_required(VERSION 3.6)
-project(-8.0.1-install)
-
-set(CPPM_VERSION ${CPPM_VERSION})
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
-download_package( 8.0.1   TYPE lib CMAKE_ARGS ${CMAKE_ARGS} )
-

@@ -251,6 +251,7 @@ namespace serde
       Adaptor = [nlohmann::json serde_sstream, toml11::value ...]
       Adaptor(key) -> T or Adaptor -> T
       T t = deserialize<T>(Adaptor, key)
+
      */
     template <typename T, class Adaptor>
     constexpr inline T deserialize(Adaptor&& adaptor, std::string_view key="") {
@@ -283,6 +284,7 @@ namespace serde
     constexpr inline Adaptor serialize(T&& target, std::string_view key="") {
         using origin = meta::remove_cvref_t<T>;
         Adaptor adaptor;
+
         serde_context<Adaptor, true> ctx(adaptor);
         serde_serializer<origin, serde_context<Adaptor,true>>::into(ctx, target, key);
         return adaptor;
@@ -445,6 +447,11 @@ namespace serde
     namespace attribute {
         template<typename... Ty>
         inline constexpr std::tuple<Ty...> attributes(Ty&&... arg) {
+            return std::make_tuple(std::forward<Ty>(arg)...);
+        }
+
+        template<typename... Ty>
+        inline constexpr std::tuple<Ty...> attrs(Ty&&... arg) {
             return std::make_tuple(std::forward<Ty>(arg)...);
         }
 
@@ -671,6 +678,8 @@ namespace serde
 
     /*compile time: stuct member size*/
     template<class T> [[maybe_unused]] constexpr static size_t tuple_size_v = tuple_size<T>::value;
+
+    template<class Adaptor> struct special_adaptor : std::false_type {};
 } // namespace serde
 
 
