@@ -60,6 +60,11 @@
     name = "pointer"
     source = ["examples/pointer.cpp"]
 
+
+[[example]]
+    name = "cli11"
+    source = ["examples/cli11.cpp"]
+
 #[[example]]
 #    name = "protobuf"
 #    source = ["examples/protobuf.cpp", "examples/hello.pb.cc"]
@@ -106,7 +111,7 @@ source = ["tests/.*"]
     toml11    ="3.7.0"
     nlohmann_json = "3.10.5"
     RapidJSON = "1.1.1"
-    #CLI11    = "2.2.0"
+    cli11    = "2.2.0"
     #pybind11 = "2.9.0"
     #Protobuf = "3.20.0"
     #hiredis = "git"
