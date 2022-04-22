@@ -19,8 +19,9 @@ find_cppkg(nameof 0.10.0  MODULE nameof::nameof TYPE lib)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR (SERDEPP_BUILD_EXAMPLES OR (SERDEPP_BUILD_TESTING)))
 find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib)
-find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib)
+find_cppkg(cli11 2.2.0  MODULE CLI11::CLI11 TYPE lib)
+find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib)
 find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib)
 find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib)
 endif()
@@ -89,6 +90,11 @@ SOURCES
     examples/pointer.cpp
 )
 
+cppm_target_define(cli11 BINARY
+SOURCES
+    examples/cli11.cpp
+)
+
 endif()
 
 cppm_unit_test_area()
@@ -133,7 +139,7 @@ endif()
 set(serdepp_global_deps PRIVATE Catch2 benchmark
 PUBLIC magic_enum nameof)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR (SERDEPP_BUILD_EXAMPLES OR (SERDEPP_BUILD_TESTING)))
-   list(APPEND serdepp_global_deps PRIVATE RapidJSON nlohmann_json toml11 yaml-cpp fmt)
+   list(APPEND serdepp_global_deps PRIVATE RapidJSON toml11 cli11 nlohmann_json yaml-cpp fmt)
 endif()
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
@@ -182,6 +188,10 @@ cppm_target_dependencies(pointer
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(cli11
+   ${serdepp_global_deps}
+   serdepp)
+
 cppm_target_dependencies(unittest
    ${serdepp_global_deps}
    serdepp)
@@ -212,4 +222,5 @@ cppm_target_install(sugar)
 cppm_target_install(reflection)
 cppm_target_install(print)
 cppm_target_install(pointer)
+cppm_target_install(cli11)
 

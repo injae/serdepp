@@ -71,6 +71,26 @@ namespace serde::attribute::cli11 {
             next_attr.into(ctx, data, key, remains...);
         }
     };
+
+    template<class Hook>
+    struct callback {
+        callback(Hook&& hook) : hook_(hook) {};
+        Hook&& hook_;
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        constexpr inline void from(serde_ctx& ctx, T& data, std::string_view key,
+                                    Next&& next_attr, Attributes&&... remains) {
+            next_attr.from(ctx, data, key, remains...);
+        }
+
+        template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
+        inline void into(serde_ctx& ctx, T& data, std::string_view key,
+                                    Next&& next_attr, Attributes&&... remains) {
+            if constexpr(std::is_same_v<typename serde_ctx::Adaptor, CLI::App>) {
+                ctx.adaptor.final_callback([&data, hook = std::move(hook_)](){ hook(data); });
+            }
+            next_attr.into(ctx, data, key, remains...);
+        }
+    };
 }
 
 #endif
