@@ -402,9 +402,26 @@ namespace serde
             return serde_struct<Context, T, type_tuple>(context_, value_);
         }
 
-
         template<typename Attribute, typename... Attributes>
         inline constexpr serde_struct& attributes(Attribute&& attribute, Attributes&&... attributes) {
+            if(context_.skip_all_) return *this;
+            if constexpr(!Context::is_serialize) {
+                attribute.template from<T, Context>(context_, value_, "",
+                                                    std::forward<meta::remove_cvref_t<Attributes>>
+                                                    (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                    attribute::pass);
+            } else {
+                attribute.template into<T, Context>(context_, value_, "",
+                                                    std::forward<meta::remove_cvref_t<Attributes>>
+                                                    (const_cast<meta::remove_cvref_t<Attributes>&>(attributes))...,
+                                                    attribute::pass);
+            }
+            return *this;
+        }
+
+        // attributes short name version for [attrs(...)]
+        template<typename Attribute, typename... Attributes>
+        inline constexpr serde_struct& attrs(Attribute&& attribute, Attributes&&... attributes) {
             if(context_.skip_all_) return *this;
             if constexpr(!Context::is_serialize) {
                 attribute.template from<T, Context>(context_, value_, "",

@@ -31,7 +31,7 @@ namespace serde {
             deserialize_to(s.get_subcommand(std::string{key}), data);
         }
         static void into(cli11_t& s, std::string_view key, const T& data) {
-            serialize_to(data, *s.add_subcommand(std::string{key}));
+            serialize_to(data, *s.add_subcommand(std::string{key})->require_subcommand(0, 1));
         }
     };
 

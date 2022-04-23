@@ -15,6 +15,4 @@
 
 //namespace serde::attribute {}
 
-
-
 #endif
