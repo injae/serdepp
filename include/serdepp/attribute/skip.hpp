@@ -21,7 +21,7 @@ namespace serde::attribute {
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
             constexpr inline void from(serde_ctx &ctx, T &data, std::string_view key,
                                        Next &&next_attr, Attributes &&...remains) const{
-            next_attr.from(ctx, data, key, remains...);
+                next_attr.from(ctx, data, key, remains...);
             }
 
             template <typename T, typename serde_ctx, typename Next, typename... Attributes>
@@ -41,6 +41,43 @@ namespace serde::attribute {
             }
         };
 
+        template<typename TAdaptor>
+        struct skip_if_not_adaptor {
+            template <typename T, typename serde_ctx, typename Next, typename... Attributes>
+            constexpr inline void from(serde_ctx &ctx, T &data, std::string_view key,
+                                       Next &&next_attr, Attributes &&...remains) const{
+                if constexpr(std::is_same_v<typename serde_ctx::Adaptor, TAdaptor>) {
+                    next_attr.from(ctx, data, key, remains...);
+                }
+            }
+
+            template <typename T, typename serde_ctx, typename Next, typename... Attributes>
+            constexpr inline void into(serde_ctx &ctx, T &data, std::string_view key,
+                                       Next &&next_attr, Attributes &&...remains) const{
+                if constexpr(std::is_same_v<typename serde_ctx::Adaptor, TAdaptor>) {
+                    next_attr.into(ctx, data, key, remains...);
+                }
+            }
+        };
+
+        template<typename TAdaptor>
+        struct skip_if_adaptor {
+            template <typename T, typename serde_ctx, typename Next, typename... Attributes>
+            constexpr inline void from(serde_ctx &ctx, T &data, std::string_view key,
+                                       Next &&next_attr, Attributes &&...remains) const{
+                if constexpr(!std::is_same_v<typename serde_ctx::Adaptor, TAdaptor>) {
+                    next_attr.from(ctx, data, key, remains...);
+                }
+            }
+
+            template <typename T, typename serde_ctx, typename Next, typename... Attributes>
+            constexpr inline void into(serde_ctx &ctx, T &data, std::string_view key,
+                                       Next &&next_attr, Attributes &&...remains) const{
+                if constexpr(!std::is_same_v<typename serde_ctx::Adaptor, TAdaptor>) {
+                    next_attr.into(ctx, data, key, remains...);
+                }
+            }
+        };
 
         struct skip_if_null_attr {
             template<typename T, typename serde_ctx, typename Next, typename ...Attributes>
