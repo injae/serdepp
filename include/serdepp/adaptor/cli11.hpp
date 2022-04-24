@@ -44,6 +44,17 @@ namespace serde {
             //s.arg_after_init(std::string{key});
         }
     };
+
+    template<class Type>
+    int cli11_parse(int argc, char *argv[]) {
+        CLI::App app;
+        Type cmd;
+        serde::serialize_to(cmd, app);
+
+        CLI11_PARSE(app, argc, argv);
+        return 0;
+    }
+
 }
 
 #endif
