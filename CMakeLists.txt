@@ -107,6 +107,7 @@ SOURCES
     tests/test.yaml
     tests/test.json
     tests/yaml_cpp.cpp
+    tests/attribute.cpp
     tests/toml11.cpp
     tests/reflection.cpp
     tests/nlohmann_json.cpp
