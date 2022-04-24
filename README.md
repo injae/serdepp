@@ -25,6 +25,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 - [x] json serialize, deserialize (with [rapidjson](https://github.com/Tencent/rapidjson), with [nlohmann_json](https://github.com/nlohmann/json))
 - [x] toml serialize, deserialize (with [toml11](https://github.com/ToruNiina/toml11))
 - [x] yaml serialize, deserialize (with [yaml-cpp](https://github.com/jbeder/yaml-cpp))
+- [x] cli parser serialize        (with [CLI11](https://github.com/CLIUtils/CLI11))
 - [x] string formatter [fmt](https://github.com/fmtlib/fmt) support 
 - [x] std::cout(ostream) support
 - [x] struct, class support
@@ -43,6 +44,7 @@ c++17 low cost serialize deserialize adaptor library like rust serde.rs
 ## Get Started
 ```cpp
 #include <serdepp/serde.hpp>
+
 #include <serdepp/adaptor/nlohmann_json.hpp>
 
 enum class t_enum { A, B };
@@ -59,8 +61,10 @@ struct example {
     int number_;
     std::vector<std::string> vec_;
     std::optional<std::vector<std::string>> opt_vec_;
+
     t_enum tenum_;
-};  
+}; 
+ 
 
 int main() {
     example ex;
@@ -100,11 +104,12 @@ fmt:{"vec: {"a", "b", "c"}", "t_enum: B"}
 - [rapidjson](https://github.com/Tencent/rapidjson) with [rapidjson.hpp](./include/serdepp/adaptor/rapidjson.hpp)
 - [toml11](https://github.com/ToruNiina/toml11) with [toml11.hpp](./include/serdepp/adaptor/toml11.hpp)
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp) with [yaml-cpp.hpp](./include/serdepp/adaptor/yaml-cpp.hpp)
+- [CLI11](https://github.com/CLIUtils/CLI11) with [cli11.hpp](./include/serdepp/adaptor/cli11.hpp), [attribute/cli11.hpp](./include/serdepp/attribute/cli11.hpp)
 
 ## Install With Vcpkg
 ```console
 vcpkg install serdepp
-# with other adaptors <nlohmann-json|toml11|yaml-cpp|fmt|rapidjson>
+# with other adaptors <nlohmann-json|toml11|yaml-cpp|fmt|rapidjson,cli11>
 vcpkg install ${adaptor}
 
 # with nlohmann-json adaptor
@@ -121,6 +126,9 @@ vcpkg install fmt
 
 # with rapidjson adaptor
 vcpkg install rapidjson
+
+# with cli11 adaptor
+vcpkg install cli11
 ```
 ## Install
 ```console
@@ -202,6 +210,8 @@ private:
 class test {
 public:
     DERIVE_SERDE(test, (&Self::str, "str")(&Self::i, "i")(&Self::vec, "vec"))
+    // Macro Version
+    // DERIVE_SERDE(test, _SF_(str)_SF_(i)_SF_(vec))
 private:
     std::string str;
     int i;
@@ -252,7 +262,8 @@ struct A {
 };
 
 int main(int argc, char* argv[]) {
-    constexpr auto info = serde::type_info<A>;
+    constexpr auto info = serde::type_info<A>
+;
     static_assert(serde::type_info<A>.size == 5);
     static_assert(serde::tuple_size_v<A> == 5);
     static_assert(std::is_same_v<serde::to_tuple_t<A>, std::tuple<int, std::string, double, std::vector<int>, int>>);
@@ -281,73 +292,6 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
-
-## [Simple Example](./examples/simple_example.cpp)
-```cpp
-#include <serdepp/serializer.hpp>
-#include <serdepp/adaptor/nlohmann_json.hpp>
-#include <serdepp/adaptor/toml11.hpp>
-#include <serdepp/adaptor/yaml-cpp.hpp>
-#include <serdepp/adaptor/fmt.hpp>
-
-using namespace serde::ostream;
-
-enum class tenum {
-    INPUT,
-    OUTPUT,
-};
-
-class test {
-public:
-    template<class Context>
-    constexpr static auto serde(Context& context, test& value) {
-        using Self = test;
-        serde::serde_struct(context, value)
-            .field(&Self::str, "str") // or (&test::str, "str")
-            .field(&Self::i,   "i")
-            .field(&Self::vec, "vec")
-            .field(&Self::io,  "io")
-            .field(&Self::pri, "pri")
-            .field(&Self::m ,  "m");
-    }
-    std::optional<std::string> str;
-    int i;
-    std::optional<std::vector<std::string>> vec;
-    tenum io;
-    std::map<std::string, std::string> m;
-private:
-    std::string pri;
-};
-
-int main()
-{
-    nlohmann::json v = R"({
-    "i": 10,
-    "vec": [ "one", "two", "three" ],
-    "io": "INPUT",
-    "pri" : "pri",
-    "m" : { "a" : "1",
-            "b" : "2",
-            "c" : "3" }
-    })"_json;
-
-    test t = serde::deserialize<test>(v);
-
-    auto v_to_json = serde::serialize<nlohmann::json>(t);
-    auto v_to_toml = serde::serialize<serde::toml_v>(t);
-    auto v_to_yaml = serde::serialize<serde::yaml>(t);
-
-    test t_from_toml = serde::deserialize<test>(v_to_toml);
-    test t_from_yaml = serde::deserialize<test>(v_to_yaml);
-
-    fmt::print("{}\n", t);
-    std::cout << t << '\n';
-
-  return 0;
-}
-```
-
-
 ### [Nested Class Example](./examples/example.cpp)
 ```cpp
 #include <serdepp/serializer.hpp>
@@ -742,7 +686,3 @@ yaml_get_tl_bench            30182 ns        30155 ns        23070
 rapid_json_set_se_bench        398 ns          397 ns      1743184
 rapid_json_get_se_bench       2099 ns         2096 ns       331971
 ```
-
-## Projects using this library
-- [cppm](https://github.com/injae/cppm): cross platform c++ package manager
-- [cpcli](https://github.com/injae/cpcli): c++ command line parser

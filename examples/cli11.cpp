@@ -4,21 +4,23 @@
 #include <serdepp/adaptor/fmt.hpp>
 
 struct callback_interface {
-    static void callback(std::vector<std::string>& args){ throw serde::unimplemented_error("need callback function"); };
+    static constexpr std::string_view desc = "";
+    static void callback(std::vector<std::string>& args){ throw serde::unimplemented_error("need callback function"); }
 };
 
 using namespace serde::attribute::cli11;
 template<typename T=callback_interface>
 struct SingleCommand {
     SingleCommand()=default;
-    DERIVE_SERDE(SingleCommand<T>, .attributes(cli11::callback{SingleCommand<T>::callback})
-                    [attrs(cli11::option("args", "args"))]_SF_(args))
+    DERIVE_SERDE(SingleCommand<T>,
+                 .attrs(desc{std::string{T::desc}}, cli11::callback{SingleCommand<T>::callback})
+                 [attrs(cli11::option("args", "args"))]_SF_(args))
     std::vector<std::string> args;
-
     static void callback(SingleCommand<T>& cmd) { T::callback(cmd.args); }
 };
 
 struct Test : callback_interface {
+    static constexpr std::string_view desc ="Test1 Descripition";
     static void callback(std::vector<std::string>& args) {
         fmt::print("Test {}\n",args);
 
@@ -27,6 +29,7 @@ struct Test : callback_interface {
 };
 
 struct Test2 : callback_interface {
+    static constexpr std::string_view desc ="Test2 Descripition";
     static void callback(std::vector<std::string>& args) {
         fmt::print("Test2 {}\n",args);
 
@@ -34,9 +37,9 @@ struct Test2 : callback_interface {
     }
 };
 
-
 struct Nested {
-    DERIVE_SERDE(Nested, .attributes(desc{"Nested Cmd"}, callback{Nested::execute})
+    DERIVE_SERDE(Nested,
+                 .attrs(desc{"Nested Cmd"}, callback{Nested::execute})
                  [attrs(flag("--check,-c", "on off", [](auto* opt){ opt->required(); }))]_SF_(check)
                  [attrs(option("--hello", "hello"))]_SF_(hello)
                  [attrs(option("first", "first", [](auto* opt){ opt->required(); }))]_SF_(first)
@@ -89,11 +92,5 @@ struct Cmd {
 
 
 int main(int argc, char *argv[]) {
-    CLI::App app;
-    
-    Cmd cmd;
-    serde::serialize_to(cmd, app);
-
-    CLI11_PARSE(app, argc, argv);
-    return 0;
+    return serde::cli11_parse<Cmd>(argc, argv);
 }
