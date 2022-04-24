@@ -4,7 +4,7 @@
 
 using namespace serde;
 
-TEST_CASE("5: yaml-cpp struct (pass)", "[multi-file:5]") {
+TEST_CASE("6: yaml-cpp struct (pass)", "[multi-file:6]") {
     std::ostringstream convert;
     auto yaml_v = serde::parse_file<YAML::Node>("../tests/test.yaml");
     std::ostringstream origin;
