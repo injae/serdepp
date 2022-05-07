@@ -27,39 +27,39 @@ namespace serde
 
     template <class Adaptor, typename=void> struct serde_adaptor_helper {
         // for support optional type parse
-        inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key);
+        [[maybe_unused]] inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key);
         // for support no_remain function
-        inline constexpr static size_t size(Adaptor& adaptor);
+        [[maybe_unused]] inline constexpr static size_t size(Adaptor& adaptor);
         // for support string_or_struct
-        inline constexpr static bool is_struct(Adaptor& adaptor);
+        [[maybe_unused]] inline constexpr static bool is_struct(Adaptor& adaptor);
         // for support parse_file
-        inline constexpr static Adaptor parse_file(const std::string& path);
+        [[maybe_unused]] inline constexpr static Adaptor parse_file(const std::string& path);
     };
 
     template <class Adaptor>
     struct derive_serde_adaptor_helper { // default serde adaptor helper
-        inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key) {
+        [[maybe_unused]] inline constexpr static bool is_null(Adaptor& adaptor, std::string_view key) {
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::is_null(adaptor, key)");
             return adaptor.contains(key);
         }
 
-        inline constexpr static size_t size(Adaptor& adaptor) {
+        [[maybe_unused]] inline constexpr static size_t size(Adaptor& adaptor) {
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::size(adaptor, key)");
             return adaptor.size();
         }
 
-        inline constexpr static bool is_struct(Adaptor& adaptor) {
+        [[maybe_unused]] inline constexpr static bool is_struct(Adaptor& adaptor) {
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::is_struct(adaptor, key)");
             return true;
         }
 
-        inline constexpr static Adaptor parse_file(Adaptor& adaptor) {
+        [[maybe_unused]] inline constexpr static Adaptor parse_file(Adaptor& adaptor) {
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::parse_file(adaptor, key)");
@@ -69,14 +69,14 @@ namespace serde
 
     template<typename S, typename T, typename = void>
     struct serde_adaptor {
-        static void from(S& s, std::string_view key, T& data){}
-        static void into(S& s, std::string_view key, const T& data){}
+        [[maybe_unused]] static void from(S& s, std::string_view key, T& data){}
+        [[maybe_unused]] static void into(S& s, std::string_view key, const T& data){}
     };
 
     namespace detail {
         struct dummy_adaptor{
-            bool contains(std::string_view key) { return true; }
-            size_t size() { return 1; } 
+            [[maybe_unused]] bool contains(std::string_view key) { return true; }
+            [[maybe_unused]] size_t size() { return 1; } 
         };
     };
 
