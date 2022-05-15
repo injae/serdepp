@@ -11,7 +11,7 @@ namespace serde {
             template<typename T> void func(T& type, std::string_view key) {}
         };
 
-        template<typename H=serde_struct_info_hook>
+        template<class H=serde_struct_info_hook>
         class type_info_adaptor {
         public:
             using Hook = H;
@@ -23,6 +23,7 @@ namespace serde {
         private:
             Hook& hook_;
         };
+
 
         template<typename M>
         class MemberFromKey {
@@ -89,6 +90,21 @@ namespace serde {
             M* member_;
         };
 
+        template<typename T>
+        class MemberArray {
+        public:
+            using value_type = meta::to_variant_t<to_tuple_t<T>>;
+            DERIVE_SERDE(MemberArray,(&Self::array_, "array"))
+            friend type_info_adaptor<MemberArray<T>>;
+            constexpr MemberArray() : visit_(0) {};
+            constexpr inline auto& value() { return array_; }
+        private:
+            template<typename U>
+            inline constexpr void func(U& data, std::string_view key) { array_[visit_++] = data; }
+            std::array<value_type, tuple_size_v<T>> array_;
+            size_t visit_;
+        };
+
         template<class T>
         class MemberNames {
         public:
@@ -98,9 +114,7 @@ namespace serde {
             inline constexpr const auto& members() const { return members_; }
           private:
             template<typename U>
-            inline constexpr void func(U& data, std::string_view key) {
-                members_[index_++]=key;
-            }
+            inline constexpr void func(U& data, std::string_view key) { members_[index_++]=key; }
             std::array<std::string_view, tuple_size_v<T>> members_;
             size_t index_;
         };
@@ -114,7 +128,6 @@ namespace serde {
         constexpr static std::string_view name = nameof::nameof_type<Type>();
 
         constexpr serde_struct_info() = default;
-
         //constexpr std::string_view name() { return nameof::nameof_type<Type>();}
 
         template<size_t index>
@@ -176,6 +189,8 @@ namespace serde {
         using rtype = meta::remove_cvref_t<T>;
         return detail::make_tuple_impl(value, std::make_index_sequence<tuple_size_v<rtype>>());  
     }
+
+    template<class H> struct special_adaptor<info::type_info_adaptor<H>> : std::true_type {};
 }
 
 #endif
