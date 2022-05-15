@@ -39,36 +39,47 @@ struct Test2 : callback_interface {
 
 struct Nested {
     DERIVE_SERDE(Nested,
-                 .attrs(desc{"Nested Cmd"}, callback{Nested::execute})
-                 [attrs(flag("--check,-c", "on off", [](auto* opt){ opt->required(); }))]_SF_(check)
+                 .attrs(desc{"Nested Cmd"}, callback{Nested::execute},
+                        option_group{"Type", "Project Type", [](auto* g){ g->require_option(1); }},
+                        sub_command{"test2", "Test2 subcommand", Nested::test2},
+                        sub_command{"test1", "Test1 subcommand", Nested::test1}
+                        )
+                 [attrs(flag("--check,-c", "on off"))]_SF_(check)
                  [attrs(option("--hello", "hello"))]_SF_(hello)
-                 [attrs(option("first", "first", [](auto* opt){ opt->required(); }))]_SF_(first)
+                 [attrs(group_flag("Type","-l,--lib", "lib"))]_SF_(lib)
+                 [attrs(group_flag("Type","-b,--bin", "bin"))]_SF_(bin)
+                 [attrs(option("first", "first"))]_SF_(first)
                  [attrs(option("second", "second"))]_SF_(second)
-                 _SF_(test))
+                 _SF_(test3))
 
     static void execute(Nested& n) {
         fmt::print("{}\n",n);
-
         throw CLI::Success{};
     }
 
+    static void test2(Nested& n) {
+        fmt::print("hello2 {}", n);
+    }
+
+    static void test1(Nested& n) {
+        fmt::print("hello {}", n);
+    }
+
     bool check;
+    bool lib;
+    bool bin;
     std::string hello;
     std::string first;
     std::string second;
-    SingleCommand<Test> test;
+    SingleCommand<Test> test3;
 };
 
 struct Cmd {
     DERIVE_SERDE(Cmd,
-                 .attrs(command{"Cmd Test"},
-                        option_group{"Type", "Project Type", [](auto* g){ g->require_option(1); }},
-                        callback{Cmd::execute})
+                 .attrs(command{"Cmd Test"}, callback{Cmd::execute})
                  [attrs(flag("-c{check},-f{fheck}", "on off"))]_SF_(check)
                  [attrs(option("--hello", "hello"))]_SF_(hello)
                  [attrs(option("-D", "CMake option"))]_SF_(cmake)
-                 [attrs(group_flag("Type","-l,--lib", "lib"))]_SF_(lib)
-                 [attrs(group_flag("Type","-b,--bin", "bin"))]_SF_(bin)
                  _SF_(nest)
                  _SF_(test)
                  _SF_(t2)
@@ -81,8 +92,6 @@ struct Cmd {
     }
 
     std::string check;
-    bool lib;
-    bool bin;
     std::string hello;
     std::string cmake;
     SingleCommand<Test> test;

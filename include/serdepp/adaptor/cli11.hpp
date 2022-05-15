@@ -36,13 +36,8 @@ namespace serde {
     };
 
     template<typename T, typename U> struct serde_adaptor<cli11_t, T, U> {
-        static void from(cli11_t& s, std::string_view key, T& data) {
-            //if(!s.get_arg(key).is_require() && !s.get_arg(key).visit()) return;
-            //data = s.get_arg(key).get<T>();
-        }
-        static void into(cli11_t& s, std::string_view key, const T& data) {
-            //s.arg_after_init(std::string{key});
-        }
+        static void from(cli11_t& s, std::string_view key, T& data) {}
+        static void into(cli11_t& s, std::string_view key, const T& data) {}
     };
 
     template<class Type>
@@ -54,7 +49,6 @@ namespace serde {
         CLI11_PARSE(app, argc, argv);
         return 0;
     }
-
 }
 
 #endif
