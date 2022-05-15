@@ -46,6 +46,18 @@ namespace serde::meta {
     template<class Input, class... Args>
     using tuple_extend_t = typename tuple_extend<Input, Args...>::type;
 
+    template<typename... T>
+    struct to_variant {
+        using type = std::variant<T...>;
+    };
+
+    template<typename... T>
+    struct to_variant<std::tuple<T...>> {
+        using type = std::variant<T...>;
+    };
+
+    template<typename... T>
+    using to_variant_t = typename to_variant<T...>::type;
 
     template <typename T, typename = void> struct is_iterable : std::false_type {};
     template <typename T>
@@ -186,6 +198,8 @@ namespace serde::meta {
                                      > : std::true_type {};
     template<class CTX, typename T> inline constexpr auto is_serdeable_v = is_serdeable<CTX, T>::value;
 
+    template<class serde_ctx, class Target>
+    constexpr const auto is_adaptor_v = std::is_same_v<typename serde_ctx::Adaptor, Target>;
 
     template<typename Attribute, typename T>
     using attr = typename Attribute::template serde_attribute<T>;
