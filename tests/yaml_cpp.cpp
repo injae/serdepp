@@ -2,28 +2,13 @@
 #include "test_struct.hpp"
 #include <serdepp/adaptor/yaml-cpp.hpp>
 
-
-YAML::Node yaml_v = YAML::Load(R"(
-str: hello
-i: 10
-vec:
-- one
-- two
-- three 
-opt: hello
-sm:
-  one: tone
-  two: ttwo
-sub:
-  str: hello
-)");
-
 using namespace serde;
 
-TEST_CASE("5: yaml-cpp struct (pass)", "[multi-file:5]") {
+TEST_CASE("6: yaml-cpp struct (pass)", "[multi-file:6]") {
+    std::ostringstream convert;
+    auto yaml_v = serde::parse_file<YAML::Node>("../tests/test.yaml");
     std::ostringstream origin;
     origin << yaml_v;
-    std::ostringstream convert;
     convert << serialize<YAML::Node>(deserialize<test>(yaml_v));
 
     REQUIRE(origin.str() == convert.str());

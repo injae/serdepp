@@ -4,7 +4,7 @@
 
 using namespace serde;
 
-TEST_CASE("3: reflection struct (pass)", "[multi-file:3]") {
+TEST_CASE("4: reflection struct (pass)", "[multi-file:4]") {
     REQUIRE(std::is_same_v<to_tuple_t<test>,
             std::tuple<std::string,
             int,

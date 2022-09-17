@@ -1,0 +1,8 @@
+{
+"str" : "hello",
+"i": 10,
+"vec": [ "one", "two", "three"],
+"opt": "hello",
+"sm": { "one" : "tone", "two" : "ttwo"},
+"sub" : { "str": "hello" }
+}
