@@ -22,7 +22,6 @@ namespace serde::attribute {
     [[maybe_unused]] constexpr static auto tttt = detail::tttt{};
 }
 
-
 struct Test {
     DERIVE_SERDE(Test,
             [attributes(flatten)]

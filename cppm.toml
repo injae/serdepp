@@ -93,8 +93,8 @@
     source = ["benchmark/syntax_benchmark.cpp"]
 
 [[tests]]
-name   = "unittest"
-source = ["tests/.*"]
+    name   = "unittest"
+    source = ["tests/.*"]
 
 
 [dependencies]

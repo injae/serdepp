@@ -40,7 +40,7 @@ namespace serde::meta {
     
     template<class Input, class... Args>
     struct tuple_extend<Input, std::tuple<Args...>> {
-        using type =  std::tuple<Args..., Input>;
+        using type = std::tuple<Args..., Input>;
     };
 
     template<class Input, class... Args>
@@ -61,7 +61,9 @@ namespace serde::meta {
 
     template <typename T, typename = void> struct is_iterable : std::false_type {};
     template <typename T>
-    struct is_iterable<T, std::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())>>
+    struct is_iterable<T, std::void_t<
+                              decltype(std::declval<T>().begin()),
+                              decltype(std::declval<T>().end())>>
         : std::true_type {};
     template<class T> constexpr auto is_iterable_v = is_iterable<T>::value;
 
@@ -87,7 +89,8 @@ namespace serde::meta {
     template<typename T>
     struct is_mappable<T, std::void_t<typename T::key_type,
                                       typename T::mapped_type,
-                                      decltype(std::declval<T&>()[std::declval<const typename T::key_type&>()])>>
+                                      decltype(std::declval<T&>()
+                                               [std::declval<const typename T::key_type&>()])>>
     : std::true_type { };
     template<typename T>  inline constexpr auto is_mappable_v = is_mappable<T>::value;
 
@@ -101,7 +104,6 @@ namespace serde::meta {
     struct is_enumable<T, std::enable_if_t<magic_enum::is_scoped_enum_v<T> ||
                                            magic_enum::is_unscoped_enum_v<T>>> : std::true_type {};
     template<typename T>  inline constexpr auto is_enumable_v = is_enumable<T>::value;
-
 
     //template<typename T, typename U = void> struct is_pointer : std::false_type {};
     //template<typename T>
