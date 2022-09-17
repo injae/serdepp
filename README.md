@@ -4,7 +4,7 @@
 [![Linux](https://github.com/injae/serdepp/actions/workflows/linux.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/linux.yml) 
 [![Windows](https://github.com/injae/serdepp/actions/workflows/window.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/window.yml) 
 [![MacOS](https://github.com/injae/serdepp/actions/workflows/macos.yml/badge.svg)](https://github.com/injae/serdepp/actions/workflows/macos.yml)
-[![codecov](https://codecov.io/gh/injae/serdepp/branch/main/graph/badge.svg?token=2L217GF77B)](https://codecov.io/gh/injae/serdepp)
+[![codecov](https://codecov.io/gh/injae/serdepp/branch/main/graph/badge.svg?token=2L217GF77B)](https://codecov.io/gh/injae/serdepp)  
 c++17 low cost serialize deserialize adaptor library like rust serde.rs  
 - [Features](#Features)
 - [Get Started](#Get-Started)
@@ -306,11 +306,6 @@ int main(int argc, char* argv[]) {
 #include <serdepp/adaptor/fmt.hpp>
 #include <serdepp/attributes.hpp>
 
-/// optional beta feature (for std::cout)
-#include <serdepp/ostream.hpp>
-using namespace serde::ostream; 
-///
-
 enum class tenum {
     INPUT  = 1,
     OUTPUT = 2,
@@ -405,9 +400,6 @@ int main()
     // class(test) -> string
     fmt::print("{}\n", t);
 
-    // beta feature
-    // need: #include <erdepp/ostream.hpp>
-    // need: using namespace serdepp::ostream;
     // class(test) -> string
     std:cout << t << '\n';
     //
