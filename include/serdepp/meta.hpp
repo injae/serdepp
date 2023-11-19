@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <utility>
 #include <string_view>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <memory>
 
 #ifndef __SERDEPP_META_HPP__
@@ -37,7 +37,7 @@ namespace serde::meta {
     struct tuple_extend<Input, void> {
         using type = std::tuple<Input>;
     };
-    
+
     template<class Input, class... Args>
     struct tuple_extend<Input, std::tuple<Args...>> {
         using type =  std::tuple<Args..., Input>;
@@ -136,7 +136,7 @@ namespace serde::meta {
     //    inline constexpr auto init() { throw serde::unimplemented_error("weakptr not suppport"); }
     //    constexpr static bool value = true;
     //};
-    
+
     template<typename T>  inline constexpr auto is_pointer_v = is_pointer<T>::value;
     template<typename T>  inline constexpr auto is_pointer_t = is_pointer<T>::type;
 

@@ -14,7 +14,7 @@
 #include <variant>
 #include <string_view>
 #include <nameof.hpp>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <functional>
 #include <algorithm>
 #include "serdepp/meta.hpp"
@@ -76,7 +76,7 @@ namespace serde
     namespace detail {
         struct dummy_adaptor{
             bool contains(std::string_view key) { return true; }
-            size_t size() { return 1; } 
+            size_t size() { return 1; }
         };
     };
 
@@ -92,7 +92,7 @@ namespace serde
         constexpr serde_context(T& format) : adaptor(format) {}
         T& adaptor;
         size_t read_count_ = 0;
-        bool skip_all_ = false; 
+        bool skip_all_ = false;
         constexpr void read() { read_count_++; }
     };
 
@@ -214,7 +214,7 @@ namespace serde
                 }
 
                 template<typename T, typename serde_ctx>
-                inline void into(serde_ctx& ctx, T& data, std::string_view key) const { 
+                inline void into(serde_ctx& ctx, T& data, std::string_view key) const {
                     serde::serde_serializer<T, serde_ctx>::into(ctx, data, key);
                 }
             };
@@ -347,7 +347,7 @@ namespace serde
             }
             return serde_struct<Context, T, type_tuple>(context_, value_);
         }
-        
+
         inline constexpr serde_struct& no_remain() {
             using namespace std::literals;
             if(context_.skip_all_) return *this;
@@ -562,7 +562,7 @@ namespace serde
         case SERDE_TYPE::MAP:
             if(!serde_type_checker<Format>::is_map(format)) return true;
             break;
-        case SERDE_TYPE::STRUCT:  
+        case SERDE_TYPE::STRUCT:
             if(!serde_type_checker<Format>::is_struct(format)) return true;
             break;
         case SERDE_TYPE::INTEGER:
@@ -578,7 +578,7 @@ namespace serde
             if(!serde_type_checker<Format>::is_string(format)) return true;
             break;
         default: return true;
-        //case SERDE_TYPE::UNKNOWN:  
+        //case SERDE_TYPE::UNKNOWN:
         }
         try {
             data = deserialize<T>(format);
