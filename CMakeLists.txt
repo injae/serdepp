@@ -31,6 +31,11 @@ SOURCES
 cppm_examples_area()
 if(SERDEPP_BUILD_EXAMPLES)
 
+cppm_target_define(serde_example2 BINARY
+SOURCES
+    examples/example2.cpp
+)
+
 cppm_target_define(serde_example1 BINARY
 SOURCES
     examples/example1.cpp
@@ -128,6 +133,10 @@ set(serdepp_global_deps PRIVATE benchmark Catch2
 PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp fmt magic_enum nameof)
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
+
+cppm_target_dependencies(serde_example2
+   ${serdepp_global_deps}
+   serdepp)
 
 cppm_target_dependencies(serde_example1
    ${serdepp_global_deps}

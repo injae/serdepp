@@ -24,6 +24,34 @@
             __VA_ARGS__;                     \
     }                                        \
 
+#define DERIVE_SERDE_NON_INTRUSIVE(Type, ...) \
+namespace serde { \
+    using namespace attribute; \
+    template<typename serde_ctx> \
+    struct serde_serializer<Type, serde_ctx> { \
+        using Adaptor = typename serde_ctx::Adaptor; \
+        constexpr inline static auto from(serde_ctx& ctx, Type& data, std::string_view key) { \
+            serde_struct ss(ctx, data); \
+            using Self [[maybe_unused]] = Type; \
+            ss \
+                __VA_ARGS__; \
+            ctx.read(); \
+        }\
+\
+        constexpr inline static auto into(serde_ctx& ctx, const Type& data, std::string_view key) { \
+            auto struct_ctx = serde_context<Adaptor, true>(ctx.adaptor); \
+            serde_struct ss(struct_ctx, const_cast<Type&>(data)); \
+            using Self [[maybe_unused]] = Type; \
+            ss \
+                __VA_ARGS__; \
+            ctx.read(); \
+        } \
+    }; \
+    namespace meta { \
+        template<class Context> struct is_serdeable<Context, Type, void> : std::true_type {}; \
+    } \
+}
+
 #define _SF_(name) (&Self::name, #name)
 
 #endif
