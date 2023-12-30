@@ -1,0 +1,6 @@
+[Catch2]
+version = "3.5.0"
+description = "modern, C++-native, header-only, test framework for unit-tests"
+module = "Catch2::Catch2"
+url="https://github.com/catchorg/Catch2/archive/refs/tags/v3.5.0.tar.gz"
+flags="-DCATCH_BUILD_TESTING=OFF"

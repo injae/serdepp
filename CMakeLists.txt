@@ -15,7 +15,7 @@ cppm_compiler_option(
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
 find_cppkg(nlohmann_json 3.10.5  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
-find_cppkg(Catch2 2.9.1  MODULE Catch2::Catch2 TYPE lib OPTIONAL OFF)
+find_cppkg(Catch2 3.5.0  MODULE Catch2::Catch2 TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.0  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
 find_cppkg(yaml-cpp 0.7.0  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
 find_cppkg(fmt 8.0.1  MODULE fmt::fmt-header-only TYPE lib OPTIONAL OFF)
