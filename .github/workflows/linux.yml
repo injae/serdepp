@@ -3,73 +3,72 @@ name: Linux
 on: [pull_request]
 
 jobs:
-  ubuntu-bionic-gcc:
-    runs-on: ubuntu-18.04
+  ubuntu-gcc:
+    runs-on: ubuntu-latest
     env:
-      CMAKE_FLAGS: '-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON -DSERDEPP_BUILD_TESTING=ON -DSERDEPP_USE_CATCH2=ON'
+      CMAKE_FLAGS: "-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON -DSERDEPP_BUILD_TESTING=ON -DSERDEPP_USE_CATCH2=ON"
     strategy:
       matrix:
-        build-type: ['Release', 'Debug']
-        gcc-version: ['11']
+        build-type: ["Release", "Debug"]
+        gcc-version: ["11"]
     steps:
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
-    - name: C++ Setting
-      run: |
-        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get update
-        sudo apt-get install -yq g++-${{matrix.gcc-version}} gcc-${{matrix.gcc-version}} libc++-dev libc++abi-dev build-essential libstdc++-${{matrix.gcc-version}}-dev cmake
-    - name: Compiler Setting
-      run: |
-        echo "CC=gcc-${{matrix.gcc-version}}" >> $GITHUB_ENV
-        echo "CXX=g++-${{matrix.gcc-version}}" >> $GITHUB_ENV
-    - name: Clone Repository
-      uses: actions/checkout@master
-      with:
-        submodules: true
-    - name: CMake build
-      run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
-        cd build
-        cmake --build . --config ${{matrix.build-type}}
-    - name: Run Test Script
-      run: |
-        cd build
-        ctest .
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1
+      - name: C++ Setting
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -yq g++-${{matrix.gcc-version}} gcc-${{matrix.gcc-version}} libc++-dev libc++abi-dev build-essential libstdc++-${{matrix.gcc-version}}-dev cmake
+      - name: Compiler Setting
+        run: |
+          echo "CC=gcc-${{matrix.gcc-version}}" >> $GITHUB_ENV
+          echo "CXX=g++-${{matrix.gcc-version}}" >> $GITHUB_ENV
+      - name: Clone Repository
+        uses: actions/checkout@master
+        with:
+          submodules: true
+      - name: CMake build
+        run: |
+          cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
+          cd build
+          cmake --build . --config ${{matrix.build-type}}
+      - name: Run Test Script
+        run: |
+          cd build
+          ctest .
 
-  ubuntu-bionic-llvm:
-    runs-on: ubuntu-18.04
+  ubuntu-llvm:
+    runs-on: ubuntu-latest
     env:
-      CMAKE_FLAGS: '-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON -DSERDEPP_BUILD_TESTING=ON -DSERDEPP_USE_CATCH2=ON'
+      CMAKE_FLAGS: "-DSERDEPP_USE_NLOHMANN_JSON=ON -DSERDEPP_USE_TOML11=ON -DSERDEPP_USE_YAML-CPP=ON -DSERDEPP_BUILD_EXAMPLES=ON -DSERDEPP_USE_RAPIDJSON=ON -DSERDEPP_USE_FMT=ON -DSERDEPP_BUILD_TESTING=ON -DSERDEPP_USE_CATCH2=ON"
     strategy:
       matrix:
-        build-type: ['Release', 'Debug']
-        clang-version: ['8']
+        build-type: ["Release", "Debug"]
+        clang-version: ["8"]
     steps:
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
-    - name: C++ Setting
-      run: |
-        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-        sudo add-apt-repository -y "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${{matrix.clang-version}} main"
-        sudo apt-get update
-        sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential cmake
-    - name: Compiler Setting
-      run: |
-        echo "CC=clang-${{matrix.clang-version}}" >> $GITHUB_ENV
-        echo "CXX=clang++-${{matrix.clang-version}}" >> $GITHUB_ENV
-    - name: Clone Repository
-      uses: actions/checkout@master
-      with:
-        submodules: true
-    - name: CMake build
-      run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
-        cd build
-        cmake --build . --config ${{matrix.build-type}}
-    - name: Run Test Script
-      run: |
-        cd build
-        ctest .
-
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1
+      - name: C++ Setting
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+          sudo add-apt-repository -y "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${{matrix.clang-version}} main"
+          sudo apt-get update
+          sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential cmake
+      - name: Compiler Setting
+        run: |
+          echo "CC=clang-${{matrix.clang-version}}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{matrix.clang-version}}" >> $GITHUB_ENV
+      - name: Clone Repository
+        uses: actions/checkout@master
+        with:
+          submodules: true
+      - name: CMake build
+        run: |
+          cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
+          cd build
+          cmake --build . --config ${{matrix.build-type}}
+      - name: Run Test Script
+        run: |
+          cd build
+          ctest .
