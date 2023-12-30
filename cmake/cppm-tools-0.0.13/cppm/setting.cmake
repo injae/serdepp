@@ -105,6 +105,15 @@ endmacro()
 
 # from vcpkg https://github.com/microsoft/vcpkg/blob/master/scripts/buildsystems/vcpkg.cmake
 macro(_cppm_arch_flag)
+
+# for arm-mac 
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND (NOT DEFINED CMAKE_OSX_ARCHITECTURES))
+    execute_process(COMMAND uname -m OUTPUT_VARIABLE CMAKE_OSX_ARCHITECTURES)
+    string(STRIP "${CMAKE_OSX_ARCHITECTURES}" CMAKE_OSX_ARCHITECTURES)
+    cppm_set(CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+    cppm_print("Detected CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
+endif()
+
 if(cppm_target_arch)
 elseif(CMAKE_GENERATOR_PLATFORM MATCHES "^[Ww][Ii][Nn]32$")
     set(cppm_target_arch x86)
@@ -139,7 +148,7 @@ else()
             set(cppm_target_arch arm64)
         elseif(cl_path MATCHES "bin/cl.exe$" OR cl_path MATCHES "x86/cl.exe$")
             set(cppm_target_arch x86)
-        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND DEFINED CMAKE_SYSTEM_NAME AND NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND DEFINED CMAKE_OSX_ARCHITECTURES)
             list(LENGTH CMAKE_OSX_ARCHITECTURES arch_count)
             if(arch_count EQUAL 0)
                 cppm_warning_print("Unable to determine target architecture. "

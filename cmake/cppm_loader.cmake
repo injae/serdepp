@@ -20,7 +20,7 @@ else()
     if(NOT DEFINED IS_CPPM_LOADER_LOADED)
         set(_install_script "${CPPM_LOADER_CACHE}/install-script")
         file(WRITE ${_install_script}/CMakeLists.txt
-        "cmake_minimum_required(VERSION 3.6)
+        "cmake_minimum_required(VERSION 3.12)
         project(CPPM_LOADER_DOWNLOAD NONE)
         include(ExternalProject)
         ExternalProject_Add(cppm-loader
