@@ -14,22 +14,14 @@ jobs:
     strategy:
       matrix:
         build-type: ["Debug"]
-        llvm-version: ["9"]
+        clang-version:
+          ["8", "9", "10", "11", "12", "13", "14", "15-bullseye", "latest"]
+    container: silkeh/clang:${{ matrix.clang-version }}
     steps:
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1
-      - name: C++ Setting
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-          sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential cmake
-          sudo apt-get install -yq libllvm${{matrix.clang-version}} llvm-${{matrix.clang-version}} llvm-${{matrix.clang-version}}-dev llvm-${{matrix.clang-version}}-runtime
-      - name: Compiler Setting
-        run: |
-          echo "CC=clang-${{matrix.llvm-version}}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{matrix.llvm-version}}" >> $GITHUB_ENV
+      - name: Get latest CMake
+        uses: lukka/get-cmake@v3.27.7
       - name: Clone Repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
         with:
           submodules: true
       - name: CMake build
@@ -41,8 +33,8 @@ jobs:
         run: |
           cd build/${{matrix.build-type}}
           ./unittest
-          llvm-profdata-${{matrix.llvm-version}} merge -sparse default.profraw -o default.profdata
-          llvm-cov-${{matrix.llvm-version}} export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
+          llvm-profdata-${{matrix.clang-version}} merge -sparse default.profraw -o default.profdata
+          llvm-cov-${{matrix.clang-version}} export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:

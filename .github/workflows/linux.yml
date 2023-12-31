@@ -17,8 +17,6 @@ jobs:
         gcc-version: ["11", "12", "latest"]
     container: gcc:${{ matrix.gcc-version }}
     steps:
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1
       - name: Get latest CMake and ninja
         uses: lukka/get-cmake@v3.27.7
       - uses: actions/checkout@v3
@@ -45,8 +43,6 @@ jobs:
           ["8", "9", "10", "11", "12", "13", "14", "15-bullseye", "latest"]
     container: silkeh/clang:${{ matrix.clang-version }}
     steps:
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1
       - name: Get latest CMake
         uses: lukka/get-cmake@v3.27.7
       - name: Clone Repository
