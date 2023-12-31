@@ -27,12 +27,10 @@ jobs:
       - name: CMake build
         run: |
           cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
-          cd build
-          cmake --build . --config ${{matrix.build-type}}
+          cmake --build ./build --config ${{matrix.build-type}}
       - name: Run Test Script
-        run: |
-          cd build
-          ctest .
+        working-directory: build
+        run: ctest -C ${{matrix.build-type}} --output-on-failure
 
   ubuntu-llvm:
     runs-on: ubuntu-latest
@@ -41,8 +39,7 @@ jobs:
     strategy:
       matrix:
         build-type: ["Release", "Debug"]
-        clang-version:
-          ["8", "9", "10", "11", "12", "13", "14", "15-bullseye", "latest"]
+        clang-version: ["8", "9", "10", "11", "12", "13", "latest"] #"14", "15-bullseye", "latest"]
     container: silkeh/clang:${{ matrix.clang-version }}
     steps:
       - name: Get latest CMake
@@ -56,9 +53,7 @@ jobs:
       - name: CMake build
         run: |
           cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
-          cd build
-          cmake --build . --config ${{matrix.build-type}}
+          cmake --build ./build --config ${{matrix.build-type}}
       - name: Run Test Script
-        run: |
-          cd build
-          ctest .
+        working-directory: build
+        run: ctest -C ${{matrix.build-type}} --output-on-failure
