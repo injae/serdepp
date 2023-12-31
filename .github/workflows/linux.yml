@@ -44,7 +44,7 @@ jobs:
     strategy:
       matrix:
         build-type: ["Release", "Debug"]
-        clang-version: ["8"]
+        llvm-version: ["9"]
     steps:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
@@ -56,11 +56,11 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
-          sudo ./llvm.sh ${{matrix.clang-version}}
+          sudo ./llvm.sh ${{matrix.llvm-version}}
       - name: Compiler Setting
         run: |
-          echo "CC=clang-${{matrix.clang-version}}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{matrix.clang-version}}" >> $GITHUB_ENV
+          echo "CC=clang-${{matrix.llvm-version}}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{matrix.llvm-version}}" >> $GITHUB_ENV
       - name: Clone Repository
         uses: actions/checkout@master
         with:
