@@ -1,6 +1,10 @@
 name: CodeCov
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   ubuntu-llvm-code-cov:
@@ -14,15 +18,12 @@ jobs:
     steps:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
-      - name: Basic Setting
+      - name: C++ Setting
         run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get update
-          sudo apt-get install -yq build-essential cmake
-      - name: Install LLVM
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x ./llvm.sh
-          sudo ./llvm.sh ${{matrix.llvm-version}}
+          sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential cmake
+          sudo apt-get install -yq libllvm${{matrix.clang-version}} llvm-${{matrix.clang-version}} llvm-${{matrix.clang-version}}-dev llvm-${{matrix.clang-version}}-runtime
       - name: Compiler Setting
         run: |
           echo "CC=clang-${{matrix.llvm-version}}" >> $GITHUB_ENV

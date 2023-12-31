@@ -1,6 +1,10 @@
 name: Linux
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   ubuntu-gcc:
@@ -44,23 +48,19 @@ jobs:
     strategy:
       matrix:
         build-type: ["Release", "Debug"]
-        llvm-version: ["9"]
+        clang-version: ["13", "14", "15"]
     steps:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
-      - name: Basic Setting
+      - name: C++ Setting
         run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get update
-          sudo apt-get install -yq build-essential cmake
-      - name: Install LLVM
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x ./llvm.sh
-          sudo ./llvm.sh ${{matrix.llvm-version}}
+          sudo apt-get install -yq clang-${{matrix.clang-version}} libc++-dev libc++abi-dev libstdc++-${{matrix.clang-version}}-dev build-essential cmake
       - name: Compiler Setting
         run: |
-          echo "CC=clang-${{matrix.llvm-version}}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{matrix.llvm-version}}" >> $GITHUB_ENV
+          echo "CC=clang-${{matrix.clang-version}}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{matrix.clang-version}}" >> $GITHUB_ENV
       - name: Clone Repository
         uses: actions/checkout@master
         with:
