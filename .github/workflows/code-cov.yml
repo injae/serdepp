@@ -14,12 +14,13 @@ jobs:
     strategy:
       matrix:
         build-type: ["Debug"]
-        clang-version:
-          ["8", "9", "10", "11", "12", "13", "14", "15-bullseye", "latest"]
+        clang-version: ["latest"]
     container: silkeh/clang:${{ matrix.clang-version }}
     steps:
       - name: Get latest CMake
         uses: lukka/get-cmake@v3.27.7
+      - name: Install git on container
+        run: apt update && apt install -y git
       - name: Clone Repository
         uses: actions/checkout@v3
         with:
