@@ -1,8 +1,6 @@
-
-#include <catch2/catch.hpp>
 #include "test_struct.hpp"
+#include <catch2/catch_all.hpp>
 #include <serdepp/adaptor/nlohmann_json.hpp>
-
 
 nlohmann::json json_v = R"({
 "str" : "hello",
@@ -16,8 +14,6 @@ nlohmann::json json_v = R"({
 using namespace serde;
 
 TEST_CASE("2: nlohmann json struct (pass)", "[multi-file:2]") {
-    REQUIRE(json_v.dump() == serialize<nlohmann::json>(deserialize<test>(json_v)).dump());
+  REQUIRE(json_v.dump() ==
+          serialize<nlohmann::json>(deserialize<test>(json_v)).dump());
 }
-
-
-
