@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Get latest CMake and ninja
         uses: lukka/get-cmake@v3.27.7
+      - name: Install git on container
+        run: apt update && apt install -y git
       - uses: actions/checkout@v3
         with:
           submodules: true
@@ -45,6 +47,8 @@ jobs:
     steps:
       - name: Get latest CMake
         uses: lukka/get-cmake@v3.27.7
+      - name: Install git on container
+        run: apt update && apt install -y git
       - name: Clone Repository
         uses: actions/checkout@v3
         with:
