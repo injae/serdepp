@@ -43,7 +43,7 @@ jobs:
         build-type: ["Release", "Debug"]
         clang-version:
           ["8", "9", "10", "11", "12", "13", "14", "15-bullseye", "latest"]
-    container: silkeh/clang:${{ matrix.compiler }}
+    container: silkeh/clang:${{ matrix.clang-version }}
     steps:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
