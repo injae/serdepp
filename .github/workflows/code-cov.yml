@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         build-type: ["Debug"]
-        clang-version: ["8"]
+        llvm-version: ["9"]
     steps:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
@@ -22,11 +22,11 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
-          sudo ./llvm.sh ${{matrix.clang-version}}
+          sudo ./llvm.sh ${{matrix.llvm-version}}
       - name: Compiler Setting
         run: |
-          echo "CC=clang-${{matrix.clang-version}}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{matrix.clang-version}}" >> $GITHUB_ENV
+          echo "CC=clang-${{matrix.llvm-version}}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{matrix.llvm-version}}" >> $GITHUB_ENV
       - name: Clone Repository
         uses: actions/checkout@master
         with:
@@ -40,8 +40,8 @@ jobs:
         run: |
           cd build/${{matrix.build-type}}
           ./unittest
-          llvm-profdata-${{matrix.clang-version}} merge -sparse default.profraw -o default.profdata
-          llvm-cov-${{matrix.clang-version}} export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
+          llvm-profdata-${{matrix.llvm-version}} merge -sparse default.profraw -o default.profdata
+          llvm-cov-${{matrix.llvm-version}} export ./unittest --instr-profile default.profdata -format=lcov >> lcov.info
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
