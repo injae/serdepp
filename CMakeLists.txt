@@ -9,7 +9,7 @@ cppm_setting()
 cppm_cxx_standard(17)
 cppm_compiler_option(
    DEBUG
-      CLANG "-fprofile-instr-generate -fcoverage-mapping"
+      CLANG "-fprofile-instr-generate -fcoverage-mapping --coverage" 
       GCC   "--coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
 )
 
