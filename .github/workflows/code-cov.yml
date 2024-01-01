@@ -38,6 +38,7 @@ jobs:
           ./unittest
           llvm-profdata merge -sparse default.profraw -o default.profdata
           llvm-cov export ./unittest --instr-profile default.profdata -format=lcov >> coverage.info
+          cp coverage.info ../../
 
       - name: Prepare Codecov
         run: |
