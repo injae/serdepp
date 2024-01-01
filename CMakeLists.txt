@@ -94,6 +94,7 @@ if(SERDEPP_BUILD_TESTING)
 
 cppm_target_define(unittest BINARY
 SOURCES
+    tests/serializer.cpp
     tests/rapid_json.cpp
     tests/yaml_cpp.cpp
     tests/toml11.cpp
