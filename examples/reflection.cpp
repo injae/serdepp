@@ -29,8 +29,8 @@ int main(int argc, char* argv[]) {
     member_b_info = 3.14;
 
     auto member_d_info = info.member_info<3>(a);
-    std::string_view member_d_name = member_d_info.name();
-    std::vector<int>& member_d = member_d_info.value();
+    [[maybe_unused]] std::string_view member_d_name = member_d_info.name(); 
+    [[maybe_unused]] std::vector<int>& member_d = member_d_info.value();
 
     auto names = info.member_names();
     for(auto& name : names.members()) {
