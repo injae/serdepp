@@ -10,7 +10,6 @@ cppm_cxx_standard(17)
 cppm_compiler_option(
    DEBUG
       CLANG "-fprofile-instr-generate -fcoverage-mapping --coverage" 
-      GCC   "--coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
 )
 
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
