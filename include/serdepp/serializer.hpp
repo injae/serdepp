@@ -42,28 +42,28 @@ namespace serde
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::is_null(adaptor, key)");
-            return adaptor.contains(key);
+            return false;
         }
 
         inline constexpr static size_t size(Adaptor& adaptor) {
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::size(adaptor, key)");
-            return adaptor.size();
+            return 0;
         }
 
         inline constexpr static bool is_struct(Adaptor& adaptor) {
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::is_struct(adaptor, key)");
-            return true;
+            return false;
         }
 
-        inline constexpr static Adaptor parse_file(Adaptor& adaptor) {
+        inline constexpr static Adaptor parse_file(const std::string& path) {
             throw serde::unimplemented_error("serde_adaptor<" +
                                              std::string(nameof::nameof_short_type<Adaptor>())
                                              +">::parse_file(adaptor, key)");
-            return true;
+            return Adaptor{};
         }
     };
 
@@ -74,10 +74,7 @@ namespace serde
     };
 
     namespace detail {
-        struct dummy_adaptor{
-            bool contains(std::string_view key) { return true; }
-            size_t size() { return 1; } 
-        };
+        struct dummy_adaptor{};
     };
 
     template <> struct serde_adaptor_helper<detail::dummy_adaptor>
