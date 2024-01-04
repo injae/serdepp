@@ -1,0 +1,7 @@
+[yaml-cpp]
+version="0.8.0" #(require)
+type="lib" #lib(default) | bin | cmake
+description="" #(require)
+module="yaml-cpp" #(require) if none_module=true -> no require
+flags="-DYAML_CPP_BUILD_TESTS=OFF"
+url="https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz" #(require)

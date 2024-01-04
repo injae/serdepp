@@ -1,0 +1,7 @@
+[nlohmann_json]
+version="3.11.3" #(require)
+type="lib" #lib(default) | bin | cmake
+description="JSON for Morden C++" #(require)
+module="nlohmann_json::nlohmann_json" #(require) if none_module=true -> no require
+url="https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz" #(require)
+flags="-DJSON_BuildTests=OFF -DJSON_HAS_CPP_17=ON"

@@ -1,0 +1,8 @@
+# Cppkg Base Dependency Downloader
+cmake_minimum_required(VERSION 3.6)
+project(toml11-3.7.1-install)
+
+set(CPPM_VERSION ${CPPM_VERSION})
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
+download_package(toml11 3.7.1  URL https://github.com/ToruNiina/toml11/archive/refs/tags/v3.7.1.tar.gz  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} )
+

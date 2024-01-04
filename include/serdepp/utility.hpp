@@ -1,7 +1,7 @@
 #pragma once
 
-#include "serdepp/serializer.hpp"
-#include "serdepp/attributes.hpp"
+#include <serdepp/serializer.hpp>
+#include <serdepp/attributes.hpp>
 #include <cstdarg>
 
 #ifndef __SERDE_UTILITY_HPP__

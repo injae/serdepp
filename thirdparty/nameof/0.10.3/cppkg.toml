@@ -1,0 +1,7 @@
+[nameof]
+version="0.10.3" #(require)
+type="lib" #lib(default) | bin | cmake
+description="c++ name of library" #(require)
+module="nameof::nameof" #(require) if none_module=true -> no require
+url="https://github.com/Neargye/nameof/archive/refs/tags/v0.10.3.tar.gz" #(require)
+flags="-DNAMEOF_OPT_BUILD_EXAMPLES=OFF -DNAMEOF_OPT_BUILD_TESTS=OFF"
