@@ -1,0 +1,8 @@
+# Cppkg Base Dependency Downloader
+cmake_minimum_required(VERSION 3.6)
+project(magic_enum-0.9.5-install)
+
+set(CPPM_VERSION ${CPPM_VERSION})
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
+download_package(magic_enum 0.9.5  URL https://github.com/Neargye/magic_enum/releases/download/v0.9.5/magic_enum-v0.9.5.tar.gz  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF -DMAGIC_ENUM_OPT_BUILD_TESTS=OFF)
+

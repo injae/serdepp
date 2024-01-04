@@ -4,5 +4,5 @@ project(Catch2-3.5.0-install)
 
 set(CPPM_VERSION ${CPPM_VERSION})
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppm_loader.cmake)
-download_package(Catch2 3.5.0  URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.5.0.tar.gz TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DCATCH_BUILD_TESTING=OFF)
+download_package(Catch2 3.5.0  URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.5.0.tar.gz  TYPE lib CMAKE_ARGS ${CMAKE_ARGS} -DCATCH_BUILD_TESTING=OFF)
 
