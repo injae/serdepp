@@ -12,7 +12,7 @@ cppm_compiler_option(
       CLANG "-fprofile-instr-generate -fcoverage-mapping --coverage"
 )
 
-find_cppkg(Catch2 3.5.0  MODULE Catch2::Catch2 TYPE lib OPTIONAL OFF)
+find_cppkg(Catch2 3.5.0  MODULE Catch2::Catch2WithMain TYPE lib OPTIONAL OFF)
 find_cppkg(RapidJSON 1.1.1  MODULE rapidjson TYPE lib OPTIONAL OFF)
 find_cppkg(benchmark 1.5.2  MODULE benchmark::benchmark TYPE lib OPTIONAL OFF)
 find_cppkg(fmt 10.2.0  MODULE fmt::fmt-header-only TYPE lib OPTIONAL OFF)
@@ -88,8 +88,46 @@ SOURCES
 
 endif()
 
+cppm_unit_test_area()
+if(SERDEPP_BUILD_TESTING)
 
-set(serdepp_global_deps PUBLIC Catch2 RapidJSON benchmark fmt magic_enum nameof nlohmann_json toml11 yaml-cpp)
+cppm_target_define(unittest BINARY
+SOURCES
+    tests/serializer.cpp
+    tests/rapid_json.cpp
+    tests/yaml_cpp.cpp
+    tests/toml11.cpp
+    tests/reflection.cpp
+    tests/nlohmann_json.cpp
+    tests/test_struct.hpp
+)
+
+endif()
+end_cppm_unit_test_area()
+
+if(SERDEPP_BUILD_BENCHMARKS)
+
+cppm_target_define(benchmark BINARY
+SOURCES
+    benchmark/benchmark.cpp
+)
+
+cppm_target_define(data_type_benchmark BINARY
+SOURCES
+    benchmark/data_type_benchmark.cpp
+)
+
+cppm_target_define(syntax_sugar_benchmark BINARY
+SOURCES
+    benchmark/syntax_benchmark.cpp
+)
+
+endif()
+
+set(serdepp_global_deps
+    PRIVATE benchmark Catch2
+    PUBLIC RapidJSON nlohmann_json toml11 yaml-cpp fmt magic_enum nameof)
+
 cppm_target_dependencies(serdepp
    ${serdepp_global_deps})
 
@@ -108,7 +146,6 @@ cppm_target_dependencies(simple_example
 cppm_target_dependencies(flatten_example
    ${serdepp_global_deps}
    serdepp)
-
 cppm_target_dependencies(variant_example
    ${serdepp_global_deps}
    serdepp)
@@ -137,6 +174,20 @@ cppm_target_dependencies(pointer
    ${serdepp_global_deps}
    serdepp)
 
+cppm_target_dependencies(unittest
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(benchmark
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(data_type_benchmark
+   ${serdepp_global_deps}
+   serdepp)
+
+cppm_target_dependencies(syntax_sugar_benchmark
+   ${serdepp_global_deps}
+   serdepp)
 
 cppm_target_install(serdepp)
-
