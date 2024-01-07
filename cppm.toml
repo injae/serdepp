@@ -85,7 +85,7 @@
     name = "syntax_sugar_benchmark"
     source = ["benchmark/syntax_benchmark.cpp"]
 
-[[tests]]
+[[test]]
 name   = "unittest"
 source = ["tests/.*"]
 
