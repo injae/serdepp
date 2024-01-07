@@ -93,7 +93,7 @@ source = ["tests/.*"]
     nameof = { version="0.10.3", link="public"}
     magic_enum = { version= "0.9.5", link="public"}
     fmt = {version="10.2.0", link="public", optional=true}
-    yaml-cpp   = { version="0.8.0",  link="public", optional=true}
+    yaml-cpp   = { version="0.6.3",  link="public", optional=true}
     toml11     = { version="3.7.1",  link="public", optional=true}
     nlohmann_json = { version="3.11.3", link="public", optional=true}
     RapidJSON = { version="1.1.1", link="public", optional=true}
