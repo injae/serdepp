@@ -20,7 +20,7 @@ find_cppkg(magic_enum 0.9.5  MODULE magic_enum::magic_enum TYPE lib)
 find_cppkg(nameof 0.10.3  MODULE nameof::nameof TYPE lib)
 find_cppkg(nlohmann_json 3.11.3  MODULE nlohmann_json::nlohmann_json TYPE lib OPTIONAL OFF)
 find_cppkg(toml11 3.7.1  MODULE toml11::toml11 TYPE lib OPTIONAL OFF)
-find_cppkg(yaml-cpp 0.8.0  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
+find_cppkg(yaml-cpp 0.6.3  MODULE yaml-cpp TYPE lib OPTIONAL OFF)
 
 
 cppm_target_define(serdepp STATIC
