@@ -51,5 +51,6 @@ jobs:
         uses: codecov/codecov-action@v3.1.1
         with:
           files: coverage.info
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
