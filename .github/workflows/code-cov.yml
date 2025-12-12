@@ -48,7 +48,7 @@ jobs:
           lcov --remove coverage.info '**/.cppm/*' --output-file coverage.info --rc lcov_branch_coverage=1
           lcov --list coverage.info --rc lcov_branch_coverage=1
       - name: Codecov
-        uses: codecov/codecov-action@v3.1.1
+        uses: codecov/codecov-action@v4
         with:
           files: coverage.info
           token: ${{ secrets.CODECOV_TOKEN }}
