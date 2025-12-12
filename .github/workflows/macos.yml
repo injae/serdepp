@@ -26,8 +26,8 @@ jobs:
           brew install llvm cmake
       - name: Compiler Setting
         run: |
-          echo "CC=/usr/local/opt/llvm/bin/clang" >> $GITHUB_ENV
-          echo "CXX=/usr/local/opt/llvm/bin/clang++" >> $GITHUB_ENV
+          echo "CC=/opt/homebrew/opt/llvm/bin/clang" >> $GITHUB_ENV
+          echo "CXX=/opt/homebrew/opt/llvm/bin/clang++" >> $GITHUB_ENV
       - name: CMake build
         run: |
           cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
