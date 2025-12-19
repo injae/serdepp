@@ -92,29 +92,30 @@ namespace serde {
     template <typename Map>
     struct serde_adaptor<yaml, Map, type::map_t> {
         using E = type::map_e<Map>;
+        using K = type::map_k<Map>;
         inline static void from(yaml& s, std::string_view key, Map& map) {
             if(key.empty()) {
                 for(yaml::const_iterator it = s.begin(); it!=s.end(); ++it) {
                     auto key_ = it->first, value_ = it->second;
-                    deserialize_to<E>(value_, map[key_.as<std::string>()]);
+                    deserialize_to<E>(value_, map[key_.as<K>()]);
                 }
             } else {
                 auto table = s[std::string{key}];
                 for(yaml::const_iterator it = table.begin(); it!=table.end(); ++it) {
                     auto key_ = it->first, value_ = it->second;
-                    deserialize_to<E>(value_, map[key_.as<std::string>()]);
+                    deserialize_to<E>(value_, map[key_.as<K>()]);
                 }
             }
         }
         inline static void into(yaml& s, std::string_view key, const Map& data) {
             if(key.empty()) {
                 for(auto& [key_, value] : data) {
-                    s[key_] = serialize<yaml>(value);
+                    s[std::to_string(key_)] = serialize<yaml>(value);
                 }
             } else {
                 yaml map = s[std::string{key}];
                 for(auto& [key_, value] : data) {
-                    map[key_] = serialize<yaml>(value);
+                    map[std::to_string(key_)] = serialize<yaml>(value);
                 }
             }
         }
