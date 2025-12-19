@@ -47,7 +47,7 @@ namespace serde {
                                              + std::string(nameof::nameof_short_type<serde_sstream>()));
         }
         static void into(serde_sstream& s, std::string_view key, const T& data) {
-            std::stringstream ss; ss << data;
+            std::stringstream ss; ss << std::to_string(data);
             s.add(ss.str(), key);
         }
     };
@@ -58,7 +58,7 @@ namespace serde {
         }
         inline static void into(serde_sstream &s, std::string_view key, const T& data) {
             s.add(serialize<serde_sstream>(data).str(), key);
-        } 
+        }
     };
 
     template<typename... T>
@@ -94,10 +94,10 @@ namespace serde {
         }
         inline static void into(serde_sstream& s, std::string_view key, const Map& data) {
             if(key.empty()) {
-                for(auto& [key_, it] : data) { s.add(serialize<serde_sstream>(it).str(), key_); }
+                for(auto& [key_, it] : data) { s.add(serialize<serde_sstream>(it).str(), std::to_string(key_)); }
             } else {
                 serde_sstream ss;
-                for(auto& [key_, it] : data) { ss.add(serialize<serde_sstream>(it).str(), key_); }
+                for(auto& [key_, it] : data) { ss.add(serialize<serde_sstream>(it).str(), std::to_string(key_)); }
                 s.add(ss.str(), key);
             }
         }
