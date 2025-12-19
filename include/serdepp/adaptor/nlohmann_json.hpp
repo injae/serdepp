@@ -10,6 +10,52 @@
 #include <fstream>
 
 namespace serde {
+
+template <typename K, typename = void>
+struct from_string {
+    static K convert(const std::string& key) {
+        K result;
+        std::stringstream ss(key);
+        ss >> result;
+        if (ss.fail()) {
+            throw std::runtime_error("Cannot convert JSON key to type " + std::string(typeid(K).name()));
+        }
+        return result;
+    }
+};
+
+
+template <>
+struct from_string<std::string> {
+    static std::string convert(const std::string& key) {
+        return key;
+    }
+};
+
+template <typename K>
+struct from_string<K, std::enable_if_t<std::is_integral_v<K> && !std::is_same_v<K, bool>>> {
+    static K convert(const std::string& key) {
+        return static_cast<K>(std::stoll(key));
+    }
+};
+
+template <>
+struct from_string<bool> {
+    static bool convert(const std::string& key) {
+        if (key == "true" || key == "1") return true;
+        if (key == "false" || key == "0") return false;
+        throw std::invalid_argument("Invalid boolean key: " + key);
+    }
+};
+
+template <typename K>
+struct from_string<K, std::enable_if_t<std::is_enum_v<K>>> {
+    static K convert(const std::string& key) {
+        return static_cast<K>(std::stoi(key));
+    }
+};
+
+
     template<> struct serde_type_checker<nlohmann::json> {
         using Format = nlohmann::json;
         static bool is_integer(Format& format) { return format.is_number(); }
@@ -39,7 +85,7 @@ namespace serde {
     template<typename T>
     struct serde_adaptor<json, T>  {
         constexpr static void from(json& s, std::string_view key, T& data) {
-            key.empty() ? s.get_to<T>(data) : s[std::string{key}].get_to<T>(data);
+            key.empty() ? s.get_to(data) : s[std::string{key}].get_to(data);
         }
 
         constexpr static void into(json& s, std::string_view key, const T& data) {
@@ -68,7 +114,7 @@ namespace serde {
         }
         static void into(json& s, std::string_view key, const T& data) {
             s[std::string{key}] = serialize<json>(data);
-        } 
+        }
     };
 
     template<typename T>
@@ -103,26 +149,17 @@ namespace serde {
     template <typename Map>
     struct serde_adaptor<json, Map, type::map_t> {
         using E = type::map_e<Map>;
+        using K = type::map_k<Map>;
         inline static void from(json& s, std::string_view key, Map& map) {
             auto& table = key.empty() ? s : s.at(std::string{key});
-            for(auto& [key_, value_] : table.items()) { deserialize_to<E>(value_, map[key_]); }
+            for(auto& [key_, value_] : table.items()) {
+                 K key_really = from_string<K>::convert(key_);
+                 deserialize_to<E>(value_, map[key_really]);
+            }
         }
         inline static void into(json& s, std::string_view key, const Map& data) {
             json& map = key.empty() ? s : s[std::string{key}];
-            for(auto& [key_, value] : data) { serialize_to<json>(value, map[key_]); }
-        }
-    };
-
-    template <typename K, typename E>
-    struct serde_adaptor<json, std::map<K,E>, type::map_t> {
-        using Map = std::map<K,E>;
-        inline static void from(json& s, std::string_view key, Map& map) {
-            auto& table = key.empty() ? s : s.at(std::string{key});
-            for(auto& [key_, value_] : table.items()) { deserialize_to<E>(value_, map[key_]); }
-        }
-        inline static void into(json& s, std::string_view key, const Map& data) {
-            json& map = key.empty() ? s : s[std::string{key}];
-            for(auto& [key_, value] : data) { serialize_to<json>(value, map[key_]); }
+            for(auto& [key_, value] : data) { serialize_to<json>(value, map[std::to_string(key_)]); }
         }
     };
 }
