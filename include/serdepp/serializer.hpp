@@ -4,6 +4,7 @@
 #define __CPPSER_SERIALIZER_HPP__
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -89,7 +90,7 @@ namespace serde
         constexpr serde_context(T& format) : adaptor(format) {}
         T& adaptor;
         size_t read_count_ = 0;
-        bool skip_all_ = false; 
+        bool skip_all_ = false;
         constexpr void read() { read_count_++; }
     };
 
@@ -211,7 +212,7 @@ namespace serde
                 }
 
                 template<typename T, typename serde_ctx>
-                inline void into(serde_ctx& ctx, T& data, std::string_view key) const { 
+                inline void into(serde_ctx& ctx, T& data, std::string_view key) const {
                     serde::serde_serializer<T, serde_ctx>::into(ctx, data, key);
                 }
             };
@@ -344,7 +345,7 @@ namespace serde
             }
             return serde_struct<Context, T, type_tuple>(context_, value_);
         }
-        
+
         inline constexpr serde_struct& no_remain() {
             using namespace std::literals;
             if(context_.skip_all_) return *this;
@@ -463,13 +464,67 @@ namespace serde
 
     template<typename T, typename serde_ctx>
     struct serde_serializer<T, serde_ctx, std::enable_if_t<is_mappable_v<T> &&
-                                                           is_emptyable_v<T> >> {
+                                                           is_emptyable_v<T> &&
+                                                           is_str_v<typename T::key_type> >> {
         constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
             serde_adaptor<typename serde_ctx::Adaptor, T, type::map_t>::from(ctx.adaptor, key, data);
             ctx.read();
         }
         constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
             serde_adaptor<typename serde_ctx::Adaptor, T, type::map_t>::into(ctx.adaptor, key, data);
+            ctx.read();
+        }
+    };
+
+    template<typename T>
+    constexpr inline std::string serialize(const T& data) {
+        if constexpr(std::is_arithmetic_v<T>) {
+            return std::to_string(data);
+        } else {
+            std::ostringstream oss;
+            oss << data;
+            return oss.str();
+        }
+    }
+
+    template <typename T>
+    constexpr inline T deserialize( const std::string & data ) {
+       if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
+                return static_cast<T>(std::stoll(data));
+        } else if  constexpr (std::is_same_v<T, bool>) {
+            if (data == "true" || data == "1") return true;
+            if (data == "false" || data == "0") return false;
+        } else {
+            throw serde::unimplemented_error("unsupported type!!!");
+        }
+    }
+
+    template<typename T, typename serde_ctx>
+    struct serde_serializer<T, serde_ctx, std::enable_if_t<is_mappable_v<T> &&
+                                                           is_emptyable_v<T> &&
+                                                           !is_str_v<typename T::key_type> >> {
+        constexpr inline static auto from(serde_ctx& ctx, T& data, std::string_view key) {
+            using key_type = typename T::key_type;
+            using new_T = std::unordered_map<std::string, typename T::mapped_type>;
+            new_T map_data;
+            serde_adaptor<typename serde_ctx::Adaptor, new_T, type::map_t>::from(ctx.adaptor, key, map_data);
+            std::transform(map_data.begin(), map_data.end(),  std::inserter(data, data.begin()),
+                           [](const auto& pair) {
+                               return std::make_pair(deserialize<key_type>(pair.first), pair.second);
+                           });
+            ctx.read();
+        }
+        constexpr inline static auto into(serde_ctx& ctx, const T& data, std::string_view key) {
+
+            using value_type = typename T::mapped_type;
+            using new_T = std::unordered_map<std::string, value_type>;
+            new_T map_data;
+            std::transform(data.begin(), data.end(), std::inserter(map_data, map_data.begin()),
+                           [](const auto& pair) {
+                               return std::make_pair(serialize(pair.first), pair.second);
+                           });
+            serde_adaptor<typename serde_ctx::Adaptor, new_T, type::map_t>::into(ctx.adaptor, key, map_data);
+
             ctx.read();
         }
     };
@@ -559,7 +614,7 @@ namespace serde
         case SERDE_TYPE::MAP:
             if(!serde_type_checker<Format>::is_map(format)) return true;
             break;
-        case SERDE_TYPE::STRUCT:  
+        case SERDE_TYPE::STRUCT:
             if(!serde_type_checker<Format>::is_struct(format)) return true;
             break;
         case SERDE_TYPE::INTEGER:
@@ -575,7 +630,7 @@ namespace serde
             if(!serde_type_checker<Format>::is_string(format)) return true;
             break;
         default: return true;
-        //case SERDE_TYPE::UNKNOWN:  
+        //case SERDE_TYPE::UNKNOWN:
         }
         try {
             data = deserialize<T>(format);
